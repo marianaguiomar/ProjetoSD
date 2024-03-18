@@ -12,6 +12,7 @@ public class Downloader {
     //TODO -> ver o que é mais indicado usar. queue? deque? por enquanto fica linked list (que é uma forma de queue?)
     //TODO -> ver se deixa a queue aqui, num ficheiro à parte, dentro de outras cenas, etc
 
+
     LinkedList<String> URLQueue = new LinkedList<>();
 
     public void addToQueue() {
@@ -54,10 +55,6 @@ public class Downloader {
         }
 
     }
-
-
-
-
 }
 
 
