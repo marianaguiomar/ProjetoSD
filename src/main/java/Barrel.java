@@ -1,8 +1,12 @@
 import java.net.*;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
 
 public class Barrel extends Thread {
-    //parte do multicast
+    //
+    // parte do multicast
+    //
     private String MULTICAST_ADDRESS = "224.3.2.1";
     private int PORT = 4321;
 
@@ -23,7 +27,10 @@ public class Barrel extends Thread {
 
                 byte[] buffer = new byte[256];
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+                // vai receber um URL e as palavras associadas (+ título e citação de texto?)
                 socket.receive(packet);
+
+                //TODO -> colocar resultados na classe e no índice remissivo
 
                 System.out.println("Received packet from " + packet.getAddress().getHostAddress() + ":"
                         + packet.getPort() + " with message:");
@@ -37,7 +44,23 @@ public class Barrel extends Thread {
         }
     }
 
+    //
+    // classe URL
+    //
 
+
+
+    //
+    // parte do índice remissivo
+    //
+
+    // String -> palavra, HashSet<String> -> URLs a que se relaciona
+    HashMap<String, HashSet<String>> index;
+
+
+    //
+    // main
+    //
 
     public static void main(String[] args) {
         Barrel barrel = new Barrel();
