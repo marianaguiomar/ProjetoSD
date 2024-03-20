@@ -1,0 +1,6 @@
+
+// TODO -> EXCEPTION MALFORMED URL
+// TODO -> DIFERENTES CLIENTES (USAR EXCEPTION)
+
+public class Client {
+}
