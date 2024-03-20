@@ -24,22 +24,13 @@ public class Downloader{
         this.queue.clearQueue();
     }
 
-
-    public static void main(String args[]) throws MalformedURLException, RemoteException, NotBoundException {
-
-        Downloader downloader = new Downloader("rmi://localhost/calc");
-
-        // TODO -> verificar isto
-        queue.clearQueue();
-
-        queue.addURL("https://www.sapo.pt");
-
-        //String url = args[0];
-        //TODO -> ESTAR SEMPRE A RECEBER URL DA QUEUE (while queue isn't empty)
+    public void work()  throws MalformedURLException, RemoteException, NotBoundException{
+        this.queue.clearQueue();
+        this.queue.addURL("https://www.sapo.pt");
 
         while (true) {
             try {
-                String url2 = queue.fetchURL();
+                String url2 =this.queue.fetchURL();
                 System.out.println("\n\n\n SITE NOVO \n\n\n");
                 Document doc = Jsoup.connect(url2).get();
                 StringTokenizer tokens = new StringTokenizer(doc.text());
@@ -63,7 +54,19 @@ public class Downloader{
         }
 
     }
-}
+    public static void main(String args[]) throws MalformedURLException, RemoteException, NotBoundException {
+
+        Downloader downloader = new Downloader("rmi://localhost/queue");
+
+        downloader.work();
+
+
+    }
+
+    }
+
+
+
 
 
 
