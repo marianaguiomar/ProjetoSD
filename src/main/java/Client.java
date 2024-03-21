@@ -31,34 +31,27 @@ public class Client {
             String result;
             //TODO -> tratar de maiúsculas e etc
             switch (tokens[0]) {
-                case "exit":
+                case "exit" ->
                     listen = false;
-                    break;
-
-                case "status":
+                case "status" -> {
                     result = this.gateway.status();
                     System.out.println(result);
-                    break;
-
-                case "search":
+                }
+                case "search" -> {
                     String[] remainingTokens = new String[tokens.length - 1];
                     System.arraycopy(tokens, 1, remainingTokens, 0, tokens.length - 1);
                     result = this.gateway.search(remainingTokens);
                     System.out.println(result);
-                    break;
-
-                case "connections":
+                }
+                case "connections" -> {
                     result = this.gateway.getConnections(tokens[1]);
                     System.out.println(result);
-                    break;
-
-                case "insert":
+                }
+                case "insert" -> {
                     result = this.gateway.insert(tokens[1]);
                     System.out.println(result);
-                    break;
-
-                default:
-                    System.out.println("Invalid command \n");
+                }
+                default -> System.out.println("Invalid command \n");
             }
         }
         scanner.close();
