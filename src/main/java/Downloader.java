@@ -10,7 +10,7 @@ import java.rmi.RemoteException;
 import java.util.StringTokenizer;
 
 // TODO -> EXCEPTION MALFORMED URL (JSOUP) PARA URLS INVÁLIDOS
-public class Downloader{
+public class Downloader {
     //Multicast section
     //TODO -> estes são os valores da ficha, verificar se são os corretos
     private String MULTICAST_ADDRESS = "224.3.2.1";
@@ -30,8 +30,7 @@ public class Downloader{
 
         while (true) {
             try {
-                String url2 =this.queue.fetchURL();
-                System.out.println("\n\n\n SITE NOVO \n\n\n");
+                String url2 = this.queue.fetchURL();
                 Document doc = Jsoup.connect(url2).get();
                 StringTokenizer tokens = new StringTokenizer(doc.text());
                 int countTokens = 0;
@@ -39,15 +38,17 @@ public class Downloader{
                 // exemplo -> este imprime os primeiros 100 tokens em lowercase
                 // TODO -> acho que têm de ser todos os tokens que existem?
                 // TODO -> limitar os tokens para não conterem palavras reservadas
-                while (tokens.hasMoreElements() && countTokens++ < 100)
-                    System.out.println(tokens.nextToken().toLowerCase());
+                //while (tokens.hasMoreElements() && countTokens++ < 100)
+                    //System.out.println(tokens.nextToken().toLowerCase());
 
                 // seleciona todos os elementos <a> que têm um atributo href -> tipicamente são hiperlinks
                 // TODO -> estes hiperlinks não serão enviados por Multicast, vão ser inseridos na URLQueue
                 Elements links = doc.select("a[href]");
                 for (Element link : links)
                     // imprime o texto (o que está visível e clicável) e o url absoluto de cada link
-                    System.out.println(link.text() + "\n" + link.attr("abs:href") + "\n");
+                    //System.out.println(link.text() + "\n" + link.attr("abs:href") + "\n");
+                    this.queue.addURL(link.attr("abs:href"));
+                    System.out.println("GETTING LINK" + "\t" + this.queue.fetchURL() + "\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -15,6 +15,7 @@ MULTICAST
 DOWNLOADER
 - Main: criar as palavras reservadas e removê-las
 - Adicionar hiperlinks encontrados
+- Loop infinito de ler URLQueue -> descobrir como fazer o loop parar quando o programa acaba
 
 
 CLASSE URL
@@ -22,3 +23,13 @@ CLASSE URL
 
 BARREL
 - criar índice remissivo
+
+
+NOTAS 
+- antes de correr downloader, correr queue
+
+ERROR HANDLING : DOWNLOADER
+- java.net.ConnectException: (quando se inicia o downloader sem iniciar a queue)
+
+COMANDOS DOS CLIENTES:
+1 - 

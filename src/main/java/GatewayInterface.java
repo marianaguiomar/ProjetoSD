@@ -1,0 +1,10 @@
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
+public interface GatewayInterface extends Remote {
+    public String search(String[] tokens) throws RemoteException;
+    public String status() throws RemoteException;
+    public String insert(String URL) throws RemoteException;
+    public String getConnections(String URL) throws RemoteException;
+
+}
