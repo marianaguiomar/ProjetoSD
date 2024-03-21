@@ -1,4 +1,5 @@
-import java.net.MalformedURLException;
+import java.net.*;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -9,7 +10,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.StringTokenizer;
 
-// TODO -> EXCEPTION MALFORMED URL (JSOUP) PARA URLS INVÁLIDOS
+//TODO -> EXCEPTION MALFORMED URL (JSOUP) PARA URLS INVÁLIDOS
 public class Downloader {
     //Multicast section
     //TODO -> estes são os valores da ficha, verificar se são os corretos
@@ -29,7 +30,12 @@ public class Downloader {
         this.queue.addURL("https://www.sapo.pt");
 
         while (true) {
+            MulticastSocket socket = null;
             try {
+
+                socket = new MulticastSocket();  // create socket without binding it (only for sending)
+
+
                 String url2 = this.queue.fetchURL();
                 Document doc = Jsoup.connect(url2).get();
                 StringTokenizer tokens = new StringTokenizer(doc.text());
@@ -49,8 +55,21 @@ public class Downloader {
                     //System.out.println(link.text() + "\n" + link.attr("abs:href") + "\n");
                     this.queue.addURL(link.attr("abs:href"));
                     System.out.println("GETTING LINK" + "\t" + this.queue.fetchURL() + "\n");
+
+                    String message = this.queue.fetchURL();
+                    byte[] buffer = message.getBytes();
+
+                    InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
+                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, PORT);
+                    socket.send(packet);
+
+
+
+
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                socket.close();
             }
         }
 

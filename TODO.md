@@ -30,6 +30,5 @@ NOTAS
 
 ERROR HANDLING : DOWNLOADER
 - java.net.ConnectException: (quando se inicia o downloader sem iniciar a queue)
+- java.net.SocketTimeoutException: Read timed out (quando fica à espera de receber URLS durante demasiado tempo e não recebe mais)
 
-COMANDOS DOS CLIENTES:
-1 - 

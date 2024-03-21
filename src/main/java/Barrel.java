@@ -12,13 +12,9 @@ public class Barrel extends Thread {
 
     public void run() {
         MulticastSocket socket = null;
-        MulticastSocket sendsocket = null;
 
         try {
             socket = new MulticastSocket(PORT); // create socket and bind it
-            sendsocket = new MulticastSocket(PORT);
-
-
             InetAddress mcastaddr = InetAddress.getByName(MULTICAST_ADDRESS);
             socket.joinGroup(new InetSocketAddress(mcastaddr, 0), NetworkInterface.getByIndex(0));
 

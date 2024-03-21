@@ -58,7 +58,7 @@ public class Client {
     }
 
     public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException {
-        Client client = new Client("rmi://locakhost/gateway");
+        Client client = new Client("rmi://localhost/gateway");
         client.listening();
     }
 
