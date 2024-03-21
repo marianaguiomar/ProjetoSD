@@ -43,7 +43,19 @@ public class Barrel extends Thread {
     //
     // classe URL
     //
+    public class URL {
+        private String hiperlink;
+        private String titulo;
+        private String citacao;
+        private String[] tokens;
 
+        public URL(String hiperlink, String titulo, String citacao, String[] tokens) {
+            this.hiperlink = hiperlink;
+            this.titulo = titulo;
+            this.citacao = citacao;
+            this.tokens = tokens;
+        }
+    }
 
 
     //
@@ -51,7 +63,31 @@ public class Barrel extends Thread {
     //
 
     // String -> palavra, HashSet<String> -> URLs a que se relaciona
-    HashMap<String, HashSet<String>> index;
+
+    public class IndiceRemissivo {
+        private HashMap<String, HashSet<String>> index;
+
+        public IndiceRemissivo(HashMap<String, HashSet<String>> index) {
+            this.index = new HashMap<>();
+        }
+
+        public void add(URL url) {
+            String tokens[] = url.tokens;
+            String hiperlink = url.hiperlink;
+
+            for (String token: tokens) {
+                if (index.containsKey(token)) {
+                    index.get(token).add(hiperlink);
+                }
+                else {
+                    HashSet<String> hiperlinks = new HashSet<>();
+                    hiperlinks.add(hiperlink);
+                    index.put(token, hiperlinks);
+                }
+            }
+        }
+    }
+
 
 
     //
