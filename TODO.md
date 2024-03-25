@@ -5,10 +5,10 @@ MULTICAST
 - Verificar se os valores do IP e porto são apropriados (de momento estão iguais à ficha 3)
 - Determinar como dar Downloader/Barrel IDs (e se é necessário)
 - DOWNLOADER
-  - verificar porque é que algumas palavras estão a ser cortadas (problema de printing?)
 
 DOWNLOADER
-- Main: criar as palavras reservadas e removê-las -> passar para HashSet
+- Main: criar as palavras reservadas e removê-las -> passar para HashSet -> por stopwords em português
+- ignorar pontuação 
 
 
 BARREL

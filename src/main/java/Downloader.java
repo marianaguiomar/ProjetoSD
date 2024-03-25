@@ -20,7 +20,7 @@ public class Downloader {
     //private long SLEEP_TIME = 5000;
     private String channel;
 
-    MulticastSocket socket;
+    private MulticastSocket socket = null;
     QueueInterface queue;
 
     //TODO -> mais stopwords
