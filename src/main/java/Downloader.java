@@ -19,6 +19,8 @@ public class Downloader {
     private int PORT = 4321;
     //private long SLEEP_TIME = 5000;
     private String channel;
+
+    MulticastSocket socket;
     QueueInterface queue;
 
     //TODO -> mais stopwords
@@ -28,38 +30,78 @@ public class Downloader {
             "that", "the", "their", "then", "there", "these",
             "they", "this", "to", "was", "will", "with"};
 
-    public Downloader(String queuePath) throws MalformedURLException, RemoteException, NotBoundException {
+    public Downloader(String queuePath) throws MalformedURLException, RemoteException, NotBoundException, IOException {
         this.queue = (QueueInterface) Naming.lookup(queuePath);
         this.queue.clearQueue();
+        this.socket = new MulticastSocket();
     }
 
-    public void work()  throws MalformedURLException, RemoteException, NotBoundException{
+    public void sendToken(StringTokenizer tokens) throws UnknownHostException, IOException {
+        String multicastMessage = "";
+
+        while (tokens.hasMoreElements()) {
+            String token = tokens.nextToken(); // Store the next token in a variable
+
+            if (multicastMessage.length() + token.length()+1 < 700) {
+                boolean isStopword;
+                if (Arrays.asList(stopwords).contains(token)) isStopword = true;
+                else isStopword = false;
+
+                if (!isStopword) {
+                    // Append the token to the multicast message
+                    multicastMessage = multicastMessage.concat(" ").concat(token.toLowerCase());
+                }
+            } else {
+                // Send the multicast message
+                sendMulticastMessage(multicastMessage);
+
+                // Clear the multicast message
+                multicastMessage = "";
+            }
+        }
+    }
+
+
+    public void sendMulticastMessage(String message) throws UnknownHostException, IOException{
+        byte[] buffer = message.getBytes();
+
+        InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, PORT);
+        socket.send(packet);
+    }
+
+    public void work()  throws MalformedURLException, RemoteException, NotBoundException, SocketTimeoutException {
         this.queue.clearQueue();
         this.queue.addURL("https://www.sapo.pt");
 
         while (true) {
-            MulticastSocket socket = null;
             try {
 
                 socket = new MulticastSocket();  // create socket without binding it (only for sending)
 
+                String url = this.queue.fetchURL();
+                Document doc = Jsoup.connect(url).get();
 
-                String url2 = this.queue.fetchURL();
-                Document doc = Jsoup.connect(url2).get();
-                StringTokenizer tokens = new StringTokenizer(doc.text());
+                try {
+                    //verificar se existe um firstParagraph
+                    Element firstParagraph = doc.select("p").first();
+                    String firstParagraphText = firstParagraph.text();
 
-                // exemplo -> este imprime os primeiros 100 tokens em lowercase
-                // TODO -> acho que têm de ser todos os tokens que existem?
-                // TODO -> limitar os tokens para não conterem palavras reservadas
-                while (tokens.hasMoreElements()) {
-                    boolean isStopword;
-                    if (Arrays.asList(stopwords).contains(tokens.nextToken())) isStopword = true;
-                    else isStopword = false;
-                    if (!isStopword) {
-                        //System.out.println(tokens.nextToken().toLowerCase());
-                    }
+                    // enviar url e título
+                    sendMulticastMessage(url + "|" + doc.title());
 
+                    //enviar citação
+                    sendMulticastMessage(firstParagraphText);
+                } catch (java.lang.NullPointerException e) {
+                    continue;
                 }
+
+                //enviar os tokens
+                StringTokenizer tokens = new StringTokenizer(doc.text());
+                sendToken(tokens);
+
+                sendMulticastMessage("§");
+
 
                 // seleciona todos os elementos <a> que têm um atributo href -> tipicamente são hiperlinks
                 // TODO -> estes hiperlinks não serão enviados por Multicast, vão ser inseridos na URLQueue
@@ -70,12 +112,15 @@ public class Downloader {
                     this.queue.addURL(link.attr("abs:href"));
                     System.out.println("GETTING LINK" + "\t" + this.queue.fetchURL() + "\n");
 
+                    /*
                     String message = this.queue.fetchURL();
                     byte[] buffer = message.getBytes();
 
                     InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
                     DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, PORT);
                     socket.send(packet);
+                    */
+
 
 
 
@@ -88,7 +133,7 @@ public class Downloader {
         }
 
     }
-    public static void main(String args[]) throws MalformedURLException, RemoteException, NotBoundException {
+    public static void main(String args[]) throws MalformedURLException, RemoteException, NotBoundException, IOException {
 
         Downloader downloader = new Downloader("rmi://localhost/queue");
 
