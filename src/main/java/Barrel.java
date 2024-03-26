@@ -3,55 +3,58 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Barrel {
-    //
-    // parte do multicast
-    //
-    private String MULTICAST_ADDRESS = "224.3.2.1";
-    private int PORT = 4321;
+    private final String MULTICAST_ADDRESS;
+    private final int PORT;
+    private final HashMap<String, HashSet<WebPage>> index;
 
-    private IndiceRemissivo index;
-
-    private MulticastSocket socket = null;
+    private final MulticastSocket socket;
+    boolean multicastAvailable = true; // Initially assume multicast group is available
 
     public Barrel() throws IOException {
-        socket = new MulticastSocket(PORT); // create socket and bind it
-        index = new IndiceRemissivo();
+        this.MULTICAST_ADDRESS = "224.3.2.1";
+        this.PORT = 4321;
+        this.socket = new MulticastSocket(PORT); // create socket and bind it
+        this.index = new HashMap<>();
+    }
+    private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
+
+    private void addToIndex(WebPage webPage, String token) {
+        if (index.containsKey(token)) {
+            index.get(token).add(webPage);
+        }
+        else {
+            HashSet<WebPage> webPages = new HashSet<>();
+            webPages.add(webPage);
+            index.put(token, webPages);
+        }
     }
 
+    private void printHashMap() {
 
-    public void printHashMap() {
-
-        for (Map.Entry<String, HashSet<String>> entry : index.index.entrySet()) {
+        for (Map.Entry<String, HashSet<WebPage>> entry : index.entrySet()) {
             String keyword = entry.getKey();
-            HashSet<String> urls = entry.getValue();
+            HashSet<WebPage> urls = entry.getValue();
 
             System.out.println("Keyword: " + keyword);
             System.out.println("URLs:");
-            for (String url : urls) {
+            for (WebPage url : urls) {
                 System.out.println("  " + url);
             }
         }
     }
 
-    public String receiveMessage() throws IOException {
+    private String receiveMessage() throws IOException {
         byte[] buffer = new byte[1500];
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-        // vai receber um URL e as palavras associadas (+ título e citação de texto?)
         socket.receive(packet);
-
-        //TODO -> colocar resultados na classe e no índice remissivo
-
-        //System.out.println("Received packet from " + packet.getAddress().getHostAddress() + ":"
-         //       + packet.getPort() + " with message:");
-        String message = new String(packet.getData(), 0, packet.getLength());
-        //System.out.println(message);
-
-        return message;
+        return new String(packet.getData(), 0, packet.getLength());
     }
 
-    public String getTitle(String message) {
+    private String getURL(String message) {
         // Find the index of the first '|' character
         int index = message.indexOf('|');
 
@@ -64,7 +67,7 @@ public class Barrel {
         return message.substring(0, index);
     }
 
-    public String getURL(String message) {
+    private String getTitle(String message) {
         // Find the index of the first '|' character
         int index = message.indexOf('|');
 
@@ -77,100 +80,55 @@ public class Barrel {
         return message.substring(index + 1);
     }
 
-    public String[] getTokens(String message) {
-        String[] tokens = message.split(" ");
-        return tokens;
+    private String[] getTokens(String message) {
+        return message.split(" ");
     }
 
 
-        public void run() {
+    public void work() {
+    try {
+        InetAddress mcastaddr = InetAddress.getByName(MULTICAST_ADDRESS);
+        socket.joinGroup(new InetSocketAddress(mcastaddr, 0), NetworkInterface.getByIndex(0));
 
-        try {
-            InetAddress mcastaddr = InetAddress.getByName(MULTICAST_ADDRESS);
-            socket.joinGroup(new InetSocketAddress(mcastaddr, 0), NetworkInterface.getByIndex(0));
+        while (multicastAvailable) {
 
+            String message = receiveMessage();
+            String titulo = getTitle(message);
+            String url = getURL(message);
 
-            while (true) {
+            message = receiveMessage();
+            String citacao = message;
 
-                String message = receiveMessage();
-                String titulo = getTitle(message);
-                String url = getURL(message);
+            WebPage webPage = new WebPage(url, titulo, citacao);
 
-                message = receiveMessage();
-                String citacao = message;
-
-                URL urlObject = new URL(url, titulo, citacao);
-
-                message = receiveMessage();
-                while (message.charAt(0) != '§') {
-                    String[] tokens = getTokens(message);
-                    for (String token: tokens) {
-                        index.add(urlObject, token);
-                    }
-                    message = receiveMessage();
+            message = receiveMessage();
+            while (message.charAt(0) != '§') {
+                String[] tokens = getTokens(message);
+                for (String token: tokens) {
+                    addToIndex(webPage, token);
                 }
-
-                printHashMap();
-
+                message = receiveMessage();
             }
+
+            printHashMap();
+
+        }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
+
         } finally {
+            // Perform cleanup operations
+            try {
+                socket.leaveGroup(new InetSocketAddress(this.MULTICAST_ADDRESS, this.PORT), NetworkInterface.getByIndex(0));
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "Error while leaving multicast group: " + e.getMessage(), e);
+            }
             socket.close();
+            multicastAvailable = false;
         }
     }
-
-    //
-    // classe URL
-    //
-    public class URL {
-        private String hiperlink;
-        private String titulo;
-        private String citacao;
-
-        public URL(String hiperlink, String titulo, String citacao) {
-            this.hiperlink = hiperlink;
-            this.titulo = titulo;
-            this.citacao = citacao;
-        }
-    }
-
-
-    //
-    // parte do índice remissivo
-    //
-
-    // String -> palavra, HashSet<String> -> URLs a que se relaciona
-
-    public class IndiceRemissivo {
-        private HashMap<String, HashSet<String>> index;
-
-        public IndiceRemissivo() {
-            this.index = new HashMap<>();
-        }
-
-        public void add(URL url, String token) {
-            String hiperlink = url.hiperlink;
-
-            if (index.containsKey(token)) {
-                index.get(token).add(hiperlink);
-            }
-            else {
-                HashSet<String> hiperlinks = new HashSet<>();
-                hiperlinks.add(hiperlink);
-                index.put(token, hiperlinks);
-            }
-        }
-    }
-
-
-
-    //
-    // main
-    //
-
     public static void main(String[] args) throws IOException {
         Barrel barrel = new Barrel();
-        barrel.run();
+        barrel.work();
     }
 }
