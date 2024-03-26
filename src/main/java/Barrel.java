@@ -24,6 +24,9 @@ public class Barrel {
 
     private void addToIndex(WebPage webPage, String token) {
         if (index.containsKey(token)) {
+            if(index.get(token).contains(webPage)){
+                return;
+            }
             index.get(token).add(webPage);
         }
         else {
