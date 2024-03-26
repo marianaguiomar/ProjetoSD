@@ -1,12 +1,16 @@
 import java.net.*;
 import java.io.IOException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Barrel {
+public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     private final String MULTICAST_ADDRESS;
     private final int PORT;
     private final HashMap<String, HashSet<WebPage>> index;
@@ -20,10 +24,14 @@ public class Barrel {
         this.socket = new MulticastSocket(PORT); // create socket and bind it
         this.index = new HashMap<>();
     }
+
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
 
     private void addToIndex(WebPage webPage, String token) {
         if (index.containsKey(token)) {
+            if(index.get(token).contains(webPage)){
+                return;
+            }
             index.get(token).add(webPage);
         }
         else {
@@ -84,7 +92,21 @@ public class Barrel {
         return message.split(" ");
     }
 
-
+    public WebPage[] search(String[] tokens, Integer pageNumber) throws RemoteException{
+        LinkedList<WebPage> webPages = new LinkedList<>();
+        for (String token: tokens) {
+            if (index.containsKey(token)) {
+                webPages.addAll(index.get(token));
+            }
+        }
+        return webPages.subList(pageNumber, Math.min(pageNumber + 10, webPages.size())).toArray(new WebPage[0]);
+    }
+    public String status() throws RemoteException {
+        return "Barrel is running";
+    }
+    public String getConnections(String URL) throws RemoteException{
+        return "webPages.toString()";
+    }
     public void work() {
     try {
         InetAddress mcastaddr = InetAddress.getByName(MULTICAST_ADDRESS);
@@ -110,7 +132,7 @@ public class Barrel {
                 message = receiveMessage();
             }
 
-            printHashMap();
+            //printHashMap();
 
         }
         } catch (IOException e) {
@@ -129,6 +151,7 @@ public class Barrel {
     }
     public static void main(String[] args) throws IOException {
         Barrel barrel = new Barrel();
+        LocateRegistry.createRegistry(barrel.PORT).rebind("barrel", barrel);
         barrel.work();
     }
 }
