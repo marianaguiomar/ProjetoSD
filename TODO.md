@@ -1,6 +1,5 @@
 TODO's
 
-+
 MULTICAST
 - Verificar se os valores do IP e porto são apropriados (de momento estão iguais à ficha 3)
 - Determinar como dar Downloader/Barrel IDs (e se é necessário)
@@ -11,7 +10,16 @@ DOWNLOADER
 - ignorar pontuação 
 
 
-BARREL
+TODOS 
+- ver nos casos com mais do que um downloader, barrel, etc
+- tratar da relevância dos resultados
+- verificar citações "ative as notificações do sapo"
+- ver dos portos -> ligação do gateway para os barrels (escolher gateway)
+- tratar de por tudo minúsculo
+
+SEARCH
+- relevância
+- outras páginas
 
 
 NOTAS 
