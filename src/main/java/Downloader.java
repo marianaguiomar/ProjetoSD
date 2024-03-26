@@ -63,7 +63,7 @@ public class Downloader {
         this.PORT = 4321;
     }
 
-    public void sendToken(StringTokenizer tokens) throws IOException {
+    private void sendToken(StringTokenizer tokens) throws IOException {
         String multicastMessage = "";
 
         while (tokens.hasMoreElements()) {
@@ -95,7 +95,7 @@ public class Downloader {
     }
 
 
-    public void sendMulticastMessage(String message) throws IOException{
+    private void sendMulticastMessage(String message) throws IOException{
         byte[] buffer = message.getBytes();
 
         InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
