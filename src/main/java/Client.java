@@ -49,8 +49,8 @@ public class Client {
                     System.out.println(result);
                 }
                 case "insert" -> {
-                    result = this.gateway.insert(tokens[1]);
-                    System.out.println(result);
+                    this.gateway.insert(tokens[1]);
+                    System.out.println("Link inserted\n");
                 }
                 default -> System.out.println("Invalid command \n");
             }

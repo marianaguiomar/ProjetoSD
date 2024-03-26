@@ -1,3 +1,4 @@
+import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -18,8 +19,8 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
     public void addURL(String URL) {
         this.URLQueue.add(URL);
     }
-    public String fetchURL(){
-        return this.URLQueue.poll();
+    public String fetchURL() throws InterruptedException {
+        return this.URLQueue.take();
     }
 
     public static void main(String[] args) throws RemoteException {

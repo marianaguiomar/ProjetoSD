@@ -113,13 +113,14 @@ public class Downloader {
         }
     }
 
-    public void work()  throws RemoteException {
+    public void work() throws RemoteException, InterruptedException {
         this.queue.clearQueue();
-        this.queue.addURL("https://www.sapo.pt");
+        //this.queue.addURL("https://www.sapo.pt");
 
         while (queueExists) {
             try {
                 String url = this.queue.fetchURL();
+                System.out.println("URL: " + url);
                 Document doc = Jsoup.connect(url).get();
                 //verificar se existe um firstParagraph
                 Element firstParagraph = doc.select("p").first();
@@ -150,7 +151,7 @@ public class Downloader {
         }
 
     }
-    public static void main(String[] args) throws NotBoundException, IOException {
+    public static void main(String[] args) throws NotBoundException, IOException, InterruptedException {
         Downloader downloader = new Downloader("rmi://localhost/queue");
         downloader.work();
     }

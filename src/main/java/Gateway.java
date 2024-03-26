@@ -10,9 +10,11 @@ import java.util.HashSet;
 
 public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     BarrelInterface barrel;
+    QueueInterface queue;
     public final int PORT;
-    public Gateway(String barrelPath) throws RemoteException, MalformedURLException, NotBoundException {
+    public Gateway(String barrelPath, String queuePath) throws RemoteException, MalformedURLException, NotBoundException {
         super();
+        this.queue = (QueueInterface) Naming.lookup(queuePath);
         this.PORT = 1100;
         this.barrel = (BarrelInterface) Naming.lookup(barrelPath);
     }
@@ -29,15 +31,15 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     public String status() throws RemoteException {
         return "";
     }
-    public String insert(String URL) throws RemoteException {
-        return "";
+    public void insert(String URL) throws RemoteException {
+        this.queue.addURL(URL);
     }
     public String getConnections(String URL) throws RemoteException {
         return "";
     }
 
     public static void main(String[] args) throws RemoteException, MalformedURLException, NotBoundException {
-        GatewayInterface gateway = new Gateway("rmi://localhost:4321/barrel");
+        GatewayInterface gateway = new Gateway("rmi://localhost:4321/barrel", "rmi://localhost/queue");
         LocateRegistry.createRegistry(1100).rebind("gateway", gateway);
         System.out.println("Gateway Ready...");
     }
