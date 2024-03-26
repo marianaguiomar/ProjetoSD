@@ -89,7 +89,7 @@ public class Downloader {
             String newURL = link.attr("abs:href");
             if (isValidURL(newURL)) {
                 this.queue.addURL(newURL);
-                System.out.println("GETTING LINK" + "\t" + newURL + "\n");
+                //System.out.println("GETTING LINK" + "\t" + newURL + "\n");
             }
         }
     }

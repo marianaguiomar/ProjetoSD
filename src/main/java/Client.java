@@ -40,7 +40,8 @@ public class Client {
                 case "search" -> {
                     String[] remainingTokens = new String[tokens.length - 1];
                     System.arraycopy(tokens, 1, remainingTokens, 0, tokens.length - 1);
-                    result = this.gateway.search(remainingTokens);
+                    // TODO -> receber o número da página do utilizador
+                    result = this.gateway.search(remainingTokens, 0);
                     System.out.println(result);
                 }
                 case "connections" -> {
@@ -58,7 +59,7 @@ public class Client {
     }
 
     public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException {
-        Client client = new Client("rmi://localhost/gateway");
+        Client client = new Client("rmi://localhost:1100/gateway");
         client.listening();
     }
 
