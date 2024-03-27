@@ -13,6 +13,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     private final int PORT;
     private final HashMap<String, HashSet<String>> index;
     private final HashMap<String, WebPage> webPages;
+    private final HashMap<String, HashSet<String>> urlConnection;
     private final MulticastSocket socket;
     boolean multicastAvailable = true; // Initially assume multicast group is available
 
@@ -22,6 +23,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         this.socket = new MulticastSocket(PORT); // create socket and bind it
         this.index = new HashMap<>();
         this.webPages = new HashMap<>();
+        this.urlConnection = new HashMap<>();
     }
 
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
@@ -106,21 +108,34 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         return "Barrel is running";
     }
     public String getConnections(String URL) throws RemoteException{
-        System.out.println("URL to analyse: " + URL + "\n");
-
-
         String result = "";
-        for (Map.Entry<String, WebPage> entry : webPages.entrySet()) {
-            String url = entry.getKey();        // Get the URL (key)
-            WebPage webpage = entry.getValue(); // Get the WebPage object (value)
 
-            if (webpage.mentionsURL().contains(URL)) {
+        //TODO -> verificar casos a falhar, "https://nytimes.com"
+        if (urlConnection.containsKey(URL)) {
+            for (String url: urlConnection.get(URL)) {
                 result = result.concat(url).concat("\n");
             }
         }
+        //TODO -> alterar isto
+        else result = "Link inválido \n";
 
         return result;
     }
+
+    public void addURLConnections(String url, String hyperlink) {
+        HashSet<String> currentResult;
+        if (urlConnection.containsKey(url)) {
+            currentResult = urlConnection.get(url);
+            currentResult.add(hyperlink);
+        }
+        else {
+            currentResult = new HashSet<>();
+            currentResult.add(hyperlink);
+            urlConnection.put(url, currentResult);
+        }
+    }
+
+
     public void work() {
         try {
             InetAddress mcastaddr = InetAddress.getByName(MULTICAST_ADDRESS);
@@ -138,6 +153,10 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
                 WebPage webPage = new WebPage(hyperlink, titulo, citacao, new HashSet<> ());
                 addWebPage(webPage);
 
+                if (!urlConnection.containsKey(hyperlink)) {
+                    urlConnection.put(hyperlink, new HashSet<>());
+                }
+
                 message = receiveMessage();
                 while (message.charAt(0) != '!') {
                     String[] tokens = getTokens(message);
@@ -150,10 +169,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
                 while (message.charAt(0) != '§') {
                     String[] mentionsURLS = getTokens(message);
                     for (String url: mentionsURLS) {
-                        //System.out.println("Gonna add one!!!\n");
-                        if (!webPage.mentionsURL().contains(url)) {
-                            webPage.mentionsURL().add(url);
-                        }
+                        addURLConnections(url, hyperlink);
                     }
                     message = receiveMessage();
                 }
