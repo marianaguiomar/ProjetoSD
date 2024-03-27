@@ -35,6 +35,7 @@ já aconteceu receber esse erro e imediatamente a seguir receber mais links a se
 Make sure it is an absolute URL, and starts with 'http://' or 'https://'. See https://jsoup.org/cookbook/extracting-data/working-with-urls
   (isto não deveria ser handled pelo MalformedURLwhatever?) (foi o único destes três que efetivamente fez o Downloader parar)
 - java.lang.NullPointerException -> quando não existe firstParagraph
+- org.jsoup.HttpStatusException: HTTP error fetching URL. Status=403, URL=[https://help.nytimes.com/hc/en-us/articles/115015727108-Accessibility] no downloader
 
 
 EXTRA:

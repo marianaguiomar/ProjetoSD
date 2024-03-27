@@ -3,18 +3,16 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     private final String MULTICAST_ADDRESS;
     private final int PORT;
-    private final HashMap<String, HashSet<WebPage>> index;
-
+    private final HashMap<String, HashSet<String>> index;
+    private final HashMap<String, WebPage> webPages;
     private final MulticastSocket socket;
     boolean multicastAvailable = true; // Initially assume multicast group is available
 
@@ -23,33 +21,34 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         this.PORT = 4321;
         this.socket = new MulticastSocket(PORT); // create socket and bind it
         this.index = new HashMap<>();
+        this.webPages = new HashMap<>();
     }
 
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
 
-    private void addToIndex(WebPage webPage, String token) {
+    private void addWebPage(WebPage webPage) {
+        webPages.put(webPage.hyperlink(), webPage);
+    }
+    private void addIndex(String hyperlink, String token) {
         if (index.containsKey(token)) {
-            if(index.get(token).contains(webPage)){
-                return;
-            }
-            index.get(token).add(webPage);
+            index.get(token).add(hyperlink);
         }
         else {
-            HashSet<WebPage> webPages = new HashSet<>();
-            webPages.add(webPage);
-            index.put(token, webPages);
+            HashSet<String> urls = new HashSet<>();
+            urls.add(hyperlink);
+            index.put(token, urls);
         }
     }
 
     private void printHashMap() {
 
-        for (Map.Entry<String, HashSet<WebPage>> entry : index.entrySet()) {
+        for (Map.Entry<String, HashSet<String>> entry : index.entrySet()) {
             String keyword = entry.getKey();
-            HashSet<WebPage> urls = entry.getValue();
+            HashSet<String> urls = entry.getValue();
 
             System.out.println("Keyword: " + keyword);
             System.out.println("URLs:");
-            for (WebPage url : urls) {
+            for (String url : urls) {
                 System.out.println("  " + url);
             }
         }
@@ -62,7 +61,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         return new String(packet.getData(), 0, packet.getLength());
     }
 
-    private String getURL(String message) {
+    private String getHyperlink(String message) {
         // Find the index of the first '|' character
         int index = message.indexOf('|');
 
@@ -93,48 +92,75 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     }
 
     public WebPage[] search(String[] tokens, Integer pageNumber) throws RemoteException{
-        LinkedList<WebPage> webPages = new LinkedList<>();
+        LinkedList<WebPage> result = new LinkedList<>();
         for (String token: tokens) {
             if (index.containsKey(token)) {
-                webPages.addAll(index.get(token));
+                HashSet<String> URLs = index.get(token);
+                Stream<WebPage> resultingWebPages = URLs.stream().filter(webPages::containsKey).map(webPages::get);
+                resultingWebPages.forEach(result::add);
             }
         }
-        return webPages.subList(pageNumber, Math.min(pageNumber + 10, webPages.size())).toArray(new WebPage[0]);
+        return result.subList(pageNumber, Math.min(pageNumber + 10, result.size())).toArray(new WebPage[0]);
     }
     public String status() throws RemoteException {
         return "Barrel is running";
     }
     public String getConnections(String URL) throws RemoteException{
-        return "webPages.toString()";
+        System.out.println("URL to analyse: " + URL + "\n");
+
+
+        String result = "";
+        for (Map.Entry<String, WebPage> entry : webPages.entrySet()) {
+            String url = entry.getKey();        // Get the URL (key)
+            WebPage webpage = entry.getValue(); // Get the WebPage object (value)
+
+            if (webpage.mentionsURL().contains(URL)) {
+                result = result.concat(url).concat("\n");
+            }
+        }
+
+        return result;
     }
     public void work() {
-    try {
-        InetAddress mcastaddr = InetAddress.getByName(MULTICAST_ADDRESS);
-        socket.joinGroup(new InetSocketAddress(mcastaddr, 0), NetworkInterface.getByIndex(0));
+        try {
+            InetAddress mcastaddr = InetAddress.getByName(MULTICAST_ADDRESS);
+            socket.joinGroup(new InetSocketAddress(mcastaddr, 0), NetworkInterface.getByIndex(0));
 
-        while (multicastAvailable) {
+            while (multicastAvailable) {
 
-            String message = receiveMessage();
-            String titulo = getTitle(message);
-            String url = getURL(message);
+                String message = receiveMessage();
+                String titulo = getTitle(message);
+                String hyperlink = getHyperlink(message);
 
-            message = receiveMessage();
-            String citacao = message;
-
-            WebPage webPage = new WebPage(url, titulo, citacao);
-
-            message = receiveMessage();
-            while (message.charAt(0) != '§') {
-                String[] tokens = getTokens(message);
-                for (String token: tokens) {
-                    addToIndex(webPage, token);
-                }
                 message = receiveMessage();
+                String citacao = message;
+
+                WebPage webPage = new WebPage(hyperlink, titulo, citacao, new HashSet<> ());
+                addWebPage(webPage);
+
+                message = receiveMessage();
+                while (message.charAt(0) != '!') {
+                    String[] tokens = getTokens(message);
+                    for (String token: tokens) {
+                        addIndex(hyperlink, token);
+                    }
+                    message = receiveMessage();
+                }
+
+                while (message.charAt(0) != '§') {
+                    String[] mentionsURLS = getTokens(message);
+                    for (String url: mentionsURLS) {
+                        //System.out.println("Gonna add one!!!\n");
+                        if (!webPage.mentionsURL().contains(url)) {
+                            webPage.mentionsURL().add(url);
+                        }
+                    }
+                    message = receiveMessage();
+                }
+
+                //printHashMap();
+
             }
-
-            //printHashMap();
-
-        }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
 

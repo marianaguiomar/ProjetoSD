@@ -35,7 +35,12 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         this.queue.addURL(URL);
     }
     public String getConnections(String URL) throws RemoteException {
-        return "";
+        String result = "Resultado: \n";
+        result = result.concat(barrel.getConnections(URL));
+
+        System.out.println(result);
+
+        return result;
     }
 
     public static void main(String[] args) throws RemoteException, MalformedURLException, NotBoundException {

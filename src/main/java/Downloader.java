@@ -83,13 +83,24 @@ public class Downloader {
             }
         }
     }
-    private void updateURLs(Document doc) throws RemoteException {
+
+    private void updateURLs(Document doc) throws RemoteException, IOException {
+
+        String multicastMessage = "";
+
         Elements links = doc.select("a[href]");
         for (Element link : links) {
             String newURL = link.attr("abs:href");
             if (isValidURL(newURL)) {
                 this.queue.addURL(newURL);
                 //System.out.println("GETTING LINK" + "\t" + newURL + "\n");
+                if (multicastMessage.length() + newURL.length()+1 < 700) {
+                    multicastMessage = multicastMessage.concat(" ").concat(newURL.toLowerCase());
+                }
+                else {
+                    sendMulticastMessage(multicastMessage);
+                    multicastMessage = "";
+                }
             }
         }
     }
@@ -135,10 +146,12 @@ public class Downloader {
                 //enviar os tokens
                 StringTokenizer tokens = new StringTokenizer(doc.text());
                 sendToken(tokens);
+                //mandar divisor entre tokens e urls
+                sendMulticastMessage("!");
+                //atualizar a queue com os urls da página visitada e enviá-los
+                updateURLs(doc);
                 //enviar mensagem final
                 sendMulticastMessage("§");
-                //atualizar a queue com os urls da página visitada
-                updateURLs(doc);
             }
             catch (RemoteException remoteException) {
                 // Set queueExists to false when RMI communication fails
