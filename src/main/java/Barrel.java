@@ -210,7 +210,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
                 message = receiveMessage();
                 String citacao = message;
 
-                WebPage webPage = new WebPage(hyperlink, titulo, citacao, new HashSet<> ());
+                WebPage webPage = new WebPage(hyperlink, titulo, citacao);
                 addWebPage(webPage);
 
                 if (!urlConnection.containsKey(hyperlink)) {
