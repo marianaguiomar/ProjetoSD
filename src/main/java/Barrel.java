@@ -122,7 +122,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         return result;
     }
 
-    public void addURLConnections(String url, String hyperlink) {
+    private void addURLConnections(String url, String hyperlink) {
         HashSet<String> currentResult;
         if (urlConnection.containsKey(url)) {
             currentResult = urlConnection.get(url);
