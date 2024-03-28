@@ -3,27 +3,29 @@ TODO's
 MULTICAST
 - Verificar se os valores do IP e porto são apropriados (de momento estão iguais à ficha 3)
 - Determinar como dar Downloader/Barrel IDs (e se é necessário)
-- DOWNLOADER
 
 DOWNLOADER
-- Main: criar as palavras reservadas e removê-las -> passar para HashSet -> por stopwords em português
-- ignorar pontuação 
-
-
-TODOS 
-- ver nos casos com mais do que um downloader, barrel, etc
-- tratar da relevância dos resultados
-- verificar citações "ative as notificações do sapo"
-- ver dos portos -> ligação do gateway para os barrels (escolher gateway)
+- ignorar pontuação
 - tratar de por tudo minúsculo
 
 SEARCH
 - relevância
 - outras páginas
 
+PROJECT MANAGER
+- ver dos portos -> ligação do gateway para os barrels (escolher gateway)
+- ver de threads
 
-NOTAS 
-- antes de correr downloader, correr queue
+MARIANA
+- alterar connections para como estava na WebPage
+- status
+
+SAULO
+- search
+- classe projectManager
+- ordenar por relevância
+
+
 
 ERROR HANDLING : DOWNLOADER
 - java.net.ConnectException: (quando se inicia o downloader sem iniciar a queue)
@@ -40,6 +42,8 @@ Make sure it is an absolute URL, and starts with 'http://' or 'https://'. See ht
 
 EXTRA:
 - Loop infinito de ler URLQueue -> descobrir como fazer o loop parar quando o programa acaba 
+- verificar citações "ative as notificações do sapo"
+
 
 
 
