@@ -14,6 +14,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     private final HashMap<String, HashSet<String>> index;
     private final HashMap<String, WebPage> webPages;
     private final HashMap<String, HashSet<String>> urlConnection;
+    private final LinkedHashMap<String, Integer> searches;
     private final MulticastSocket socket;
     boolean multicastAvailable = true; // Initially assume multicast group is available
 
@@ -24,6 +25,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         this.index = new HashMap<>();
         this.webPages = new HashMap<>();
         this.urlConnection = new HashMap<>();
+        this.searches = new LinkedHashMap<>();
     }
 
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
@@ -102,11 +104,69 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
                 resultingWebPages.forEach(result::add);
             }
         }
+        String currKey = String.join(" ", tokens);
+        if (searches.containsKey(currKey)) {
+            System.out.println("Found! ");
+            int curr = searches.get(currKey);
+            searches.put(currKey, curr+1);
+        }
+        else {
+            searches.put(currKey, 1);
+        }
+        updateSearches();
+
         return result.subList(pageNumber, Math.min(pageNumber + 10, result.size())).toArray(new WebPage[0]);
     }
     public String status() throws RemoteException {
-        return "Barrel is running";
+        String topSearches = formatSearches();
+        return topSearches;
     }
+
+    public String formatSearches() {
+        StringBuilder result = new StringBuilder();
+        int count = 1;
+        result.append("TOP 10 SEARCHES \n");
+        for (Map.Entry<String, Integer> entry : searches.entrySet()) {
+            if (count > 10) {
+                break; // Stop when you've printed the first 10 entries
+            }
+            result.append("[").append(count).append("] ").append(entry.getKey()).append("\n");
+            count++;
+        }
+        return result.toString();
+    }
+
+    private void updateSearches() {
+        // Convert map entries to a list
+        List<Map.Entry<String, Integer>> entryList = new ArrayList<>(searches.entrySet());
+
+        // Sort the list based on values in descending order using a lambda expression
+        Collections.sort(entryList, (o1, o2) -> o2.getValue().compareTo(o1.getValue()));
+
+        // Create a new LinkedHashMap to preserve the order
+        Map<String, Integer> sortedMap = new LinkedHashMap<>();
+        for (Map.Entry<String, Integer> entry : entryList) {
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+
+        //System.out.println("Sorted list: " + entryList);
+        //System.out.println("Sorted map: " + sortedMap);
+
+        // Update the original map with the sorted entries
+        searches.clear();
+        searches.putAll(sortedMap);
+
+        //System.out.println("Searches: " + searches);
+    }
+
+    private void printSearches() {
+        for (Map.Entry<String, Integer> entry : searches.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+        System.out.println("\n");
+    }
+
+
     public String getConnections(String URL) throws RemoteException{
         String result = "";
 

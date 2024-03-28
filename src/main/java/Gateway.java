@@ -29,7 +29,8 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         return result.toString();
     }
     public String status() throws RemoteException {
-        return "";
+        String result = barrel.status();
+        return result;
     }
     public void insert(String URL) throws RemoteException {
         this.queue.addURL(URL);
