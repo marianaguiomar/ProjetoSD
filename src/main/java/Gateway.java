@@ -12,6 +12,10 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     BarrelInterface barrel;
     QueueInterface queue;
     public final int PORT;
+
+    private long totalDuration = 0;
+    private long numSearches = 0;
+
     public Gateway(String barrelPath, String queuePath) throws RemoteException, MalformedURLException, NotBoundException {
         super();
         this.queue = (QueueInterface) Naming.lookup(queuePath);
@@ -21,7 +25,14 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
 
     // TODO -> verificar interção
     public String search(String[] tokens, int pageNumber) throws RemoteException {
+        //TODO -> verificar onde colocar os temporizadores
+        long startTime = System.currentTimeMillis();
         WebPage[] webPages = barrel.search(tokens, 0);
+        long endTime = System.currentTimeMillis();
+        long duration = endTime-startTime;
+        totalDuration += duration;
+        numSearches += 1;
+
         StringBuilder result= new StringBuilder("RESULTADOS PARA A PÁGINA " + pageNumber + "\n");
         for (WebPage webPage : webPages) {
             result.append(webPage.toString()).append("\n");
@@ -29,8 +40,20 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         return result.toString();
     }
     public String status() throws RemoteException {
-        String result = barrel.status();
-        return result;
+        // Get the original status message from the barrel
+        String topSearches = barrel.status();
+
+        // Calculate average search time
+        long averageDuration = totalDuration / numSearches;
+
+        // Format the average duration message
+        String averageTimeMessage = "AVERAGE TIME: " + averageDuration + " ms.";
+
+        // Combine the original status message and the average time message
+        String combinedMessage = topSearches + "\n" + averageTimeMessage + "\n";
+
+        // Return the combined message
+        return combinedMessage;
     }
     public void insert(String URL) throws RemoteException {
         this.queue.addURL(URL);
