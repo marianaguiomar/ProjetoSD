@@ -13,6 +13,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     private final int PORT;
     private final HashMap<String, HashSet<String>> index;
     private final HashMap<String, WebPage> webPages;
+    private final HashMap<String, HashSet<String>> urlConnection;
     private final MulticastSocket socket;
     boolean multicastAvailable = true; // Initially assume multicast group is available
 
@@ -22,6 +23,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         this.socket = new MulticastSocket(PORT); // create socket and bind it
         this.index = new HashMap<>();
         this.webPages = new HashMap<>();
+        this.urlConnection = new HashMap<>();
     }
 
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
@@ -106,37 +108,75 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         return "Barrel is running";
     }
     public String getConnections(String URL) throws RemoteException{
-        return "webPages.toString()";
-    }
-    public void work() {
-    try {
-        InetAddress mcastaddr = InetAddress.getByName(MULTICAST_ADDRESS);
-        socket.joinGroup(new InetSocketAddress(mcastaddr, 0), NetworkInterface.getByIndex(0));
+        String result = "";
 
-        while (multicastAvailable) {
-
-            String message = receiveMessage();
-            String titulo = getTitle(message);
-            String hyperlink = getHyperlink(message);
-
-            message = receiveMessage();
-            String citacao = message;
-
-            WebPage webPage = new WebPage(hyperlink, titulo, citacao, new HashSet<> ());
-            addWebPage(webPage);
-
-            message = receiveMessage();
-            while (message.charAt(0) != '§') {
-                String[] tokens = getTokens(message);
-                for (String token: tokens) {
-                    addIndex(hyperlink, token);
-                }
-                message = receiveMessage();
+        //TODO -> verificar casos a falhar, "https://nytimes.com"
+        if (urlConnection.containsKey(URL)) {
+            for (String url: urlConnection.get(URL)) {
+                result = result.concat(url).concat("\n");
             }
-
-            //printHashMap();
-
         }
+        //TODO -> alterar isto
+        else result = "Link inválido \n";
+
+        return result;
+    }
+
+    private void addURLConnections(String url, String hyperlink) {
+        HashSet<String> currentResult;
+        if (urlConnection.containsKey(url)) {
+            currentResult = urlConnection.get(url);
+            currentResult.add(hyperlink);
+        }
+        else {
+            currentResult = new HashSet<>();
+            currentResult.add(hyperlink);
+            urlConnection.put(url, currentResult);
+        }
+    }
+
+
+    public void work() {
+        try {
+            InetAddress mcastaddr = InetAddress.getByName(MULTICAST_ADDRESS);
+            socket.joinGroup(new InetSocketAddress(mcastaddr, 0), NetworkInterface.getByIndex(0));
+
+            while (multicastAvailable) {
+
+                String message = receiveMessage();
+                String titulo = getTitle(message);
+                String hyperlink = getHyperlink(message);
+
+                message = receiveMessage();
+                String citacao = message;
+
+                WebPage webPage = new WebPage(hyperlink, titulo, citacao, new HashSet<> ());
+                addWebPage(webPage);
+
+                if (!urlConnection.containsKey(hyperlink)) {
+                    urlConnection.put(hyperlink, new HashSet<>());
+                }
+
+                message = receiveMessage();
+                while (message.charAt(0) != '!') {
+                    String[] tokens = getTokens(message);
+                    for (String token: tokens) {
+                        addIndex(hyperlink, token);
+                    }
+                    message = receiveMessage();
+                }
+
+                while (message.charAt(0) != '§') {
+                    String[] mentionsURLS = getTokens(message);
+                    for (String url: mentionsURLS) {
+                        addURLConnections(url, hyperlink);
+                    }
+                    message = receiveMessage();
+                }
+
+                //printHashMap();
+
+            }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
 
