@@ -2,13 +2,14 @@ import java.net.*;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class Barrel extends UnicastRemoteObject implements BarrelInterface{
+public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runnable{
     private final String MULTICAST_ADDRESS;
     private final int PORT;
     private final HashMap<String, HashSet<String>> index;
@@ -16,16 +17,28 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     private final HashMap<String, HashSet<String>> urlConnection;
     private final LinkedHashMap<String, Integer> searches;
     private final MulticastSocket socket;
+    private final int barrelNumber;
     boolean multicastAvailable = true; // Initially assume multicast group is available
 
-    public Barrel() throws IOException {
-        this.MULTICAST_ADDRESS = "224.3.2.1";
-        this.PORT = 4321;
+    public Barrel(Registry registry, String multicastAddress, int port, int barrelNumber) throws IOException {
+        this.barrelNumber = barrelNumber;
+        this.MULTICAST_ADDRESS = multicastAddress;
+        this.PORT = port;
         this.socket = new MulticastSocket(PORT); // create socket and bind it
         this.index = new HashMap<>();
         this.webPages = new HashMap<>();
         this.urlConnection = new HashMap<>();
         this.searches = new LinkedHashMap<>();
+        // Bind Barrel object to the existing registry
+        try {
+            registry.rebind("barrel" + barrelNumber, this);
+
+        } catch (RemoteException e) {
+            //String rmiAddress = "rmi://" + InetAddress.getLocalHost().getHostAddress() + ":" + PORT + "/barrel" + barrelNumber;
+            //System.out.println("[BARREL#" + barrelNumber + "]:" + "    RMI Address: " + rmiAddress);
+            e.printStackTrace();
+        }
+        System.out.println("[BARREL#" + barrelNumber + "]:" + "   Ready...");
     }
 
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
@@ -50,10 +63,10 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
             String keyword = entry.getKey();
             HashSet<String> urls = entry.getValue();
 
-            System.out.println("Keyword: " + keyword);
-            System.out.println("URLs:");
+            System.out.println("[BARREL#" + barrelNumber + "]:" + "    Keyword: " + keyword);
+            System.out.println("[BARREL#" + barrelNumber + "]:" + "    URLs:");
             for (String url : urls) {
-                System.out.println("  " + url);
+                System.out.println("[BARREL#" + barrelNumber + "]:" + "      " + url);
             }
         }
     }
@@ -106,7 +119,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         }
         String currKey = String.join(" ", tokens);
         if (searches.containsKey(currKey)) {
-            System.out.println("Found! ");
+            System.out.println("[BARREL#" + barrelNumber + "]:" + "    Found! ");
             int curr = searches.get(currKey);
             searches.put(currKey, curr+1);
         }
@@ -118,8 +131,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         return result.subList(pageNumber, Math.min(pageNumber + 10, result.size())).toArray(new WebPage[0]);
     }
     public String status() throws RemoteException {
-        String topSearches = formatSearches();
-        return topSearches;
+        return formatSearches();
     }
 
     public String formatSearches() {
@@ -149,21 +161,21 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
             sortedMap.put(entry.getKey(), entry.getValue());
         }
 
-        //System.out.println("Sorted list: " + entryList);
-        //System.out.println("Sorted map: " + sortedMap);
+        //System.out.println("[BARREL#" + barrelNumber + "]:" + "    Sorted list: " + entryList);
+        //System.out.println("[BARREL#" + barrelNumber + "]:" + "    Sorted map: " + sortedMap);
 
         // Update the original map with the sorted entries
         searches.clear();
         searches.putAll(sortedMap);
 
-        //System.out.println("Searches: " + searches);
+        //System.out.println("[BARREL#" + barrelNumber + "]:" + "    Searches: " + searches);
     }
 
     private void printSearches() {
         for (Map.Entry<String, Integer> entry : searches.entrySet()) {
             System.out.println(entry.getKey() + ": " + entry.getValue());
         }
-        System.out.println("\n");
+        System.out.println("[BARREL#" + barrelNumber + "]:" + "    \n");
     }
 
 
@@ -196,7 +208,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     }
 
 
-    public void work() {
+    public void run() {
         try {
             InetAddress mcastaddr = InetAddress.getByName(MULTICAST_ADDRESS);
             socket.joinGroup(new InetSocketAddress(mcastaddr, 0), NetworkInterface.getByIndex(0));
@@ -252,8 +264,13 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         }
     }
     public static void main(String[] args) throws IOException {
-        Barrel barrel = new Barrel();
-        LocateRegistry.createRegistry(barrel.PORT).rebind("barrel", barrel);
-        barrel.work();
+        try {
+            // Create RMI registry
+            Registry registry = LocateRegistry.createRegistry(4321);
+            Barrel barrel = new Barrel(registry, "224.3.2.1", 4321, 0);
+            barrel.run();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 }

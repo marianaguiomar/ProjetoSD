@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.StringTokenizer;
 
-public class Downloader {
+public class Downloader implements Runnable {
     //Multicast section
     //TODO -> estes são os valores da ficha, verificar se são os corretos
     private final String MULTICAST_ADDRESS;
@@ -21,6 +21,7 @@ public class Downloader {
     private final MulticastSocket socket;
     QueueInterface queue;
     boolean queueExists = true;
+    private final int downloaderNumber;
     String[] stopwords = {
             // English stopwords
             "a", "an", "and", "are", "as", "at", "be", "but", "by",
@@ -54,13 +55,15 @@ public class Downloader {
 
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
 
-    public Downloader(String queuePath) throws NotBoundException, IOException {
+    public Downloader(String multicastAddress, int port, String queuePath, int downloaderNumber) throws NotBoundException, IOException {
         this.queue = (QueueInterface) Naming.lookup(queuePath);
         this.queue.clearQueue();
+        this.downloaderNumber = downloaderNumber;
         this.socket = new MulticastSocket();
         this.stopwordsSet = new HashSet<>(Arrays.asList(stopwords));
-        this.MULTICAST_ADDRESS = "224.3.2.1";
-        this.PORT = 4321;
+        this.MULTICAST_ADDRESS = multicastAddress;
+        this.PORT = port;
+        System.out.println("[DOWNLOADER#" + downloaderNumber + "]:" + "   Ready...");
     }
 
     private void sendToken(StringTokenizer tokens) throws IOException {
@@ -93,7 +96,7 @@ public class Downloader {
             String newURL = link.attr("abs:href");
             if (isValidURL(newURL)) {
                 this.queue.addURL(newURL);
-                //System.out.println("GETTING LINK" + "\t" + newURL + "\n");
+                //System.out.printf("[DOWNLOADER#" + downloaderNumber + "]:" +GETTING LINK" + "\t" + newURL + "\n");
                 if (multicastMessage.length() + newURL.length()+1 < 700) {
                     multicastMessage = multicastMessage.concat(" ").concat(newURL.toLowerCase());
                 }
@@ -124,14 +127,11 @@ public class Downloader {
         }
     }
 
-    public void work() throws RemoteException, InterruptedException {
-        this.queue.clearQueue();
-        //this.queue.addURL("https://www.sapo.pt");
-
+    public void run() {
         while (queueExists) {
             try {
                 String url = this.queue.fetchURL();
-                System.out.println("URL: " + url);
+                System.out.println("[DOWNLOADER#" + downloaderNumber + "]:" +"URL: " + url);
                 Document doc = Jsoup.connect(url).get();
                 //verificar se existe um firstParagraph
                 Element firstParagraph = doc.select("p").first();
@@ -158,15 +158,15 @@ public class Downloader {
                 queueExists = false;
                 socket.close();
             }
-            catch (IOException e) {
+            catch (IOException | InterruptedException e) {
                 LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
             }
         }
 
     }
     public static void main(String[] args) throws NotBoundException, IOException, InterruptedException {
-        Downloader downloader = new Downloader("rmi://localhost/queue");
-        downloader.work();
+        Downloader downloader = new Downloader("224.3.2.1", 4321,"rmi://localhost/queue",1);
+        downloader.run();
     }
     }
 
