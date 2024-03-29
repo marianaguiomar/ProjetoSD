@@ -132,6 +132,8 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         orderWebpages(result);
         updateSearches();
 
+        //append barrelID
+
         return result.subList(pageNumber, Math.min(pageNumber + 10, result.size())).toArray(new WebPage[0]);
     }
 

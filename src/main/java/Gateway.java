@@ -4,6 +4,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class Gateway extends UnicastRemoteObject implements GatewayInterface, Runnable{
@@ -15,8 +16,9 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface, Ru
     public final int PORT;
     public final int barrelNumber;
     public int barrelInUse;
-    private long totalDuration = 0;
-    private long numSearches = 0;
+
+    private HashMap<Integer,Long> totalDuration;
+    private HashMap<Integer, Integer> numSearches;
 
 
     public Gateway(int port,int barrelNumber, String barrelPath, String queuePath) throws RemoteException, MalformedURLException, NotBoundException {
@@ -26,6 +28,8 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface, Ru
         this.queuePath = queuePath;
         this.barrelPath = barrelPath;
         this.PORT = port;
+        this.totalDuration = new HashMap<>();
+        this.numSearches = new HashMap<>();
         LocateRegistry.createRegistry(this.PORT).rebind("gateway", this);
     }
     private void connectToQueue(){
@@ -79,10 +83,27 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface, Ru
         System.out.println("[GATEWAY]: Searching for: " + tokens[0]);
         WebPage[] webPages = barrel.search(tokens, 0);
         System.out.println("[GATEWAY]: Search done");
+
         long endTime = System.currentTimeMillis();
         long duration = endTime-startTime;
-        totalDuration += duration;
-        numSearches += 1;
+
+        if (!totalDuration.containsKey(barrelInUse)) {
+            totalDuration.put(barrelInUse, duration);
+        }
+        else {
+            long currDuration = totalDuration.get(barrelInUse);
+            long updatedDuration = currDuration + duration;
+            totalDuration.put(barrelInUse, updatedDuration);
+        }
+
+        if (!numSearches.containsKey(barrelInUse)) {
+            numSearches.put(barrelInUse, 1);
+        }
+        else {
+            long currSearches = numSearches.get(barrelInUse);
+            long updatedSearches = currSearches + 1;
+            totalDuration.put(barrelInUse, updatedSearches);
+        }
 
         StringBuilder result= new StringBuilder("RESULTADOS PARA A PÁGINA " + pageNumber + "\n");
         for (WebPage webPage : webPages) {
@@ -99,11 +120,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface, Ru
         String activeBarrels = splitRes[1];
 
         // Calculate average search time
-        //TODO -> quando ainda não existem searches
-        long averageDuration = totalDuration / numSearches;
-
-        // Format the average duration message
-        String averageTimeMessage = "AVERAGE SEARCH TIME: " + averageDuration + " ms.";
+        String averageTimeMessage = formatAverageTime();
 
         // Combine the original status message and the average time message
         String combinedMessage = topSearches + "\n" + averageTimeMessage + "\n" + activeBarrels + "\n";
@@ -114,6 +131,19 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface, Ru
     public void insert(String URL) throws RemoteException {
         System.out.println("[GATEWAY]: Inserting URL: " + URL);
         this.queue.addURL(URL);
+    }
+
+    public String formatAverageTime() {
+        StringBuilder result = new StringBuilder();
+        result.append("AVERAGE SEARCH TIME: \n");
+        //TODO -> quando ainda não existem searches -> verificar se funciona, outro barrel n faz nada
+        for (Integer barrel: totalDuration.keySet()) {
+            long averageDuration = totalDuration.get(barrel) / numSearches.get(barrel);
+            result.append("BARREL#").append(barrel).append(": ").append(averageDuration).append(" ms.");
+        }
+
+        String res = result.toString();
+        return res;
     }
 
     public String getConnections(String URL) throws RemoteException {
