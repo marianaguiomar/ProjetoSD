@@ -1,6 +1,8 @@
 import java.net.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -109,13 +111,20 @@ public class Downloader implements Runnable {
     }
 
 
-    private void sendMulticastMessage(String message) throws IOException{
+    private void sendMulticastMessage(String message) throws IOException {
+        // Check if the message is empty
+        if (message == null || message.isEmpty()) {
+            //System.out.println("Message is empty. Not sending anything.");
+            return; // Exit the method if the message is empty
+        }
+
         byte[] buffer = message.getBytes();
 
         InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, PORT);
         socket.send(packet);
     }
+
 
     // TODO -> verificar se é necessário, se não for, apagar. (Pode ser substituído por um throw?)
     private boolean isValidURL(String url) {
@@ -157,6 +166,9 @@ public class Downloader implements Runnable {
                 // Set queueExists to false when RMI communication fails
                 queueExists = false;
                 socket.close();
+            }
+            catch (HttpStatusException e) {
+                continue;
             }
             catch (IOException | InterruptedException e) {
                 LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);

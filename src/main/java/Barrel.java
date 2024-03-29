@@ -230,6 +230,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
                 }
 
                 message = receiveMessage();
+                if (message.charAt(0) == '\0')
                 while (message.charAt(0) != '!') {
                     String[] tokens = getTokens(message);
                     for (String token: tokens) {

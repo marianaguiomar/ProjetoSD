@@ -17,14 +17,17 @@ PROJECT MANAGER
 - ver de threads
 
 MARIANA
-- alterar connections para como estava na WebPage
-- status
+- ordenar por relevância
+- acabar status
 
 SAULO
-- search
-- classe projectManager
-- ordenar por relevância
+- search -> interseção
+- agrupados 10 em 10
 
+PERGUNTAS
+- threads nos barrels
+- balanceamento da carga nas pesquisas sobre o storage barrels
+- is hashmap o/r mapping? melhor forma de guardar info nos barrels
 
 
 ERROR HANDLING : DOWNLOADER
@@ -41,6 +44,7 @@ Make sure it is an absolute URL, and starts with 'http://' or 'https://'. See ht
 
 
 EXTRA:
+- organizar melhor Barrel, classe para Hashmaps
 - Loop infinito de ler URLQueue -> descobrir como fazer o loop parar quando o programa acaba 
 - verificar citações "ative as notificações do sapo"
 
