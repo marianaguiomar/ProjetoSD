@@ -4,6 +4,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashSet;
 
 public class Gateway extends UnicastRemoteObject implements GatewayInterface, Runnable{
     BarrelInterface barrel;
@@ -90,17 +91,22 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface, Ru
         return result.toString();
     }
     public String status() throws RemoteException {
+        HashSet<Integer> barrelID = new HashSet<>();
         // Get the original status message from the barrel
-        String topSearches = barrel.status();
+        String splitRes[] = barrel.status().split("§");
+
+        String topSearches = splitRes[0];
+        String activeBarrels = splitRes[1];
 
         // Calculate average search time
+        //TODO -> quando ainda não existem searches
         long averageDuration = totalDuration / numSearches;
 
         // Format the average duration message
-        String averageTimeMessage = "AVERAGE TIME: " + averageDuration + " ms.";
+        String averageTimeMessage = "AVERAGE SEARCH TIME: " + averageDuration + " ms.";
 
         // Combine the original status message and the average time message
-        String combinedMessage = topSearches + "\n" + averageTimeMessage + "\n";
+        String combinedMessage = topSearches + "\n" + averageTimeMessage + "\n" + activeBarrels + "\n";
 
         // Return the combined message
         return combinedMessage;
@@ -109,6 +115,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface, Ru
         System.out.println("[GATEWAY]: Inserting URL: " + URL);
         this.queue.addURL(URL);
     }
+
     public String getConnections(String URL) throws RemoteException {
         String result = "Resultado: \n";
         result = result.concat(barrel.getConnections(URL));

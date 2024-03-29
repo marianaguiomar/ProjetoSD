@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runnable{
+    public static HashSet<Integer> activeBarrelIds = new HashSet<>();
     private final String MULTICAST_ADDRESS;
     private final int PORT;
     private final HashMap<String, HashSet<String>> index;
@@ -29,6 +30,8 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         this.webPages = new HashMap<>();
         this.urlConnection = new HashMap<>();
         this.searches = new LinkedHashMap<>();
+        activeBarrelIds.add(barrelNumber);
+
         // Bind Barrel object to the existing registry
         try {
             registry.rebind("barrel" + barrelNumber, this);
@@ -126,12 +129,67 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         else {
             searches.put(currKey, 1);
         }
+        orderWebpages(result);
         updateSearches();
 
         return result.subList(pageNumber, Math.min(pageNumber + 10, result.size())).toArray(new WebPage[0]);
     }
+
+    public void orderWebpages(LinkedList<WebPage> result) {
+        // Define a custom comparator based on the length of the attribute in descending order
+        Comparator<WebPage> comparator = new Comparator<WebPage>() {
+            @Override
+            public int compare(WebPage page1, WebPage page2) {
+                String url1 = page1.hyperlink();
+                String url2 = page2.hyperlink();
+
+                int connections1 = urlConnection.get(url1).size();
+                int connections2 = urlConnection.get(url2).size();
+
+                // Compare the lengths of the attribute in each WebPage in reverse order
+                return Integer.compare(connections2, connections1); // Compare in reverse order
+            }
+        };
+
+        // Sort the result list using the custom comparator
+        Collections.sort(result, comparator);
+
+        //debug
+        /*
+        for (WebPage url: result) {
+            int res = urlConnection.get(url.hyperlink()).size();
+            System.out.println(url.hyperlink() + ": " + res + "\n");
+        }
+        System.out.println("\n");
+         */
+    }
+
     public String status() throws RemoteException {
-        return formatSearches();
+        String topTen = formatSearches();
+        String barrelID = formatActiveBarrels();
+
+        String res = "" ;
+        res = res.concat(topTen);
+        res = res.concat("§");
+        res = res.concat(barrelID);
+        return res;
+    }
+
+    public String formatActiveBarrels() {
+        // Create a StringBuilder to build the result string
+        StringBuilder result = new StringBuilder();
+
+        result.append("\nACTIVE BARRELS\n");
+
+        // Append each value with the specified format to the StringBuilder
+        for (int value : activeBarrelIds) {
+            result.append("BARREL#").append(value).append("\n");
+        }
+
+        // Convert the StringBuilder to a string
+        String resultString = result.toString();
+
+        return resultString;
     }
 
     public String formatSearches() {
@@ -222,6 +280,8 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
                 message = receiveMessage();
                 String citacao = message;
 
+                System.out.println("Adding citation: " + citacao + "\n");
+
                 WebPage webPage = new WebPage(hyperlink, titulo, citacao);
                 addWebPage(webPage);
 
@@ -230,7 +290,6 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
                 }
 
                 message = receiveMessage();
-                if (message.charAt(0) == '\0')
                 while (message.charAt(0) != '!') {
                     String[] tokens = getTokens(message);
                     for (String token: tokens) {
