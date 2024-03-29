@@ -11,7 +11,6 @@ public class ProjectManager {
 
     Registry registry;
     final int gatewayPort;
-    final int queuePort;
     final int numberOfDownloaders;
     final int numberOfBarrels;
     Thread gatewayThread;
@@ -36,7 +35,7 @@ public class ProjectManager {
         for (int i = 0; i < numberOfDownloaders; i++) {
             try {
                 Downloader downloader = new Downloader(MULTICAST_ADDRESS, PORT,
-                        "rmi://localhost:" + this.queuePort + "/queue", i+1);
+                        "rmi://localhost:" + this.PORT + "/queue", i+1);
                 downloadersThreads[i] = new Thread(downloader);
                 downloadersThreads[i].start();
             } catch (IOException | NotBoundException e) {
@@ -47,7 +46,7 @@ public class ProjectManager {
     private void initializeGateway() {
         try {
             Gateway gateway = new Gateway(gatewayPort, numberOfBarrels, "rmi://localhost:"+ PORT +"/barrel",
-                    "rmi://localhost:" + this.queuePort + "/queue");
+                    "rmi://localhost:" + this.PORT + "/queue");
             gatewayThread = new Thread(gateway);
             gatewayThread.start();
         } catch (RemoteException | NotBoundException | MalformedURLException e) {
@@ -55,9 +54,8 @@ public class ProjectManager {
         }
     }
 
-    public ProjectManager(int queuePort,int gatewayPort, int numberOfDownloaders, int numberOfBarrels) throws RemoteException {
+    public ProjectManager(int gatewayPort, int numberOfDownloaders, int numberOfBarrels) throws RemoteException {
         this.gatewayPort = gatewayPort;
-        this.queuePort = queuePort;
         this.numberOfDownloaders = numberOfDownloaders;
         this.numberOfBarrels = numberOfBarrels;
         try {
@@ -66,7 +64,7 @@ public class ProjectManager {
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-        Queue queue = new Queue(queuePort);
+        Queue queue = new Queue(registry);
         initializeDownloaders();
         initializeBarrels();
         initializeGateway();
@@ -79,6 +77,6 @@ public class ProjectManager {
 
     public static void main(String[] args) throws RemoteException {
         ProjectManager projectManager = new ProjectManager(Integer.parseInt(args[0]), Integer.parseInt(args[1]),
-                Integer.parseInt(args[2]), Integer.parseInt(args[3]));
+                Integer.parseInt(args[2]));
     }
 }

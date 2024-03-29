@@ -2,15 +2,24 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.rmi.registry.Registry;
 
 public class Queue extends UnicastRemoteObject implements QueueInterface {
     LinkedBlockingQueue<String> URLQueue;
     private static final long serialVersionUID = 1L;
 
-    public Queue(int port) throws RemoteException {
+    public Queue(Registry registry) throws RemoteException {
         super();
         this.URLQueue = new LinkedBlockingQueue<>();
-        LocateRegistry.createRegistry(port).rebind("queue", this);
+        try {
+            registry.rebind("queue", this);
+
+        } catch (RemoteException e) {
+            //String rmiAddress = "rmi://" + InetAddress.getLocalHost().getHostAddress() + ":" + PORT + "/barrel" + barrelNumber;
+            //System.out.println("[BARREL#" + barrelNumber + "]:" + "    RMI Address: " + rmiAddress);
+            e.printStackTrace();
+        }
+        System.out.println("[QUEUE#]:   Ready...");
 
     }
     public void clearQueue(){
@@ -24,7 +33,14 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
     }
 
     public static void main(String[] args) throws RemoteException {
-        QueueInterface queue = new Queue(1099);
-        System.out.println("Queue Ready...");
+        try {
+            // Create RMI registry
+            Registry registry = LocateRegistry.createRegistry(1099);
+            QueueInterface queue = new Queue(registry);
+            System.out.println("Queue Ready...");
+    }
+        catch (RemoteException e) {
+        e.printStackTrace();
+    }
     }
 }
