@@ -89,7 +89,7 @@ public class Downloader implements Runnable {
         }
     }
 
-    private void updateURLs(Document doc) throws RemoteException, IOException {
+    private void updateURLs(Document doc) throws IOException {
 
         String multicastMessage = "";
 
@@ -156,7 +156,7 @@ public class Downloader implements Runnable {
                 StringTokenizer tokens = new StringTokenizer(doc.text());
                 sendToken(tokens);
                 //mandar divisor entre tokens e urls
-                sendMulticastMessage("!");
+                sendMulticastMessage("\u0003");
                 //atualizar a queue com os urls da página visitada e enviá-los
                 updateURLs(doc);
                 //enviar mensagem final
@@ -168,7 +168,7 @@ public class Downloader implements Runnable {
                 socket.close();
             }
             catch (HttpStatusException e) {
-                continue;
+                // do nothing
             }
             catch (IOException | InterruptedException e) {
                 LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
@@ -176,7 +176,7 @@ public class Downloader implements Runnable {
         }
 
     }
-    public static void main(String[] args) throws NotBoundException, IOException, InterruptedException {
+    public static void main(String[] args) throws NotBoundException, IOException {
         Downloader downloader = new Downloader("224.3.2.1", 4321,"rmi://localhost/queue",1);
         downloader.run();
     }
