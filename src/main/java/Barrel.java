@@ -17,12 +17,14 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
     private final LinkedHashMap<String, Integer> searches;
     private final MulticastSocket socket;
     private final int barrelNumber;
+    private final int CONFIRMATION_PORT;
     boolean multicastAvailable = true; // Initially assume multicast group is available
 
     public Barrel(Registry registry, String multicastAddress, int port, int barrelNumber) throws IOException {
         this.barrelNumber = barrelNumber;
         this.MULTICAST_ADDRESS = multicastAddress;
         this.PORT = port;
+        this.CONFIRMATION_PORT = port + 1;
         this.socket = new MulticastSocket(PORT); // create socket and bind it
         this.searches = new LinkedHashMap<>();
         this.remissiveIndex = new RemissiveIndex();
@@ -54,21 +56,15 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         String citation = message.payload();
         remissiveIndex.insertWebPageCitation(hyperlink, citation);
     }
-    private void sendMulticastMessage(String hyperlink, String payload, MessageType messageType){
-        // Check if the message is empty
-        if (hyperlink == null || hyperlink.isEmpty() || hyperlink.isBlank()|| payload == null || payload.isEmpty() || payload.isBlank()) {
-            System.out.println("Message is empty. Not sending anything.");
-            return; // Exit the method if the message is empty
-        }
+    private void sendMulticastMessage(String hyperlink, String payload){
         try{
-            MulticastMessage message = new MulticastMessage(hyperlink, messageType, payload);
+            MulticastMessage message = new MulticastMessage(hyperlink, MessageType.CONFIRMATION, payload);
 
             byte[] buffer = message.getBytes();
 
             InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, PORT);
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, this.CONFIRMATION_PORT);
             socket.send(packet);
-
         }
         catch (IOException e){
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
@@ -260,6 +256,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
                     case CONNECTIONS -> //System.out.println("[BARREL#" + barrelNumber + "]:" + "    Received CONNECTIONS message: " + message.payload());
                             receiveConnections(message);
                 }
+                sendMulticastMessage(message.hyperlink(), message.messageID());
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);

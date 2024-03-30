@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
@@ -20,7 +21,11 @@ public class Downloader implements Runnable {
     //TODO -> estes são os valores da ficha, verificar se são os corretos
     private final String MULTICAST_ADDRESS;
     private final int PORT;
+
+    private final int CONFIRMATION_PORT;
     private final MulticastSocket socket;
+
+    private final MulticastSocket confirmationSocket;
     QueueInterface queue;
     boolean queueExists = true;
     private final int downloaderNumber;
@@ -65,6 +70,11 @@ public class Downloader implements Runnable {
         this.stopwordsSet = new HashSet<>(Arrays.asList(stopwords));
         this.MULTICAST_ADDRESS = multicastAddress;
         this.PORT = port;
+        this.CONFIRMATION_PORT = port + 1;
+        this.confirmationSocket = new MulticastSocket(this.CONFIRMATION_PORT);
+        // Join the multicast group
+        InetAddress groupConfirmation = InetAddress.getByName(MULTICAST_ADDRESS);
+        confirmationSocket.joinGroup(groupConfirmation);
         System.out.println("[DOWNLOADER#" + downloaderNumber + "]:" + "   Ready...");
     }
 
@@ -111,7 +121,29 @@ public class Downloader implements Runnable {
         }
     }
 
+    private boolean waitForConfirmation(String messageID){
+        int messagesRead = 0;
+        try{
+            while(messagesRead < 500) {
+                byte[] buffer = new byte[1500];
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+                confirmationSocket.receive(packet);
+                MulticastMessage message = MulticastMessage.getMessage(packet.getData());
+                messagesRead++;
+                assert message != null;
+                if(message.messageType() == MessageType.CONFIRMATION && message.payload().equals(messageID)){
+                    return true;
+            }
 
+        }
+            //System.out.println("[DOWNLOADER#" + downloaderNumber + "]:" + "Confirmation not received, sending packet again.");
+            return false;
+        }
+        catch (IOException e){
+            LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
+            return false;
+        }
+    }
     private void sendMulticastMessage(String hyperlink, String payload, MessageType messageType){
         // Check if the message is empty
         if (hyperlink == null || hyperlink.isEmpty() || hyperlink.isBlank()|| payload == null || payload.isEmpty() || payload.isBlank()) {
@@ -126,7 +158,9 @@ public class Downloader implements Runnable {
             InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, PORT);
             socket.send(packet);
-
+            while (!waitForConfirmation(message.messageID())){
+                socket.send(packet);
+            }
         }
         catch (IOException e){
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
