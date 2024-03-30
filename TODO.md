@@ -2,10 +2,8 @@ TODO's
 
 MULTICAST
 - Verificar se os valores do IP e porto são apropriados (de momento estão iguais à ficha 3)
-- Determinar como dar Downloader/Barrel IDs (e se é necessário)
 
 DOWNLOADER
-- ignorar pontuação
 - tratar de por tudo minúsculo
 
 SEARCH

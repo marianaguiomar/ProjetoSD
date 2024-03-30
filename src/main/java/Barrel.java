@@ -9,6 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runnable{
+    // TODO -> see static variable
     public static HashSet<Integer> activeBarrelIds = new HashSet<>();
     private final String MULTICAST_ADDRESS;
     private final int PORT;
@@ -53,7 +54,27 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         String citation = message.payload();
         remissiveIndex.insertWebPageCitation(hyperlink, citation);
     }
+    private void sendMulticastMessage(String hyperlink, String payload, MessageType messageType){
+        // Check if the message is empty
+        if (hyperlink == null || hyperlink.isEmpty() || hyperlink.isBlank()|| payload == null || payload.isEmpty() || payload.isBlank()) {
+            System.out.println("Message is empty. Not sending anything.");
+            return; // Exit the method if the message is empty
+        }
+        try{
+            MulticastMessage message = new MulticastMessage(hyperlink, messageType, payload);
 
+            byte[] buffer = message.getBytes();
+
+            InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, PORT);
+            socket.send(packet);
+
+        }
+        catch (IOException e){
+            LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
+        }
+
+    }
     private void receiveTitle(MulticastMessage message) {
         String hyperlink = message.hyperlink();
         String title = message.payload();

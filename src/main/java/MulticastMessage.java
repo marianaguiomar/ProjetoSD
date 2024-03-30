@@ -1,9 +1,12 @@
 import java.io.*;
-
-public record MulticastMessage(String hyperlink, MessageType messageType, String payload) implements Serializable {
-
+import java.util.UUID;
+public record MulticastMessage(String hyperlink, MessageType messageType, String payload , String messageID) implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
+
+    public MulticastMessage(String hyperlink, MessageType messageType, String payload) {
+        this(hyperlink, messageType, payload, generateUniqueId());
+    }
 
     public byte[] getBytes() throws IOException {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -11,6 +14,19 @@ public record MulticastMessage(String hyperlink, MessageType messageType, String
             oos.writeObject(this);
             return bos.toByteArray();
         }
+    }
+
+    public static String generateUniqueId() {
+        // Get current timestamp
+        long timestamp = System.currentTimeMillis();
+
+        // Generate a random UUID
+        UUID uuid = UUID.randomUUID();
+
+        // Combine timestamp and UUID to create a unique ID
+        String uniqueId = timestamp + "-" + uuid.toString();
+
+        return uniqueId;
     }
 
     public static MulticastMessage getMessage(byte[] data){

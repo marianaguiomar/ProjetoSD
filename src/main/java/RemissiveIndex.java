@@ -42,14 +42,18 @@ public class RemissiveIndex {
         return result.toString();
     }
     public LinkedList<WebPage> findWebPagesUnion(String[] tokens){
+        if(tokens == null)
+            return new LinkedList<>();
         LinkedList<WebPage> result = new LinkedList<>();
         for (String token: tokens) {
-            if (index.containsKey(token.toLowerCase())) {
+            token = token.toLowerCase();
+            if (index.containsKey(token)) {
                 HashSet<String> URLs = index.get(token);
                 Stream<WebPage> resultingWebPages = URLs.stream().filter(webPages::containsKey).map(webPages::get);
                 resultingWebPages.forEach(result::add);
             }
         }
+        System.out.println("RESULT SIZE: " + result.size());
         return result;
     }
 
