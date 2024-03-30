@@ -41,15 +41,53 @@ public class RemissiveIndex {
         }
         return result.toString();
     }
-    public LinkedList<WebPage> findWebPages(String[] tokens){
+    public LinkedList<WebPage> findWebPagesUnion(String[] tokens){
         LinkedList<WebPage> result = new LinkedList<>();
         for (String token: tokens) {
-            if (index.containsKey(token)) {
+            if (index.containsKey(token.toLowerCase())) {
                 HashSet<String> URLs = index.get(token);
                 Stream<WebPage> resultingWebPages = URLs.stream().filter(webPages::containsKey).map(webPages::get);
                 resultingWebPages.forEach(result::add);
             }
         }
+        return result;
+    }
+
+    public LinkedList<WebPage> findWebPagesIntersection(String[] tokens){
+        LinkedList<WebPage> result = new LinkedList<>();
+
+        // Initialize a set to store the web pages associated with the first token
+        HashSet<String> firstTokenWebPages = new HashSet<>();
+        String firstToken = tokens[0].toLowerCase();
+        if (index.containsKey(firstToken)) {
+            firstTokenWebPages.addAll(index.get(firstToken));
+        } else {
+            // If the first token is not found, return an empty list
+            return result;
+        }
+
+        // Iterate through the remaining tokens
+        for (int i = 1; i < tokens.length; i++) {
+            String token = tokens[i].toLowerCase();
+            if (index.containsKey(token)) {
+                // Get the set of web pages associated with the current token
+                HashSet<String> currentTokenWebPages = index.get(token);
+
+                // Perform intersection with the set of web pages associated with the first token
+                firstTokenWebPages.retainAll(currentTokenWebPages);
+            } else {
+                // If any token is not found, return an empty list
+                return result;
+            }
+        }
+
+        // Add the web pages from the intersection set to the result list
+        for (String url : firstTokenWebPages) {
+            if (webPages.containsKey(url)) {
+                result.add(webPages.get(url));
+            }
+        }
+
         return result;
     }
 

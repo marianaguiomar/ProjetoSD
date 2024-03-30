@@ -69,10 +69,13 @@ public class Downloader implements Runnable {
     }
 
     private void sendTokens(String hyperlink, Document doc) throws IOException {
-        StringTokenizer tokens = new StringTokenizer(doc.text());
+        StringTokenizer tokens = new StringTokenizer(doc.text().replaceAll("[^a-zA-Z0-9\\s]", ""));
         String multicastMessage = "";
         while (tokens.hasMoreElements()) {
             String token = tokens.nextToken(); // Store the next token in a variable
+            if(token.length()<3){
+                continue;
+            }
             if (multicastMessage.getBytes(StandardCharsets.UTF_8).length + token.getBytes(StandardCharsets.UTF_8).length+1 < 700) {
                 if (!stopwordsSet.contains(token)) {
                     // Append the token to the multicast message

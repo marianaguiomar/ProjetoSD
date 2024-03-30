@@ -75,18 +75,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface, Ru
         connectToBarrel();
         System.out.println("[GATEWAY]: Gateway Ready...");
     }
-
-    // TODO -> verificar interção
-    public String search(String[] tokens, int pageNumber) throws RemoteException {
-        //TODO -> verificar onde colocar os temporizadores
-        long startTime = System.currentTimeMillis();
-        System.out.println("[GATEWAY]: Searching for: " + tokens[0]);
-        WebPage[] webPages = barrel.search(tokens, 0);
-        System.out.println("[GATEWAY]: Search done");
-
-        long endTime = System.currentTimeMillis();
-        long duration = endTime-startTime;
-
+    public void updateSearches(long duration){
         if (!totalDuration.containsKey(barrelInUse)) {
             totalDuration.put(barrelInUse, duration);
         }
@@ -104,13 +93,41 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface, Ru
             long updatedSearches = currSearches + 1;
             totalDuration.put(barrelInUse, updatedSearches);
         }
+    }
+    public String searchIntersection(String[] tokens, int pageNumber) throws RemoteException {
+        //TODO -> verificar onde colocar os temporizadores
+        long startTime = System.currentTimeMillis();
+        System.out.println("[GATEWAY]: Searching for: " + tokens[0]);
+        WebPage[] webPages = barrel.searchIntersection(tokens, pageNumber - 1);
+        System.out.println("[GATEWAY]: Search done");
 
-        StringBuilder result= new StringBuilder("RESULTADOS PARA A PÁGINA " + pageNumber + "\n");
+        long endTime = System.currentTimeMillis();
+        updateSearches(endTime-startTime);
+
+        StringBuilder result= new StringBuilder(webPages.length + " RESULTADOS PARA A PÁGINA " + pageNumber + "\n");
         for (WebPage webPage : webPages) {
             result.append(webPage.toString()).append("\n");
         }
         return result.toString();
     }
+
+    public String searchUnion(String[] tokens, int pageNumber) throws RemoteException {
+        //TODO -> verificar onde colocar os temporizadores
+        long startTime = System.currentTimeMillis();
+        System.out.println("[GATEWAY]: Searching for: " + tokens[0]);
+        WebPage[] webPages = barrel.searchUnion(tokens, pageNumber - 1);
+        System.out.println("[GATEWAY]: Search done");
+
+        long endTime = System.currentTimeMillis();
+        updateSearches(endTime-startTime);
+
+        StringBuilder result= new StringBuilder(webPages.length +" RESULTADOS PARA A PÁGINA " + pageNumber + "\n");
+        for (WebPage webPage : webPages) {
+            result.append(webPage.toString()).append("\n");
+        }
+        return result.toString();
+    }
+    //TODO -> fix
     public String status() throws RemoteException {
         HashSet<Integer> barrelID = new HashSet<>();
         // Get the original status message from the barrel
@@ -129,6 +146,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface, Ru
         return combinedMessage;
     }
     public void insert(String URL) throws RemoteException {
+        URL = URL.toLowerCase();
         System.out.println("[GATEWAY]: Inserting URL: " + URL);
         this.queue.addURL(URL);
     }
@@ -147,6 +165,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface, Ru
     }
 
     public String getConnections(String URL) throws RemoteException {
+        URL = URL.toLowerCase();
         String result = "Resultado: \n";
         System.out.println("[GATEWAY]: Getting connections for URL: " + URL);
         result = result.concat(barrel.getConnections(URL));
