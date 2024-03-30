@@ -1,7 +1,7 @@
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -68,20 +68,19 @@ public class Downloader implements Runnable {
         System.out.println("[DOWNLOADER#" + downloaderNumber + "]:" + "   Ready...");
     }
 
-    private void sendToken(StringTokenizer tokens) throws IOException {
+    private void sendTokens(String hyperlink, Document doc) throws IOException {
+        StringTokenizer tokens = new StringTokenizer(doc.text());
         String multicastMessage = "";
-
         while (tokens.hasMoreElements()) {
             String token = tokens.nextToken(); // Store the next token in a variable
-
-            if (multicastMessage.length() + token.length()+1 < 700) {
+            if (multicastMessage.getBytes(StandardCharsets.UTF_8).length + token.getBytes(StandardCharsets.UTF_8).length+1 < 700) {
                 if (!stopwordsSet.contains(token)) {
                     // Append the token to the multicast message
-                    multicastMessage = multicastMessage.concat("|!|").concat(token.toLowerCase());
+                    multicastMessage = multicastMessage.concat(" ").concat(token.toLowerCase());
                 }
             } else {
                 // Send the multicast message
-                sendMulticastMessage(multicastMessage);
+                sendMulticastMessage(hyperlink, multicastMessage, MessageType.TOKENS);
 
                 // Clear the multicast message
                 multicastMessage = "";
@@ -89,22 +88,20 @@ public class Downloader implements Runnable {
         }
     }
 
-    private void updateURLs(Document doc) throws IOException {
-
+    private void updateURLs(String hyperlink, Document doc) throws IOException {
         String multicastMessage = "";
-
         Elements links = doc.select("a[href]");
         for (Element link : links) {
             String newURL = link.attr("abs:href");
             if (isValidURL(newURL)) {
                 this.queue.addURL(newURL);
                 //System.out.printf("[DOWNLOADER#" + downloaderNumber + "]:" +GETTING LINK" + "\t" + newURL + "\n");
-                if (multicastMessage.length() + newURL.length()+1 < 700) {
-                    multicastMessage = multicastMessage.concat("|!|").concat(newURL.toLowerCase());
+                if (multicastMessage.getBytes(StandardCharsets.UTF_8).length + newURL.getBytes(StandardCharsets.UTF_8).length+1 < 700) {
+                    multicastMessage = multicastMessage.concat(newURL.toLowerCase()).concat("^");
                 }
                 else {
                     //System.out.println("[DOWNLOADER#" + downloaderNumber + "]:" + "Sending multicast message: " + multicastMessage);
-                    sendMulticastMessage(multicastMessage);
+                    sendMulticastMessage(hyperlink, multicastMessage, MessageType.CONNECTIONS);
                     multicastMessage = "";
                 }
             }
@@ -112,18 +109,26 @@ public class Downloader implements Runnable {
     }
 
 
-    private void sendMulticastMessage(String message) throws IOException {
+    private void sendMulticastMessage(String hyperlink, String payload, MessageType messageType){
         // Check if the message is empty
-        if (message == null || message.isEmpty()) {
+        if (hyperlink == null || hyperlink.isEmpty() || hyperlink.isBlank()|| payload == null || payload.isEmpty() || payload.isBlank()) {
             System.out.println("Message is empty. Not sending anything.");
             return; // Exit the method if the message is empty
         }
+        try{
+            MulticastMessage message = new MulticastMessage(hyperlink, messageType, payload);
 
-        byte[] buffer = message.getBytes();
+            byte[] buffer = message.getBytes();
 
-        InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, PORT);
-        socket.send(packet);
+            InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, PORT);
+            socket.send(packet);
+
+        }
+        catch (IOException e){
+            LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
+        }
+
     }
 
 
@@ -139,6 +144,62 @@ public class Downloader implements Runnable {
             return false;
         }
     }
+    private void sendTitle(String hyperlink, Document doc){
+        //verificar se há titulo
+        String title;
+        if(doc.title().isEmpty() || doc.title().isBlank()){
+            title = "No title found.";
+        }
+        else{
+            if(doc.title().getBytes(StandardCharsets.UTF_8).length + hyperlink.getBytes(StandardCharsets.UTF_8).length > 700) {
+                // Calculate the remaining space for the text
+                int remainingSpace = 700 - hyperlink.getBytes(StandardCharsets.UTF_8).length - 3;
+
+                // Get the substring of the first paragraph text to fit the remaining space
+                String truncatedText = new String(
+                        doc.title().getBytes(StandardCharsets.UTF_8),
+                        0,
+                        remainingSpace,
+                        StandardCharsets.UTF_8
+                );
+                // Append ellipsis to the truncated text
+                title = truncatedText + "...";
+            }
+            else{
+                title = doc.title();
+            }
+        }
+        sendMulticastMessage(hyperlink, title, MessageType.TITLE);
+    }
+
+    private void sendCitation(String hyperlink, Document doc){
+        //verificar se existe um firstParagraph
+        Element firstParagraph = doc.select("p").first();
+        String firstParagraphText;
+        if(firstParagraph != null && !firstParagraph.text().isEmpty() && !firstParagraph.text().isBlank()){
+            if(firstParagraph.text().getBytes(StandardCharsets.UTF_8).length + hyperlink.getBytes(StandardCharsets.UTF_8).length > 700) {
+                // Calculate the remaining space for the text
+                int remainingSpace = 700 - hyperlink.getBytes(StandardCharsets.UTF_8).length - 3;
+
+                // Get the substring of the first paragraph text to fit the remaining space
+                String truncatedText = new String(
+                        firstParagraph.text().getBytes(StandardCharsets.UTF_8),
+                        0,
+                        remainingSpace,
+                        StandardCharsets.UTF_8
+                );
+                // Append ellipsis to the truncated text
+                firstParagraphText = truncatedText + "...";
+            }
+            else {
+                firstParagraphText = firstParagraph.text();
+            }
+        }
+        else {
+            firstParagraphText = "No citation found.";
+        }
+        sendMulticastMessage(hyperlink, firstParagraphText, MessageType.CITATION);
+    }
 
     public void run() {
         while (queueExists) {
@@ -146,34 +207,11 @@ public class Downloader implements Runnable {
                 String url = this.queue.fetchURL();
                 // System.out.println("[DOWNLOADER#" + downloaderNumber + "]:" +"URL: " + url);
                 Document doc = Jsoup.connect(url).get();
-                //verificar se existe um firstParagraph
-                Element firstParagraph = doc.select("p").first();
-                String firstParagraphText = "No citation found.";
-                if(firstParagraph != null && !firstParagraph.text().isEmpty() && !firstParagraph.text().isBlank()){
-                    firstParagraphText = firstParagraph.text();
-                }
-                //verificar se há titulo
-                String title = doc.title();
-                if(doc.title().isEmpty() || doc.title().isBlank()){
-                    title = "No title found.";
-                }
-                // enviar url e título
-                //System.out.println("A");
-                sendMulticastMessage(url + "|" + title);
-                //enviar citação
-                //System.out.println("B");
-                sendMulticastMessage(firstParagraphText);
-                //enviar os tokens
-                //System.out.println("C");
-                StringTokenizer tokens = new StringTokenizer(doc.text());
-                sendToken(tokens);
-                //mandar divisor entre tokens e urls
-                sendMulticastMessage("\u0003");
-                //atualizar a queue com os urls da página visitada e enviá-los
-                //System.out.println("D");
-                updateURLs(doc);
-                //enviar mensagem final
-                sendMulticastMessage("§");
+                sendTitle(url, doc);
+                sendCitation(url, doc);
+                sendTokens(url, doc);
+                //atualizar a queue com os urls da página visitada e enviá-los por multicast
+                updateURLs(url, doc);
             }
             catch (RemoteException remoteException) {
                 // Set queueExists to false when RMI communication fails

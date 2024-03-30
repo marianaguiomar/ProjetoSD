@@ -11,7 +11,21 @@ public class RemissiveIndex {
 
     public void addWebPage(String hyperlink, String titulo, String citacao){
         WebPage webPage = new WebPage(hyperlink, titulo, citacao);
-        webPages.put(webPage.hyperlink(), webPage);
+        webPages.put(webPage.getHyperlink(), webPage);
+    }
+    public void printConnections() {
+        for (Map.Entry<String, HashSet<String>> entry : urlConnection.entrySet()) {
+            System.out.println("KEY: " + entry.getKey());
+            for (String url : entry.getValue()) {
+                System.out.println("  " + url);
+            }
+        }
+    }
+    public void printWebPages() {
+        for (Map.Entry<String, WebPage> entry : webPages.entrySet()) {
+            System.out.println(entry.getKey());
+            System.out.println(entry.getValue().toString());
+        }
     }
 
     public String getConnections(String hyperlink){
@@ -19,9 +33,11 @@ public class RemissiveIndex {
         StringBuilder result = new StringBuilder(header);
         if (urlConnection.containsKey(hyperlink)) {
             for (String url: urlConnection.get(hyperlink)) {
-                if(webPages.containsKey(url))
-                    result.append(webPages.get(url).toString());
+                result.append(webPages.get(url).toString());
             }
+        }
+        else{
+            System.out.println("No connections found for link: " + hyperlink);
         }
         return result.toString();
     }
@@ -58,6 +74,9 @@ public class RemissiveIndex {
         }
     }
     public void addIndex(String hyperlink, String token) {
+        if(hyperlink == null || token == null){
+            return;
+        }
         if (index.containsKey(token)) {
             index.get(token).add(hyperlink);
         }
@@ -65,6 +84,32 @@ public class RemissiveIndex {
             HashSet<String> urls = new HashSet<>();
             urls.add(hyperlink);
             index.put(token, urls);
+        }
+    }
+
+    public void insertWebPageCitation(String hyperlink, String citation) {
+        if(hyperlink == null || citation == null){
+            return;
+        }
+        if (webPages.containsKey(hyperlink)) {
+            webPages.get(hyperlink).setCitation(citation);
+        }
+        else {
+            WebPage webPage = new WebPage(hyperlink, "", citation);
+            webPages.put(hyperlink, webPage);
+        }
+    }
+
+    public void insertWebPageTitle(String hyperlink, String title) {
+        if(hyperlink == null || title == null){
+            return;
+        }
+        if (webPages.containsKey(hyperlink)) {
+            webPages.get(hyperlink).setTitle(title);
+        }
+        else {
+            WebPage webPage = new WebPage(hyperlink, title, "");
+            webPages.put(hyperlink, webPage);
         }
     }
 

@@ -41,41 +41,27 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
 
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
 
-    private String receiveMessage() throws IOException {
+    private MulticastMessage receiveMessage() throws IOException{
         byte[] buffer = new byte[1500];
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
         socket.receive(packet);
-        return new String(packet.getData(), 0, packet.getLength());
+        return MulticastMessage.getMessage(packet.getData());
     }
 
-    private String getHyperlink(String message) {
-        // Find the index of the first '|' character
-        int index = message.indexOf('|');
-
-        // If '|' is not found, return the entire message as the title
-        if (index == -1) {
-            return "";
-        }
-
-        // Extract the title from the beginning of the message up to '|' (excluding '|')
-        return message.substring(0, index);
+    private void receiveCitation(MulticastMessage message) {
+        String hyperlink = message.hyperlink();
+        String citation = message.payload();
+        remissiveIndex.insertWebPageCitation(hyperlink, citation);
     }
 
-    private String getTitle(String message) {
-        // Find the index of the first '|' character
-        int index = message.indexOf('|');
-
-        // If '|' is not found, return an empty string as there is no URL
-        if (index == -1) {
-            return "";
-        }
-
-        // Extract the URL from the message starting from the character after '|' (excluding '|')
-        return message.substring(index + 1);
+    private void receiveTitle(MulticastMessage message) {
+        String hyperlink = message.hyperlink();
+        String title = message.payload();
+        remissiveIndex.insertWebPageTitle(hyperlink, title);
     }
 
-    private StringTokenizer getTokens(String message) {
-        return new StringTokenizer(message, "\\|!\\|");
+    private StringTokenizer getTokens(String message, String delimiter) {
+        return new StringTokenizer(message, delimiter);
     }
 
     public WebPage[] search(String[] tokens, Integer pageNumber) throws RemoteException{
@@ -102,8 +88,8 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         Comparator<WebPage> comparator = new Comparator<WebPage>() {
             @Override
             public int compare(WebPage page1, WebPage page2) {
-                String url1 = page1.hyperlink();
-                String url2 = page2.hyperlink();
+                String url1 = page1.getHyperlink();
+                String url2 = page2.getHyperlink();
 
                 int connections1 = remissiveIndex.getNumberOfConnections(url1);
                 int connections2 = remissiveIndex.getNumberOfConnections(url2);
@@ -195,28 +181,19 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
 
 
 
-    private void receiveTokens(String hyperlink) throws IOException {
-
-        String message = receiveMessage();
-        while (message.charAt(0) != '\u0003') {
-            StringTokenizer tokens = getTokens(message);
-            while (tokens.hasMoreElements()) {
-                String token = tokens.nextToken();
-                remissiveIndex.addIndex(hyperlink, token);
-            }
-            message = receiveMessage();
+    private void receiveTokens(MulticastMessage message) {
+        StringTokenizer tokens = getTokens(message.payload(), " ");
+        while (tokens.hasMoreElements()) {
+            String token = tokens.nextToken();
+            remissiveIndex.addIndex(message.hyperlink(), token);
         }
     }
 
-    private void receiveConnections(String hyperlink) throws IOException {
-        String message = receiveMessage();
-        while (message.charAt(0) != '§') {
-            StringTokenizer mentionsURLS = getTokens(message);
-            while (mentionsURLS.hasMoreElements()) {
-                String url = mentionsURLS.nextToken(); // Store the next token in a variable {
-                remissiveIndex.addURLConnections(url, hyperlink);
-            }
-            message = receiveMessage();
+    private void receiveConnections(MulticastMessage message){
+        StringTokenizer mentionsURLS = getTokens(message.payload(), "^");
+        while (mentionsURLS.hasMoreElements()) {
+            String url = mentionsURLS.nextToken();
+            remissiveIndex.addURLConnections(url, message.hyperlink());
         }
     }
 
@@ -227,15 +204,20 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
             socket.joinGroup(new InetSocketAddress(mcastaddr, 0), NetworkInterface.getByIndex(0));
 
             while (multicastAvailable) {
-                String message = receiveMessage();
-                String titulo = getTitle(message);
-                String hyperlink = getHyperlink(message);
-                String citacao = receiveMessage();
-                remissiveIndex.addWebPage(hyperlink, titulo, citacao);
-                receiveTokens(hyperlink);
-                receiveConnections(hyperlink);
-                //printHashMap();
-
+                MulticastMessage message = receiveMessage();
+                if(message == null){
+                    continue;
+                }
+                switch (message.messageType()){
+                    case TITLE -> //System.out.println("[BARREL#" + barrelNumber + "]:" + "    Received TITLE message: " + message.payload());
+                            receiveTitle(message);
+                    case CITATION -> //System.out.println("[BARREL#" + barrelNumber + "]:" + "    Received CITATION message: " + message.payload());
+                            receiveCitation(message);
+                    case TOKENS -> //System.out.println("[BARREL#" + barrelNumber + "]:" + "    Received TOKENS message: " + message.payload());
+                            receiveTokens(message);
+                    case CONNECTIONS -> //System.out.println("[BARREL#" + barrelNumber + "]:" + "    Received CONNECTIONS message: " + message.payload());
+                            receiveConnections(message);
+                }
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
