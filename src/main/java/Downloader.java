@@ -77,7 +77,7 @@ public class Downloader implements Runnable {
             if (multicastMessage.length() + token.length()+1 < 700) {
                 if (!stopwordsSet.contains(token)) {
                     // Append the token to the multicast message
-                    multicastMessage = multicastMessage.concat(" ").concat(token.toLowerCase());
+                    multicastMessage = multicastMessage.concat("|!|").concat(token.toLowerCase());
                 }
             } else {
                 // Send the multicast message
@@ -100,9 +100,10 @@ public class Downloader implements Runnable {
                 this.queue.addURL(newURL);
                 //System.out.printf("[DOWNLOADER#" + downloaderNumber + "]:" +GETTING LINK" + "\t" + newURL + "\n");
                 if (multicastMessage.length() + newURL.length()+1 < 700) {
-                    multicastMessage = multicastMessage.concat(" ").concat(newURL.toLowerCase());
+                    multicastMessage = multicastMessage.concat("|!|").concat(newURL.toLowerCase());
                 }
                 else {
+                    //System.out.println("[DOWNLOADER#" + downloaderNumber + "]:" + "Sending multicast message: " + multicastMessage);
                     sendMulticastMessage(multicastMessage);
                     multicastMessage = "";
                 }
@@ -114,7 +115,7 @@ public class Downloader implements Runnable {
     private void sendMulticastMessage(String message) throws IOException {
         // Check if the message is empty
         if (message == null || message.isEmpty()) {
-            //System.out.println("Message is empty. Not sending anything.");
+            System.out.println("Message is empty. Not sending anything.");
             return; // Exit the method if the message is empty
         }
 
@@ -128,6 +129,9 @@ public class Downloader implements Runnable {
 
     // TODO -> verificar se é necessário, se não for, apagar. (Pode ser substituído por um throw?)
     private boolean isValidURL(String url) {
+        if (url == null || url.isEmpty() || url.isBlank()) {
+            return false;
+        }
         try {
             new URL(url).toURI();
             return true;
@@ -140,24 +144,33 @@ public class Downloader implements Runnable {
         while (queueExists) {
             try {
                 String url = this.queue.fetchURL();
-                System.out.println("[DOWNLOADER#" + downloaderNumber + "]:" +"URL: " + url);
+                // System.out.println("[DOWNLOADER#" + downloaderNumber + "]:" +"URL: " + url);
                 Document doc = Jsoup.connect(url).get();
                 //verificar se existe um firstParagraph
                 Element firstParagraph = doc.select("p").first();
-                if(firstParagraph == null){
-                    continue;
+                String firstParagraphText = "No citation found.";
+                if(firstParagraph != null && !firstParagraph.text().isEmpty() && !firstParagraph.text().isBlank()){
+                    firstParagraphText = firstParagraph.text();
                 }
-                String firstParagraphText = firstParagraph.text();
+                //verificar se há titulo
+                String title = doc.title();
+                if(doc.title().isEmpty() || doc.title().isBlank()){
+                    title = "No title found.";
+                }
                 // enviar url e título
-                sendMulticastMessage(url + "|" + doc.title());
+                //System.out.println("A");
+                sendMulticastMessage(url + "|" + title);
                 //enviar citação
+                //System.out.println("B");
                 sendMulticastMessage(firstParagraphText);
                 //enviar os tokens
+                //System.out.println("C");
                 StringTokenizer tokens = new StringTokenizer(doc.text());
                 sendToken(tokens);
                 //mandar divisor entre tokens e urls
                 sendMulticastMessage("\u0003");
                 //atualizar a queue com os urls da página visitada e enviá-los
+                //System.out.println("D");
                 updateURLs(doc);
                 //enviar mensagem final
                 sendMulticastMessage("§");
@@ -167,8 +180,14 @@ public class Downloader implements Runnable {
                 queueExists = false;
                 socket.close();
             }
+            catch (MalformedURLException malformedURLException){
+                //System.out.println("[DOWNLOADER#" + downloaderNumber + "]: Malformed URL exception occurred, discarding hyperlink");
+            }
+            catch (SocketTimeoutException e){
+                //System.out.println("[DOWNLOADER#" + downloaderNumber + "]: Socket timeout exception occurred, discarding hyperlink");
+            }
             catch (HttpStatusException e) {
-                // do nothing
+                //System.out.println("[DOWNLOADER#" + downloaderNumber + "]: HTTP status exception occurred, discarding hyperlink");
             }
             catch (IOException | InterruptedException e) {
                 LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);

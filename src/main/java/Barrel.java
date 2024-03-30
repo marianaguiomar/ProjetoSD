@@ -7,15 +7,12 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runnable{
     public static HashSet<Integer> activeBarrelIds = new HashSet<>();
     private final String MULTICAST_ADDRESS;
     private final int PORT;
-    private final HashMap<String, HashSet<String>> index;
-    private final HashMap<String, WebPage> webPages;
-    private final HashMap<String, HashSet<String>> urlConnection;
+    private final RemissiveIndex remissiveIndex;
     private final LinkedHashMap<String, Integer> searches;
     private final MulticastSocket socket;
     private final int barrelNumber;
@@ -26,10 +23,8 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         this.MULTICAST_ADDRESS = multicastAddress;
         this.PORT = port;
         this.socket = new MulticastSocket(PORT); // create socket and bind it
-        this.index = new HashMap<>();
-        this.webPages = new HashMap<>();
-        this.urlConnection = new HashMap<>();
         this.searches = new LinkedHashMap<>();
+        this.remissiveIndex = new RemissiveIndex();
         activeBarrelIds.add(barrelNumber);
 
         // Bind Barrel object to the existing registry
@@ -39,44 +34,12 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         } catch (RemoteException e) {
             //String rmiAddress = "rmi://" + InetAddress.getLocalHost().getHostAddress() + ":" + PORT + "/barrel" + barrelNumber;
             //System.out.println("[BARREL#" + barrelNumber + "]:" + "    RMI Address: " + rmiAddress);
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
         }
         System.out.println("[BARREL#" + barrelNumber + "]:" + "   Ready...");
     }
 
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
-
-    private void addWebPage(String hyperlink, String titulo, String citacao){
-        if(hyperlink.isBlank() || hyperlink.isEmpty() || titulo.isBlank() || titulo.isEmpty() || citacao.isBlank() || citacao.isEmpty()){
-            return;
-        }
-        WebPage webPage = new WebPage(hyperlink, titulo, citacao);
-        webPages.put(webPage.hyperlink(), webPage);
-    }
-    private void addIndex(String hyperlink, String token) {
-        if (index.containsKey(token)) {
-            index.get(token).add(hyperlink);
-        }
-        else {
-            HashSet<String> urls = new HashSet<>();
-            urls.add(hyperlink);
-            index.put(token, urls);
-        }
-    }
-
-    private void printHashMap() {
-
-        for (Map.Entry<String, HashSet<String>> entry : index.entrySet()) {
-            String keyword = entry.getKey();
-            HashSet<String> urls = entry.getValue();
-
-            System.out.println("[BARREL#" + barrelNumber + "]:" + "    Keyword: " + keyword);
-            System.out.println("[BARREL#" + barrelNumber + "]:" + "    URLs:");
-            for (String url : urls) {
-                System.out.println("[BARREL#" + barrelNumber + "]:" + "      " + url);
-            }
-        }
-    }
 
     private String receiveMessage() throws IOException {
         byte[] buffer = new byte[1500];
@@ -111,19 +74,12 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         return message.substring(index + 1);
     }
 
-    private String[] getTokens(String message) {
-        return message.split(" ");
+    private StringTokenizer getTokens(String message) {
+        return new StringTokenizer(message, "\\|!\\|");
     }
 
     public WebPage[] search(String[] tokens, Integer pageNumber) throws RemoteException{
-        LinkedList<WebPage> result = new LinkedList<>();
-        for (String token: tokens) {
-            if (index.containsKey(token)) {
-                HashSet<String> URLs = index.get(token);
-                Stream<WebPage> resultingWebPages = URLs.stream().filter(webPages::containsKey).map(webPages::get);
-                resultingWebPages.forEach(result::add);
-            }
-        }
+        LinkedList<WebPage> result = remissiveIndex.findWebPages(tokens);
         String currKey = String.join(" ", tokens);
         if (searches.containsKey(currKey)) {
             System.out.println("[BARREL#" + barrelNumber + "]:" + "    Found! ");
@@ -149,8 +105,8 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
                 String url1 = page1.hyperlink();
                 String url2 = page2.hyperlink();
 
-                int connections1 = urlConnection.get(url1).size();
-                int connections2 = urlConnection.get(url2).size();
+                int connections1 = remissiveIndex.getNumberOfConnections(url1);
+                int connections2 = remissiveIndex.getNumberOfConnections(url2);
 
                 // Compare the lengths of the attribute in each WebPage in reverse order
                 return Integer.compare(connections2, connections1); // Compare in reverse order
@@ -184,9 +140,8 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         }
 
         // Convert the StringBuilder to a string
-        String resultString = result.toString();
 
-        return resultString;
+        return result.toString();
     }
 
     public String formatSearches() {
@@ -208,7 +163,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         List<Map.Entry<String, Integer>> entryList = new ArrayList<>(searches.entrySet());
 
         // Sort the list based on values in descending order using a lambda expression
-        Collections.sort(entryList, (o1, o2) -> o2.getValue().compareTo(o1.getValue()));
+        entryList.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
 
         // Create a new LinkedHashMap to preserve the order
         Map<String, Integer> sortedMap = new LinkedHashMap<>();
@@ -235,58 +190,34 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
 
 
     public String getConnections(String URL) throws RemoteException{
-        String result = "";
-
-        //TODO -> verificar casos a falhar, "https://nytimes.com"
-        if (urlConnection.containsKey(URL)) {
-            for (String url: urlConnection.get(URL)) {
-                result = result.concat(url).concat("\n");
-            }
-        }
-        //TODO -> alterar isto
-        else result = "Link inválido \n";
-
-        return result;
+        return remissiveIndex.getConnections(URL);
     }
 
-    private void addURLConnections(String url, String hyperlink) {
-        HashSet<String> currentResult;
-        if (urlConnection.containsKey(url)) {
-            currentResult = urlConnection.get(url);
-            currentResult.add(hyperlink);
-        }
-        else {
-            currentResult = new HashSet<>();
-            currentResult.add(hyperlink);
-            urlConnection.put(url, currentResult);
-        }
-    }
+
 
     private void receiveTokens(String hyperlink) throws IOException {
 
         String message = receiveMessage();
         while (message.charAt(0) != '\u0003') {
-            String[] tokens = getTokens(message);
-            for (String token: tokens) {
-                addIndex(hyperlink, token);
+            StringTokenizer tokens = getTokens(message);
+            while (tokens.hasMoreElements()) {
+                String token = tokens.nextToken();
+                remissiveIndex.addIndex(hyperlink, token);
             }
             message = receiveMessage();
         }
     }
 
     private void receiveConnections(String hyperlink) throws IOException {
-        if (!urlConnection.containsKey(hyperlink)) {
-            urlConnection.put(hyperlink, new HashSet<>());
-        }
         String message = receiveMessage();
         while (message.charAt(0) != '§') {
-            String[] mentionsURLS = getTokens(message);
-            for (String url: mentionsURLS) {
-                addURLConnections(url, hyperlink);
+            StringTokenizer mentionsURLS = getTokens(message);
+            while (mentionsURLS.hasMoreElements()) {
+                String url = mentionsURLS.nextToken(); // Store the next token in a variable {
+                remissiveIndex.addURLConnections(url, hyperlink);
             }
             message = receiveMessage();
         }
-
     }
 
 
@@ -300,8 +231,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
                 String titulo = getTitle(message);
                 String hyperlink = getHyperlink(message);
                 String citacao = receiveMessage();
-                System.out.println("Adding citation: " + citacao + "\n");
-                addWebPage(hyperlink, titulo, citacao);
+                remissiveIndex.addWebPage(hyperlink, titulo, citacao);
                 receiveTokens(hyperlink);
                 receiveConnections(hyperlink);
                 //printHashMap();
@@ -328,7 +258,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
             Barrel barrel = new Barrel(registry, "224.3.2.1", 4321, 0);
             barrel.run();
         } catch (RemoteException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
         }
     }
 }

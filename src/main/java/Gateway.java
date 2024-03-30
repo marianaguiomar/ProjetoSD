@@ -148,6 +148,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface, Ru
 
     public String getConnections(String URL) throws RemoteException {
         String result = "Resultado: \n";
+        System.out.println("[GATEWAY]: Getting connections for URL: " + URL);
         result = result.concat(barrel.getConnections(URL));
 
         System.out.println(result);
