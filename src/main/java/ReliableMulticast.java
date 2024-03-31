@@ -23,15 +23,14 @@ public class ReliableMulticast {
     static LinkedBlockingQueue<MulticastMessage> receiveMessageQueue;
     private static final int PACKET_SIZE = 1500;
     private static final Duration timeoutDuration = Duration.ofSeconds(15);
-
     private static final Logger LOGGER = Logger.getLogger(ReliableMulticast.class.getName());
 
     public ReliableMulticast(String MULTICAST_ADDRESS, int PORT, String CONFIRMATION_MULTICAST_ADDRESS, int CONFIRMATION_PORT) {
         sendMessageQueue = new LinkedBlockingQueue<>();
         receiveMessageQueue = new LinkedBlockingQueue<>();
         // Create sender and receiver threads
-        Thread senderThread = new Thread(new Sender(MULTICAST_ADDRESS, PORT, CONFIRMATION_MULTICAST_ADDRESS, CONFIRMATION_PORT));
-        Thread receiverThread = new Thread(new Receiver(MULTICAST_ADDRESS, PORT, CONFIRMATION_MULTICAST_ADDRESS, CONFIRMATION_PORT));
+        Thread senderThread = new Thread(new Sender(MULTICAST_ADDRESS, PORT, CONFIRMATION_PORT));
+        Thread receiverThread = new Thread(new Receiver(MULTICAST_ADDRESS, PORT, CONFIRMATION_PORT));
 
         // Start sender and receiver threads
         senderThread.start();
@@ -45,7 +44,7 @@ public class ReliableMulticast {
     public void sendMulticastMessage(String hyperlink, String payload, MessageType messageType){
         // Check if the message is empty
         if (hyperlink == null || hyperlink.isEmpty() || hyperlink.isBlank()|| payload == null || payload.isEmpty() || payload.isBlank()) {
-            System.out.println("Message is empty. Not sending anything.");
+            //Stem.out.println("Message is empty. Not sending anything.");
             return; // Exit the method if the message is empty
         }
         MulticastMessage message = new MulticastMessage(hyperlink, messageType, payload);
@@ -56,25 +55,22 @@ public class ReliableMulticast {
     }
 
 
-    static class Sender implements Runnable {
+    public static class Sender implements Runnable {
         private final String MULTICAST_ADDRESS;
         private final int PORT;
         private MulticastSocket socket;
-        private final String CONFIRMATION_MULTICAST_ADDRESS;
         private MulticastSocket confirmationSocket;
         private final int CONFIRMATION_PORT;
         InetAddress group;
-        InetAddress confirmationGroup;
 
         private void initializeSenderSockets(){
             try {
-                // Sender listens for confirmation
-                this.confirmationSocket = new MulticastSocket(this.CONFIRMATION_PORT);
-                this.confirmationGroup = InetAddress.getByName(CONFIRMATION_MULTICAST_ADDRESS);
-                this.confirmationSocket.joinGroup(new InetSocketAddress(this.confirmationGroup, 0), NetworkInterface.getByIndex(0));
-                // Sender doesnt bind to main socket (only sends)
                 this.socket = new MulticastSocket();
                 this.group = InetAddress.getByName(this.MULTICAST_ADDRESS);
+
+                this.confirmationSocket = new MulticastSocket(this.CONFIRMATION_PORT);
+                this.confirmationSocket.joinGroup(group);
+
             }
             catch (IOException | SecurityException | IllegalArgumentException e) {
                 LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
@@ -82,12 +78,10 @@ public class ReliableMulticast {
             }
         }
 
-        Sender(String multicastAddress, int port, String confirmationMulticastAddress, int confirmationPort) {
-            MULTICAST_ADDRESS = multicastAddress;
-            PORT = port;
-            CONFIRMATION_MULTICAST_ADDRESS = confirmationMulticastAddress;
-            CONFIRMATION_PORT = confirmationPort;
-            initializeSenderSockets();
+        Sender(String multicastAddress, int port,  int confirmationPort) {
+            this.MULTICAST_ADDRESS = multicastAddress;
+            this.PORT = port;
+            this.CONFIRMATION_PORT = confirmationPort;
         }
 
         // Method to process acknowledgment (confirmation) from the receiver
@@ -102,10 +96,10 @@ public class ReliableMulticast {
                     confirmationSocket.receive(packet);
                     MulticastMessage message = MulticastMessage.getMessage(packet.getData());
                     assert message != null;
-                     System.out.println("Reived confirmation" + message.payload());
+                     //Stem.out.println("Reived confirmation" + message.payload());
                     // Evalute message type and compare messageID with sent packet sequence number
                     if(message.messageType() == MessageType.CONFIRMATION && message.payload().equals(sentMessageID)){
-                        System.out.println("received confirmation\n");
+                        //Stem.out.println("received confirmation\n");
                         return true;
                     }
                     elapsedTime = Duration.between(startTime, Instant.now());
@@ -127,7 +121,7 @@ public class ReliableMulticast {
                 byte[] buffer = message.getBytes();
                 DatagramPacket packet = new DatagramPacket(buffer,buffer.length, group, PORT);
                 socket.send(packet);
-                System.out.println("Sent message" + message.messageID());
+                //Stem.out.println("Sent message" + message.messageID());
                 // Keep sending package until confirmation is received
                 while (!waitForConfirmation(message.messageID())){
                     socket.send(packet);
@@ -141,6 +135,7 @@ public class ReliableMulticast {
         public void run(){
             while(true){
                 try {
+                    initializeSenderSockets();
                     MulticastMessage message = sendMessageQueue.take();
                     sendMessage(message);
                 }
@@ -150,24 +145,20 @@ public class ReliableMulticast {
             }
         }
     }
-    static class Receiver implements Runnable{
+    public static class Receiver implements Runnable{
         private final String MULTICAST_ADDRESS;
         private final int PORT;
         private MulticastSocket socket;
-        private final String CONFIRMATION_MULTICAST_ADDRESS;
-        private MulticastSocket confirmationSocket;
         private final int CONFIRMATION_PORT;
+        private MulticastSocket confirmationSocket;
         InetAddress group;
-        InetAddress confirmationGroup;
         private void initializeReceiverSockets(){
             try {
-                // Receiver doesn't bind to confirmation socket (only sends)
+                this.socket = new MulticastSocket(this.PORT); // Use the same port used for sending
+                this.group = InetAddress.getByName(this.MULTICAST_ADDRESS); // Use the same multicast group address used for sending
+                socket.joinGroup(group);
+
                 this.confirmationSocket = new MulticastSocket();
-                this.confirmationGroup = InetAddress.getByName(CONFIRMATION_MULTICAST_ADDRESS);
-                // Receiver binds to main socket (receive messages)
-                this.socket = new MulticastSocket(this.PORT);
-                this.group = InetAddress.getByName(MULTICAST_ADDRESS);
-                this.socket.joinGroup(new InetSocketAddress(this.group, 0), NetworkInterface.getByIndex(0));
             }
             catch (IOException | SecurityException | IllegalArgumentException e) {
                 LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
@@ -175,12 +166,10 @@ public class ReliableMulticast {
             }
         }
 
-        Receiver(String multicastAddress, int port, String confirmationMulticastAddress, int confirmationPort) {
-            MULTICAST_ADDRESS = multicastAddress;
-            PORT = port;
-            CONFIRMATION_MULTICAST_ADDRESS = confirmationMulticastAddress;
-            CONFIRMATION_PORT = confirmationPort;
-            initializeReceiverSockets();
+        Receiver(String multicastAddress, int port,  int confirmationPort) {
+            this.MULTICAST_ADDRESS = multicastAddress;
+            this.PORT = port;
+            this.CONFIRMATION_PORT = confirmationPort;
         }
 
         /*
@@ -195,9 +184,9 @@ public class ReliableMulticast {
             try{
                 MulticastMessage message = new MulticastMessage(hyperlink, MessageType.CONFIRMATION, messageID);
                 byte[] buffer = message.getBytes();
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, confirmationGroup, CONFIRMATION_PORT);
-                System.out.println("Sent confirmation" + message.payload());
-                confirmationSocket.send(packet);
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, this.group, CONFIRMATION_PORT);
+                //Stem.out.println("Sent confirmation" + message.payload());
+                this.confirmationSocket.send(packet);
             }
             catch(SocketException e) {
                 sleep(10);
@@ -218,7 +207,7 @@ public class ReliableMulticast {
                 assert message != null;
                 // Send acknowledgment (confirmation) to the sender
                 sendConfirmationMulticastMessage(message.hyperlink(), message.messageID());
-                System.out.println("Received message" + message.messageID());
+                //Stem.out.println("Received message" + message.messageID());
                 receiveMessageQueue.add(message);
             }
             catch (InterruptedException | IOException e){
@@ -228,6 +217,7 @@ public class ReliableMulticast {
 
         public void run(){
             try {
+                initializeReceiverSockets();
                 while (true) {
                     receiveMessage();
                 }

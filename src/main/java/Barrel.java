@@ -196,9 +196,9 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         StringTokenizer tokens = getTokens(message.payload(), " ");
         while (tokens.hasMoreElements()) {
             String token = tokens.nextToken();
+            if(token.equals("congress"))
+                System.out.println("[Barrel#" + barrelNumber +"] TOKEN: " + token);
             remissiveIndex.addIndex(message.hyperlink(), token.trim());
-            if(token.equals("war"))
-                System.out.println("[BARREL#" + barrelNumber + "]:" + "    Received token: " + token);
         }
     }
 

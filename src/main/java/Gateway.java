@@ -23,7 +23,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface, Ru
 
     public Gateway(int port,int barrelNumber, String barrelPath, String queuePath) throws RemoteException, MalformedURLException, NotBoundException {
         super();
-        this.barrelInUse = 1;
+        this.barrelInUse = 2;
         this.barrelNumber = barrelNumber;
         this.queuePath = queuePath;
         this.barrelPath = barrelPath;
