@@ -1,3 +1,5 @@
+package Googol;
+
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
@@ -37,7 +39,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
             // Create RMI registry
             Registry registry = LocateRegistry.createRegistry(1099);
             QueueInterface queue = new Queue(registry);
-            System.out.println("Queue Ready...");
+            System.out.println("Googol.Queue Ready...");
     }
         catch (RemoteException e) {
         e.printStackTrace();

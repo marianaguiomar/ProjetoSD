@@ -1,3 +1,5 @@
+package Multicast;
+
 import java.io.*;
 import java.util.UUID;
 public record MulticastMessage(String hyperlink, MessageType messageType, String payload , String messageID) implements Serializable {

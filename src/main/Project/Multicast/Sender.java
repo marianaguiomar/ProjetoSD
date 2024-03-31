@@ -1,3 +1,5 @@
+package Multicast;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -42,7 +44,7 @@ public class Sender {
         }
     }
 
-    Sender(String multicastAddress, int port,  int confirmationPort) {
+    public Sender(String multicastAddress, int port, int confirmationPort) {
         this.MULTICAST_ADDRESS = multicastAddress;
         this.PORT = port;
         this.CONFIRMATION_PORT = confirmationPort;

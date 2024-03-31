@@ -1,4 +1,7 @@
-import java.net.*;
+package Googol;
+
+import Multicast.MulticastMessage;
+import Multicast.Receiver;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -23,7 +26,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         this.remissiveIndex = new RemissiveIndex();
         activeBarrelIds.add(barrelNumber);
         this.receiver = new Receiver(multicastAddress, port, confirmationPort);
-        // Bind Barrel object to the existing registry
+        // Bind Googol.Barrel object to the existing registry
         try {
             registry.rebind("barrel" + barrelNumber, this);
 
@@ -103,7 +106,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
                 int connections1 = remissiveIndex.getNumberOfConnections(url1);
                 int connections2 = remissiveIndex.getNumberOfConnections(url2);
 
-                // Compare the lengths of the attribute in each WebPage in reverse order
+                // Compare the lengths of the attribute in each Googol.WebPage in reverse order
                 return Integer.compare(connections2, connections1); // Compare in reverse order
             }
         };

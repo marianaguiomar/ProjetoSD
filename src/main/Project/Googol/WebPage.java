@@ -1,3 +1,5 @@
+package Googol;
+
 import java.io.Serializable;
 
 public class WebPage implements Serializable {

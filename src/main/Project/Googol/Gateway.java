@@ -1,3 +1,5 @@
+package Googol;
+
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -37,16 +39,16 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface, Ru
             this.queue = (QueueInterface) Naming.lookup(queuePath);
         }
         catch(NotBoundException notBoundException){
-            System.out.println("[GATEWAY]: Queue not found");
+            System.out.println("[GATEWAY]: Googol.Queue not found");
         }
         catch (RemoteException remoteException){
-            System.out.println("[GATEWAY]: Remote Exception in Queue");
+            System.out.println("[GATEWAY]: Remote Exception in Googol.Queue");
         }
         catch (MalformedURLException malformedURLException){
-            System.out.println("[GATEWAY]: Malformed URL Exception in Queue");
+            System.out.println("[GATEWAY]: Malformed URL Exception in Googol.Queue");
         }
         finally {
-            System.out.println("[GATEWAY]: Queue found");
+            System.out.println("[GATEWAY]: Googol.Queue found");
         }
     }
 
@@ -56,7 +58,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface, Ru
             this.barrel = (BarrelInterface) Naming.lookup(barrelPath + barrelInUse);
         }
         catch(NotBoundException notBoundException){
-            System.out.println("[GATEWAY]: Barrel number "+ barrelInUse +" not found. Trying next barrel...");
+            System.out.println("[GATEWAY]: Googol.Barrel number "+ barrelInUse +" not found. Trying next barrel...");
             barrelInUse = (barrelInUse + 1) % (barrelNumber);
             //connectToBarrel();
         }
@@ -67,13 +69,13 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface, Ru
             System.out.println("[GATEWAY]: Malformed URL Exception");
         }
         finally {
-            System.out.println("[GATEWAY]: Barrel found");
+            System.out.println("[GATEWAY]: Googol.Barrel found");
         }
     }
     public void run(){
         connectToQueue();
         connectToBarrel();
-        System.out.println("[GATEWAY]: Gateway Ready...");
+        System.out.println("[GATEWAY]: Googol.Gateway Ready...");
     }
     public void updateSearches(long duration){
         if (!totalDuration.containsKey(barrelInUse)) {
@@ -178,7 +180,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface, Ru
     public static void main(String[] args) throws RemoteException, MalformedURLException, NotBoundException {
         GatewayInterface gateway = new Gateway(1100, 1,"rmi://localhost:4321/barrel1", "rmi://localhost/queue");
 
-        System.out.println("[GATEWAY]: Gateway Ready...");
+        System.out.println("[GATEWAY]: Googol.Gateway Ready...");
     }
 
 

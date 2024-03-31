@@ -1,3 +1,5 @@
+package Multicast;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -31,7 +33,7 @@ public class Receiver{
         }
     }
 
-    Receiver(String multicastAddress, int port,  int confirmationPort) {
+    public Receiver(String multicastAddress, int port, int confirmationPort) {
         this.MULTICAST_ADDRESS = multicastAddress;
         this.PORT = port;
         this.CONFIRMATION_PORT = confirmationPort;
@@ -43,7 +45,7 @@ public class Receiver{
      * Each packet sent by the sender contains a sequence number,
      * and the receiver acknowledges the receipt of each packet individually.
      * The sequence number is the MessageID, which is unique for each message.
-     * Every confirmation message has the type MessageType.CONFIRMATION to distinguish it from other messages.
+     * Every confirmation message has the type Multicast.MessageType.CONFIRMATION to distinguish it from other messages.
      * */
 
     public void sendConfirmationMulticastMessage(String hyperlink, String messageID) throws InterruptedException {

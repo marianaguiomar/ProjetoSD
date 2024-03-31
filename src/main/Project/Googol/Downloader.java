@@ -1,3 +1,7 @@
+package Googol;
+
+import Multicast.MessageType;
+import Multicast.Sender;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
