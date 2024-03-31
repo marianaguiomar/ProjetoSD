@@ -4,10 +4,15 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ProjectManager {
     private final String MULTICAST_ADDRESS = "224.3.2.1";
     private final int PORT = 4321;
+    private final String CONFIRMATION_MULTICAST_ADDRESS = "224.3.2.2";
+    private final int CONFIRMATION_PORT = 4322;
+    private static final Logger LOGGER = Logger.getLogger(ReliableMulticast.class.getName());
 
     Registry registry;
     final int gatewayPort;
@@ -21,11 +26,11 @@ public class ProjectManager {
         barrelsThreads = new Thread[numberOfBarrels];
         for (int i = 1; i <= numberOfBarrels; i++) {
             try {
-                Barrel barrel = new Barrel(registry, MULTICAST_ADDRESS, PORT, i);
+                Barrel barrel = new Barrel(registry, MULTICAST_ADDRESS, PORT, CONFIRMATION_MULTICAST_ADDRESS, CONFIRMATION_PORT,i);
                 barrelsThreads[i - 1] = new Thread(barrel);
                 barrelsThreads[i - 1].start();
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
             }
         }
     }
@@ -34,12 +39,12 @@ public class ProjectManager {
         downloadersThreads = new Thread[numberOfDownloaders];
         for (int i = 0; i < numberOfDownloaders; i++) {
             try {
-                Downloader downloader = new Downloader(MULTICAST_ADDRESS, PORT,
+                Downloader downloader = new Downloader(MULTICAST_ADDRESS, PORT, CONFIRMATION_MULTICAST_ADDRESS, CONFIRMATION_PORT,
                         "rmi://localhost:" + this.PORT + "/queue", i+1);
                 downloadersThreads[i] = new Thread(downloader);
                 downloadersThreads[i].start();
             } catch (IOException | NotBoundException e) {
-                e.printStackTrace();
+                LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
             }
         }
     }
@@ -50,7 +55,7 @@ public class ProjectManager {
             gatewayThread = new Thread(gateway);
             gatewayThread.start();
         } catch (RemoteException | NotBoundException | MalformedURLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
         }
     }
 
@@ -62,7 +67,7 @@ public class ProjectManager {
             // Create RMI registry
             registry = LocateRegistry.createRegistry(PORT);
         } catch (RemoteException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
         }
         Queue queue = new Queue(registry);
         initializeDownloaders();

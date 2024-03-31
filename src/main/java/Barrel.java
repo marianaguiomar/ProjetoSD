@@ -11,25 +11,18 @@ import java.util.logging.Logger;
 public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runnable{
     // TODO -> see static variable
     public static HashSet<Integer> activeBarrelIds = new HashSet<>();
-    private final String MULTICAST_ADDRESS;
-    private final int PORT;
+    private final ReliableMulticast reliableMulticast;
     private final RemissiveIndex remissiveIndex;
     private final LinkedHashMap<String, Integer> searches;
-    private final MulticastSocket socket;
     private final int barrelNumber;
-    private final int CONFIRMATION_PORT;
     boolean multicastAvailable = true; // Initially assume multicast group is available
 
-    public Barrel(Registry registry, String multicastAddress, int port, int barrelNumber) throws IOException {
+    public Barrel(Registry registry, String multicastAddress, int port, String confirmationMulticastAddress, int confirmationPort, int barrelNumber) throws IOException {
         this.barrelNumber = barrelNumber;
-        this.MULTICAST_ADDRESS = multicastAddress;
-        this.PORT = port;
-        this.CONFIRMATION_PORT = port + 1;
-        this.socket = new MulticastSocket(PORT); // create socket and bind it
         this.searches = new LinkedHashMap<>();
         this.remissiveIndex = new RemissiveIndex();
         activeBarrelIds.add(barrelNumber);
-
+        this.reliableMulticast = new ReliableMulticast(multicastAddress, port, confirmationMulticastAddress, confirmationPort);
         // Bind Barrel object to the existing registry
         try {
             registry.rebind("barrel" + barrelNumber, this);
@@ -43,33 +36,11 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
     }
 
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
-
-    private MulticastMessage receiveMessage() throws IOException{
-        byte[] buffer = new byte[1500];
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-        socket.receive(packet);
-        return MulticastMessage.getMessage(packet.getData());
-    }
-
+    
     private void receiveCitation(MulticastMessage message) {
         String hyperlink = message.hyperlink();
         String citation = message.payload();
         remissiveIndex.insertWebPageCitation(hyperlink, citation);
-    }
-    private void sendMulticastMessage(String hyperlink, String payload){
-        try{
-            MulticastMessage message = new MulticastMessage(hyperlink, MessageType.CONFIRMATION, payload);
-
-            byte[] buffer = message.getBytes();
-
-            InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, this.CONFIRMATION_PORT);
-            socket.send(packet);
-        }
-        catch (IOException e){
-            LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
-        }
-
     }
     private void receiveTitle(MulticastMessage message) {
         String hyperlink = message.hyperlink();
@@ -225,7 +196,9 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         StringTokenizer tokens = getTokens(message.payload(), " ");
         while (tokens.hasMoreElements()) {
             String token = tokens.nextToken();
-            remissiveIndex.addIndex(message.hyperlink(), token);
+            remissiveIndex.addIndex(message.hyperlink(), token.trim());
+            if(token.equals("war"))
+                System.out.println("[BARREL#" + barrelNumber + "]:" + "    Received token: " + token);
         }
     }
 
@@ -238,14 +211,12 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
     }
     public void run() {
         try {
-            InetAddress mcastaddr = InetAddress.getByName(MULTICAST_ADDRESS);
-            socket.joinGroup(new InetSocketAddress(mcastaddr, 0), NetworkInterface.getByIndex(0));
-
             while (multicastAvailable) {
-                MulticastMessage message = receiveMessage();
+                MulticastMessage message = reliableMulticast.receiveMulticastMessage();
                 if(message == null){
                     continue;
                 }
+                //System.out.println("[BARREL#" + barrelNumber + "]:" + "    Received message: " + message.messageType() + " " + message.payload());
                 switch (message.messageType()){
                     case TITLE -> //System.out.println("[BARREL#" + barrelNumber + "]:" + "    Received TITLE message: " + message.payload());
                             receiveTitle(message);
@@ -256,19 +227,20 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
                     case CONNECTIONS -> //System.out.println("[BARREL#" + barrelNumber + "]:" + "    Received CONNECTIONS message: " + message.payload());
                             receiveConnections(message);
                 }
-                sendMulticastMessage(message.hyperlink(), message.messageID());
+                //remissiveIndex.printIndexHashMap(barrelNumber);
             }
-        } catch (IOException e) {
+        } catch (InterruptedException e) {
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
 
         } finally {
             // Perform cleanup operations
+            /*
             try {
                 socket.leaveGroup(new InetSocketAddress(this.MULTICAST_ADDRESS, this.PORT), NetworkInterface.getByIndex(0));
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, "Error while leaving multicast group: " + e.getMessage(), e);
             }
-            socket.close();
+            */
             multicastAvailable = false;
         }
     }
@@ -276,7 +248,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         try {
             // Create RMI registry
             Registry registry = LocateRegistry.createRegistry(4321);
-            Barrel barrel = new Barrel(registry, "224.3.2.1", 4321, 0);
+            Barrel barrel = new Barrel(registry, "224.3.2.1", 4321, "224.3.2.2", 4322, 0);
             barrel.run();
         } catch (RemoteException e) {
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);

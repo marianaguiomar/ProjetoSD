@@ -44,11 +44,14 @@ public class RemissiveIndex {
     public LinkedList<WebPage> findWebPagesUnion(String[] tokens){
         if(tokens == null)
             return new LinkedList<>();
+        System.out.println("CHEGUEI AQUI\n");
         LinkedList<WebPage> result = new LinkedList<>();
         for (String token: tokens) {
-            token = token.toLowerCase();
-            if (index.containsKey(token)) {
-                HashSet<String> URLs = index.get(token);
+            String searchToken = token.toLowerCase();
+            System.out.println("SEARCH TOKEN: " + searchToken);
+            if (index.containsKey(searchToken)) {
+                System.out.println("FOUND TOKEN: " + searchToken);
+                HashSet<String> URLs = index.get(searchToken);
                 Stream<WebPage> resultingWebPages = URLs.stream().filter(webPages::containsKey).map(webPages::get);
                 resultingWebPages.forEach(result::add);
             }

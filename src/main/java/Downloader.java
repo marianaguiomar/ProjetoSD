@@ -1,32 +1,29 @@
-import java.awt.*;
-import java.net.*;
-import java.nio.charset.StandardCharsets;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Downloader implements Runnable {
     //Multicast section
     //TODO -> estes são os valores da ficha, verificar se são os corretos
-    private final String MULTICAST_ADDRESS;
-    private final int PORT;
-
-    private final int CONFIRMATION_PORT;
-    private final MulticastSocket socket;
-
-    private final MulticastSocket confirmationSocket;
     QueueInterface queue;
+    ReliableMulticast reliableMulticast;
     boolean queueExists = true;
     private final int downloaderNumber;
     String[] stopwords = {
@@ -62,19 +59,13 @@ public class Downloader implements Runnable {
 
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
 
-    public Downloader(String multicastAddress, int port, String queuePath, int downloaderNumber) throws NotBoundException, IOException {
+    public Downloader(String multicastAddress, int port, String confirmationMulticastAddress, int confirmationPort, 
+                      String queuePath, int downloaderNumber) throws NotBoundException, IOException {
         this.queue = (QueueInterface) Naming.lookup(queuePath);
         this.queue.clearQueue();
         this.downloaderNumber = downloaderNumber;
-        this.socket = new MulticastSocket();
+        this.reliableMulticast = new ReliableMulticast(multicastAddress, port, confirmationMulticastAddress, confirmationPort);
         this.stopwordsSet = new HashSet<>(Arrays.asList(stopwords));
-        this.MULTICAST_ADDRESS = multicastAddress;
-        this.PORT = port;
-        this.CONFIRMATION_PORT = port + 1;
-        this.confirmationSocket = new MulticastSocket(this.CONFIRMATION_PORT);
-        // Join the multicast group
-        InetAddress groupConfirmation = InetAddress.getByName(MULTICAST_ADDRESS);
-        confirmationSocket.joinGroup(groupConfirmation);
         System.out.println("[DOWNLOADER#" + downloaderNumber + "]:" + "   Ready...");
     }
 
@@ -93,7 +84,7 @@ public class Downloader implements Runnable {
                 }
             } else {
                 // Send the multicast message
-                sendMulticastMessage(hyperlink, multicastMessage, MessageType.TOKENS);
+                reliableMulticast.sendMulticastMessage(hyperlink, multicastMessage, MessageType.TOKENS);
 
                 // Clear the multicast message
                 multicastMessage = "";
@@ -114,60 +105,12 @@ public class Downloader implements Runnable {
                 }
                 else {
                     //System.out.println("[DOWNLOADER#" + downloaderNumber + "]:" + "Sending multicast message: " + multicastMessage);
-                    sendMulticastMessage(hyperlink, multicastMessage, MessageType.CONNECTIONS);
+                    reliableMulticast.sendMulticastMessage(hyperlink, multicastMessage, MessageType.CONNECTIONS);
                     multicastMessage = "";
                 }
             }
         }
     }
-
-    private boolean waitForConfirmation(String messageID){
-        int messagesRead = 0;
-        try{
-            while(messagesRead < 500) {
-                byte[] buffer = new byte[1500];
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-                confirmationSocket.receive(packet);
-                MulticastMessage message = MulticastMessage.getMessage(packet.getData());
-                messagesRead++;
-                assert message != null;
-                if(message.messageType() == MessageType.CONFIRMATION && message.payload().equals(messageID)){
-                    return true;
-            }
-
-        }
-            //System.out.println("[DOWNLOADER#" + downloaderNumber + "]:" + "Confirmation not received, sending packet again.");
-            return false;
-        }
-        catch (IOException e){
-            LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
-            return false;
-        }
-    }
-    private void sendMulticastMessage(String hyperlink, String payload, MessageType messageType){
-        // Check if the message is empty
-        if (hyperlink == null || hyperlink.isEmpty() || hyperlink.isBlank()|| payload == null || payload.isEmpty() || payload.isBlank()) {
-            System.out.println("Message is empty. Not sending anything.");
-            return; // Exit the method if the message is empty
-        }
-        try{
-            MulticastMessage message = new MulticastMessage(hyperlink, messageType, payload);
-
-            byte[] buffer = message.getBytes();
-
-            InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, PORT);
-            socket.send(packet);
-            while (!waitForConfirmation(message.messageID())){
-                socket.send(packet);
-            }
-        }
-        catch (IOException e){
-            LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
-        }
-
-    }
-
 
     // TODO -> verificar se é necessário, se não for, apagar. (Pode ser substituído por um throw?)
     private boolean isValidURL(String url) {
@@ -206,7 +149,7 @@ public class Downloader implements Runnable {
                 title = doc.title();
             }
         }
-        sendMulticastMessage(hyperlink, title, MessageType.TITLE);
+        reliableMulticast.sendMulticastMessage(hyperlink, title, MessageType.TITLE);
     }
 
     private void sendCitation(String hyperlink, Document doc){
@@ -235,7 +178,7 @@ public class Downloader implements Runnable {
         else {
             firstParagraphText = "No citation found.";
         }
-        sendMulticastMessage(hyperlink, firstParagraphText, MessageType.CITATION);
+        reliableMulticast.sendMulticastMessage(hyperlink, firstParagraphText, MessageType.CITATION);
     }
 
     public void run() {
@@ -253,7 +196,6 @@ public class Downloader implements Runnable {
             catch (RemoteException remoteException) {
                 // Set queueExists to false when RMI communication fails
                 queueExists = false;
-                socket.close();
             }
             catch (MalformedURLException malformedURLException){
                 //System.out.println("[DOWNLOADER#" + downloaderNumber + "]: Malformed URL exception occurred, discarding hyperlink");
@@ -271,7 +213,7 @@ public class Downloader implements Runnable {
 
     }
     public static void main(String[] args) throws NotBoundException, IOException {
-        Downloader downloader = new Downloader("224.3.2.1", 4321,"rmi://localhost/queue",1);
+        Downloader downloader = new Downloader("224.3.2.1", 4321, "224.3.2.2", 4322, "rmi://localhost/queue",1);
         downloader.run();
     }
     }
