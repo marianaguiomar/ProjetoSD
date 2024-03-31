@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runnable{
     // TODO -> see static variable
     public static HashSet<Integer> activeBarrelIds = new HashSet<>();
-    private final ReliableMulticast reliableMulticast;
+    private final Receiver receiver;
     private final RemissiveIndex remissiveIndex;
     private final LinkedHashMap<String, Integer> searches;
     private final int barrelNumber;
@@ -22,7 +22,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         this.searches = new LinkedHashMap<>();
         this.remissiveIndex = new RemissiveIndex();
         activeBarrelIds.add(barrelNumber);
-        this.reliableMulticast = new ReliableMulticast(multicastAddress, port, confirmationMulticastAddress, confirmationPort);
+        this.receiver = new Receiver(multicastAddress, port, confirmationPort);
         // Bind Barrel object to the existing registry
         try {
             registry.rebind("barrel" + barrelNumber, this);
@@ -58,7 +58,6 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
             return new WebPage[0];
         String currKey = String.join(" ", tokens).toLowerCase();
         if (searches.containsKey(currKey)) {
-            System.out.println("[BARREL#" + barrelNumber + "]:" + "    Found! ");
             int curr = searches.get(currKey);
             searches.put(currKey, curr+1);
         }
@@ -79,7 +78,6 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
             return new WebPage[0];
         String currKey = String.join(" ", tokens).toLowerCase();
         if (searches.containsKey(currKey)) {
-            System.out.println("[BARREL#" + barrelNumber + "]:" + "    Found! ");
             int curr = searches.get(currKey);
             searches.put(currKey, curr+1);
         }
@@ -196,8 +194,6 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         StringTokenizer tokens = getTokens(message.payload(), " ");
         while (tokens.hasMoreElements()) {
             String token = tokens.nextToken();
-            if(token.equals("congress"))
-                System.out.println("[Barrel#" + barrelNumber +"] TOKEN: " + token);
             remissiveIndex.addIndex(message.hyperlink(), token.trim());
         }
     }
@@ -212,7 +208,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
     public void run() {
         try {
             while (multicastAvailable) {
-                MulticastMessage message = reliableMulticast.receiveMulticastMessage();
+                MulticastMessage message = receiver.receiveMessage();
                 if(message == null){
                     continue;
                 }
@@ -229,7 +225,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
                 }
                 //remissiveIndex.printIndexHashMap(barrelNumber);
             }
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
 
         } finally {

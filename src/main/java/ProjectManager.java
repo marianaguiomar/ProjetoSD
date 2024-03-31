@@ -12,7 +12,7 @@ public class ProjectManager {
     private final int PORT = 4321;
     private final String CONFIRMATION_MULTICAST_ADDRESS = "224.3.2.2";
     private final int CONFIRMATION_PORT = 4322;
-    private static final Logger LOGGER = Logger.getLogger(ReliableMulticast.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ProjectManager.class.getName());
 
     Registry registry;
     final int gatewayPort;

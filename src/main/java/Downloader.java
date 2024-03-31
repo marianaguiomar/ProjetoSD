@@ -23,7 +23,7 @@ public class Downloader implements Runnable {
     //Multicast section
     //TODO -> estes são os valores da ficha, verificar se são os corretos
     QueueInterface queue;
-    ReliableMulticast reliableMulticast;
+    private final Sender sender;
     boolean queueExists = true;
     private final int downloaderNumber;
     String[] stopwords = {
@@ -64,7 +64,7 @@ public class Downloader implements Runnable {
         this.queue = (QueueInterface) Naming.lookup(queuePath);
         this.queue.clearQueue();
         this.downloaderNumber = downloaderNumber;
-        this.reliableMulticast = new ReliableMulticast(multicastAddress, port, confirmationMulticastAddress, confirmationPort);
+        this.sender = new Sender(multicastAddress, port,  confirmationPort);
         this.stopwordsSet = new HashSet<>(Arrays.asList(stopwords));
         System.out.println("[DOWNLOADER#" + downloaderNumber + "]:" + "   Ready...");
     }
@@ -84,7 +84,7 @@ public class Downloader implements Runnable {
                 }
             } else {
                 // Send the multicast message
-                reliableMulticast.sendMulticastMessage(hyperlink, multicastMessage, MessageType.TOKENS);
+                sender.sendMessage(hyperlink, multicastMessage, MessageType.TOKENS);
 
                 // Clear the multicast message
                 multicastMessage = "";
@@ -105,7 +105,7 @@ public class Downloader implements Runnable {
                 }
                 else {
                     //System.out.println("[DOWNLOADER#" + downloaderNumber + "]:" + "Sending multicast message: " + multicastMessage);
-                    reliableMulticast.sendMulticastMessage(hyperlink, multicastMessage, MessageType.CONNECTIONS);
+                    sender.sendMessage(hyperlink, multicastMessage, MessageType.CONNECTIONS);
                     multicastMessage = "";
                 }
             }
@@ -149,7 +149,7 @@ public class Downloader implements Runnable {
                 title = doc.title();
             }
         }
-        reliableMulticast.sendMulticastMessage(hyperlink, title, MessageType.TITLE);
+        sender.sendMessage(hyperlink, title, MessageType.TITLE);
     }
 
     private void sendCitation(String hyperlink, Document doc){
@@ -178,7 +178,7 @@ public class Downloader implements Runnable {
         else {
             firstParagraphText = "No citation found.";
         }
-        reliableMulticast.sendMulticastMessage(hyperlink, firstParagraphText, MessageType.CITATION);
+        sender.sendMessage(hyperlink, firstParagraphText, MessageType.CITATION);
     }
 
     public void run() {
