@@ -1,7 +1,7 @@
-import Googol.Barrel;
+import Googol.Barrel.Barrel;
 import Googol.Downloader;
-import Googol.Gateway;
-import Googol.Queue;
+import Googol.Gateway.Gateway;
+import Googol.Queue.Queue;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -9,9 +9,10 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import java.util.UUID;
 public class ProjectManager {
     private final String MULTICAST_ADDRESS = "224.3.2.1";
     private final int PORT = 4321;
@@ -26,6 +27,18 @@ public class ProjectManager {
     Thread gatewayThread;
     Thread[] barrelsThreads;
     Thread[] downloadersThreads;
+    HashSet<UUID> downloadersID;
+    HashSet<UUID> barrelsID;
+
+    UUID getNewID(boolean isDownloader){
+        UUID id = UUID.randomUUID();
+        HashSet <UUID> hashSet = isDownloader ? downloadersID : barrelsID;
+        while(hashSet.contains(id)){
+            id = UUID.randomUUID();
+        }
+        hashSet.add(id);
+        return id;
+    }
 
     private void initializeBarrels() {
         barrelsThreads = new Thread[numberOfBarrels];

@@ -1,4 +1,8 @@
-package Googol;
+package Googol.Gateway;
+
+import Googol.Barrel.BarrelInterface;
+import Googol.Queue.QueueInterface;
+import Googol.Barrel.WebPage;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;

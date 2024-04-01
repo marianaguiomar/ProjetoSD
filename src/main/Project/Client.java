@@ -1,7 +1,7 @@
-package Googol;
 // TODO -> EXCEPTION MALFORMED URL
 // TODO -> DIFERENTES CLIENTES (USAR EXCEPTION)
 
+import Googol.Gateway.GatewayInterface;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;

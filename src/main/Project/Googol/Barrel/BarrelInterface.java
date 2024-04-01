@@ -1,4 +1,4 @@
-package Googol;
+package Googol.Barrel;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

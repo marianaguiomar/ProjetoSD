@@ -1,5 +1,6 @@
 package Googol;
 
+import Googol.Queue.QueueInterface;
 import Multicast.MessageType;
 import Multicast.Sender;
 import org.jsoup.HttpStatusException;
