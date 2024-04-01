@@ -53,7 +53,11 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
     }
 
     public static void main(String[] args) throws RemoteException, MalformedURLException, NotBoundException {
-        Registry registry = LocateRegistry.createRegistry(4320);
+        if(args.length != 1){
+            System.out.println("Usage: java ProjectManager <port>");
+            System.exit(1);
+        }
+        Registry registry = LocateRegistry.createRegistry(Integer.parseInt(args[0]));
         ProjectManagerInterface projectManager = new ProjectManager(registry);
     }
 }

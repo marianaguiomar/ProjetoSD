@@ -165,11 +165,18 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     }
 
     public static void main(String[] args) throws RemoteException, MalformedURLException, NotBoundException {
+        //"rmi://localhost:1099/queue", "rmi://localhost:" + 4320 + "/projectManager"
+        if(args.length != 4){
+            System.out.println("Usage: java Gateway <queueIP> <queuePort> <projectManagerIP> <projectManagerPort>");
+            System.exit(1);
+        }
         try {
             // Create RMI registry
+            String queueAddress = "rmi://" + args[0] + ":" + args[1] + "/queue";
+            String projectManagerAddress = "rmi://" + args[2] + ":" + args[3] + "/projectManager";
             Registry registry = LocateRegistry.createRegistry(1100);
             Gateway gateway = new Gateway( registry,
-                    "rmi://localhost:1099/queue", "rmi://localhost:" + 4320 + "/projectManager");
+                    queueAddress, projectManagerAddress);
             gateway.run();
         }
         catch (RemoteException e) {

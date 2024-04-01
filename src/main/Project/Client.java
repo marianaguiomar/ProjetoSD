@@ -98,7 +98,12 @@ public class Client {
     }
 
     public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException {
-        Client client = new Client("rmi://localhost:1100/gateway");
+        if (args.length != 2) {
+            System.out.println("Usage: java Client <gatewayIP> <gatewayPort>");
+            System.exit(1);
+        }
+        String gatewayAddress = "rmi://" + args[0] + ":" + args[1] + "/gateway";
+        Client client = new Client(gatewayAddress);
         client.listening();
     }
 

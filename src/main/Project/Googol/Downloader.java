@@ -220,8 +220,16 @@ public class Downloader implements Runnable {
 
     }
     public static void main(String[] args) throws NotBoundException, IOException {
-        Downloader downloader = new Downloader("224.3.2.1", 4321,
-                4322, "rmi://localhost/queue", "rmi://localhost:"+ 4320 + "/projectManager");
+        // "224.3.2.1", 4321,
+        //                4322, "rmi://localhost/queue", "rmi://localhost:"+ 4320 + "/projectManager"
+        if(args.length != 7){
+            System.out.println("Usage: java Downloader <multicastAddress> <port> <confirmationPort> <queueIP> <queuePort> <projectManagerIP> <projectManagerPort>");
+            System.exit(1);
+        }
+        String queueAddress = "rmi://" + args[3] + ":" + args[4] + "/queue";
+        String projectManagerAddress = "rmi://" + args[5] + ":" + args[6] + "/projectManager";
+        Downloader downloader = new Downloader(args[0], Integer.parseInt(args[1]),
+                Integer.parseInt(args[2]), queueAddress, projectManagerAddress);
         downloader.run();
     }
     }

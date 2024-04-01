@@ -251,10 +251,14 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         }
     }
     public static void main(String[] args) throws IOException {
+        if (args.length < 5) {
+            System.out.println("Usage: java Barrel <multicastAddress> <port> <confirmationPort> <projectManagerAddress> <projectManagerPort>");
+            System.exit(1);
+        }
         try {
             // Create RMI registry
-
-            Barrel barrel = new Barrel( "224.3.2.1",  4321,4322, "rmi://localhost:"+ 4320 + "/projectManager");
+            String projectManagerAddress = "rmi://" + args[3] + ":" + args[4] + "/projectManager";
+            Barrel barrel = new Barrel( args[0],  Integer.parseInt(args[1]),Integer.parseInt(args[2]), projectManagerAddress);
             barrel.run();
         } catch (RemoteException | NotBoundException e) {
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);

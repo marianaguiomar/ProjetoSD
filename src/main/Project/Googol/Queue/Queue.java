@@ -35,9 +35,13 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
     }
 
     public static void main(String[] args) throws RemoteException {
+        if (args.length != 1) {
+            System.out.println("Usage: java Queue <port>");
+            System.exit(1);
+        }
         try {
             // Create RMI registry
-            Registry registry = LocateRegistry.createRegistry(1099);
+            Registry registry = LocateRegistry.createRegistry(Integer.parseInt(args[0]));
             QueueInterface queue = new Queue(registry);
     }
         catch (RemoteException e) {
