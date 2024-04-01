@@ -1,9 +1,13 @@
 package Googol.Barrel;
 
 import Googol.Downloader;
+import Googol.ProjectManager.ProjectManager;
+import Googol.ProjectManager.ProjectManagerInterface;
 import Multicast.MulticastMessage;
 import Multicast.Receiver;
 import java.io.IOException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -16,25 +20,27 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
     // TODO -> see static variable
     public static HashSet<Integer> activeBarrelIds = new HashSet<>();
     private final Receiver receiver;
+    ProjectManagerInterface projectManager;
     private final RemissiveIndex remissiveIndex;
     private final LinkedHashMap<String, Integer> searches;
     private final int barrelNumber;
     boolean multicastAvailable = true; // Initially assume multicast group is available
 
-    public Barrel(Registry registry, String multicastAddress, int port, String confirmationMulticastAddress, int confirmationPort, int barrelNumber) throws IOException {
-        this.barrelNumber = barrelNumber;
+    public Barrel(String multicastAddress, int port, int confirmationPort, String projectManagerPath) throws IOException, NotBoundException {
+
         this.searches = new LinkedHashMap<>();
         this.remissiveIndex = new RemissiveIndex();
+        this.projectManager = (ProjectManagerInterface) Naming.lookup(projectManagerPath);
+        this.barrelNumber = this.projectManager.createNewID(false);
         activeBarrelIds.add(barrelNumber);
+        int barrelPort = 4400 + barrelNumber;
         this.receiver = new Receiver(multicastAddress, port, confirmationPort);
-        // Bind Googol.Barrel.Barrel object to the existing registry
         try {
+            Registry registry = LocateRegistry.createRegistry(barrelPort);
             registry.rebind("barrel" + barrelNumber, this);
 
         } catch (RemoteException e) {
-            //String rmiAddress = "rmi://" + InetAddress.getLocalHost().getHostAddress() + ":" + PORT + "/barrel" + barrelNumber;
-            //System.out.println("[BARREL#" + barrelNumber + "]:" + "    RMI Address: " + rmiAddress);
-            LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, "Remote exception occurred\n "+ e.getMessage(), e);
         }
         System.out.println("[BARREL#" + barrelNumber + "]:" + "   Ready...");
     }
@@ -247,10 +253,10 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
     public static void main(String[] args) throws IOException {
         try {
             // Create RMI registry
-            Registry registry = LocateRegistry.createRegistry(4321);
-            Barrel barrel = new Barrel(registry, "224.3.2.1", 4321, "224.3.2.2", 4322, 0);
+
+            Barrel barrel = new Barrel( "224.3.2.1",  4321,4322, "rmi://localhost:"+ 4320 + "/projectManager");
             barrel.run();
-        } catch (RemoteException e) {
+        } catch (RemoteException | NotBoundException e) {
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
         }
     }

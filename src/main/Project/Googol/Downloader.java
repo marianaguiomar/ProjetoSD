@@ -1,5 +1,6 @@
 package Googol;
 
+import Googol.ProjectManager.ProjectManagerInterface;
 import Googol.Queue.QueueInterface;
 import Multicast.MessageType;
 import Multicast.Sender;
@@ -28,9 +29,10 @@ public class Downloader implements Runnable {
     //Multicast section
     //TODO -> estes são os valores da ficha, verificar se são os corretos
     QueueInterface queue;
+    ProjectManagerInterface projectManager;
     private final Sender sender;
     boolean queueExists = true;
-    private final int downloaderNumber;
+    private final Integer myID;
     String[] stopwords = {
             // English stopwords
             "a", "an", "and", "are", "as", "at", "be", "but", "by",
@@ -64,14 +66,14 @@ public class Downloader implements Runnable {
 
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
 
-    public Downloader(String multicastAddress, int port, String confirmationMulticastAddress, int confirmationPort, 
-                      String queuePath, int downloaderNumber) throws NotBoundException, IOException {
+    public Downloader(String multicastAddress, int port, int confirmationPort,
+                      String queuePath, String projectManagerPath) throws NotBoundException, IOException {
         this.queue = (QueueInterface) Naming.lookup(queuePath);
-        this.queue.clearQueue();
-        this.downloaderNumber = downloaderNumber;
+        this.projectManager = (ProjectManagerInterface) Naming.lookup(projectManagerPath);
+        this.myID = projectManager.createNewID(true);
         this.sender = new Sender(multicastAddress, port,  confirmationPort);
         this.stopwordsSet = new HashSet<>(Arrays.asList(stopwords));
-        System.out.println("[DOWNLOADER#" + downloaderNumber + "]:" + "   Ready...");
+        System.out.println("[DOWNLOADER#" + myID + "]:" + "   Ready...");
     }
 
     private void sendTokens(String hyperlink, Document doc) throws IOException {
@@ -104,12 +106,12 @@ public class Downloader implements Runnable {
             String newURL = link.attr("abs:href");
             if (isValidURL(newURL)) {
                 this.queue.addURL(newURL);
-                //System.out.printf("[DOWNLOADER#" + downloaderNumber + "]:" +GETTING LINK" + "\t" + newURL + "\n");
+                //System.out.printf("[DOWNLOADER#" + myID + "]:" +GETTING LINK" + "\t" + newURL + "\n");
                 if (multicastMessage.getBytes(StandardCharsets.UTF_8).length + newURL.getBytes(StandardCharsets.UTF_8).length+1 < 700) {
                     multicastMessage = multicastMessage.concat(newURL.toLowerCase()).concat("^");
                 }
                 else {
-                    //System.out.println("[DOWNLOADER#" + downloaderNumber + "]:" + "Sending multicast message: " + multicastMessage);
+                    //System.out.println("[DOWNLOADER#" + myID + "]:" + "Sending multicast message: " + multicastMessage);
                     sender.sendMessage(hyperlink, multicastMessage, MessageType.CONNECTIONS);
                     multicastMessage = "";
                 }
@@ -190,7 +192,7 @@ public class Downloader implements Runnable {
         while (queueExists) {
             try {
                 String url = this.queue.fetchURL();
-                //System.out.println("[DOWNLOADER#" + downloaderNumber + "]:" +"URL: " + url);
+                //System.out.println("[DOWNLOADER#" + myID + "]:" +"URL: " + url);
                 Document doc = Jsoup.connect(url).get();
                 sendTitle(url, doc);
                 sendCitation(url, doc);
@@ -203,13 +205,13 @@ public class Downloader implements Runnable {
                 queueExists = false;
             }
             catch (MalformedURLException malformedURLException){
-                //System.out.println("[DOWNLOADER#" + downloaderNumber + "]: Malformed URL exception occurred, discarding hyperlink");
+                //System.out.println("[DOWNLOADER#" + myID + "]: Malformed URL exception occurred, discarding hyperlink");
             }
             catch (SocketTimeoutException e){
-                //System.out.println("[DOWNLOADER#" + downloaderNumber + "]: Socket timeout exception occurred, discarding hyperlink");
+                //System.out.println("[DOWNLOADER#" + myID + "]: Socket timeout exception occurred, discarding hyperlink");
             }
             catch (HttpStatusException e) {
-                //System.out.println("[DOWNLOADER#" + downloaderNumber + "]: HTTP status exception occurred, discarding hyperlink");
+                //System.out.println("[DOWNLOADER#" + myID + "]: HTTP status exception occurred, discarding hyperlink");
             }
             catch (IOException | InterruptedException e) {
                 LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
@@ -218,7 +220,8 @@ public class Downloader implements Runnable {
 
     }
     public static void main(String[] args) throws NotBoundException, IOException {
-        Downloader downloader = new Downloader("224.3.2.1", 4321, "224.3.2.2", 4322, "rmi://localhost/queue",1);
+        Downloader downloader = new Downloader("224.3.2.1", 4321,
+                4322, "rmi://localhost/queue", "rmi://localhost:"+ 4320 + "/projectManager");
         downloader.run();
     }
     }

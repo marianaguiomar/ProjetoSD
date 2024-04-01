@@ -1,6 +1,7 @@
 package Googol.Gateway;
 
 import Googol.Barrel.BarrelInterface;
+import Googol.ProjectManager.ProjectManagerInterface;
 import Googol.Queue.QueueInterface;
 import Googol.Barrel.WebPage;
 
@@ -9,34 +10,31 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class Gateway extends UnicastRemoteObject implements GatewayInterface, Runnable{
+public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     BarrelInterface barrel;
     QueueInterface queue;
-    private final String barrelPath;
+
     private final String queuePath;
     //1100
-    public final int PORT;
-    public final int barrelNumber;
     public int barrelInUse;
-
+    ProjectManagerInterface projectManager;
     private final HashMap<Integer,Long> totalDuration;
     private final HashMap<Integer, Integer> numSearches;
 
 
-    public Gateway(int port,int barrelNumber, String barrelPath, String queuePath) throws RemoteException, MalformedURLException, NotBoundException {
+    public Gateway(Registry registry, String queuePath, String projectManagerPath) throws RemoteException, MalformedURLException, NotBoundException {
         super();
-        this.barrelInUse = 2;
-        this.barrelNumber = barrelNumber;
+        this.barrelInUse = 1;
         this.queuePath = queuePath;
-        this.barrelPath = barrelPath;
-        this.PORT = port;
         this.totalDuration = new HashMap<>();
         this.numSearches = new HashMap<>();
-        LocateRegistry.createRegistry(this.PORT).rebind("gateway", this);
+        this.projectManager = (ProjectManagerInterface) Naming.lookup(projectManagerPath);
+        registry.rebind("gateway", this);
     }
     private void connectToQueue(){
         try{
@@ -51,20 +49,18 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface, Ru
         catch (MalformedURLException malformedURLException){
             System.out.println("[GATEWAY]: Malformed URL Exception in Queue");
         }
-        finally {
-            System.out.println("[GATEWAY]: Queue found");
-        }
     }
 
-    private void connectToBarrel(){
+    private void connectToBarrel() throws RemoteException {
         try{
+            int barrelPort = 4400 + barrelInUse;
             System.out.println("[GATEWAY]: Connecting to barrel number "+ barrelInUse);
-            this.barrel = (BarrelInterface) Naming.lookup(barrelPath + barrelInUse);
+            this.barrel = (BarrelInterface) Naming.lookup("rmi://localhost:" + barrelPort + "/barrel" + barrelInUse);
         }
         catch(NotBoundException notBoundException){
             System.out.println("[GATEWAY]: Barrel number "+ barrelInUse +" not found. Trying next barrel...");
-            barrelInUse = (barrelInUse + 1) % (barrelNumber);
-            //connectToBarrel();
+            barrelInUse = (barrelInUse + 1) % (this.projectManager.getNumberOfBarrels());
+            connectToBarrel();
         }
         catch (RemoteException remoteException){
             System.out.println("[GATEWAY]: Remote Exception");
@@ -72,13 +68,14 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface, Ru
         catch (MalformedURLException malformedURLException){
             System.out.println("[GATEWAY]: Malformed URL Exception");
         }
-        finally {
-            System.out.println("[GATEWAY]: Barrel found");
-        }
     }
     public void run(){
-        connectToQueue();
-        connectToBarrel();
+        try {
+            connectToQueue();
+            connectToBarrel();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
         System.out.println("[GATEWAY]: Gateway Ready...");
     }
     public void updateSearches(long duration){
@@ -168,9 +165,16 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface, Ru
     }
 
     public static void main(String[] args) throws RemoteException, MalformedURLException, NotBoundException {
-        GatewayInterface gateway = new Gateway(1100, 1,"rmi://localhost:4321/barrel1", "rmi://localhost/queue");
-
-        System.out.println("[GATEWAY]: Gateway Ready...");
+        try {
+            // Create RMI registry
+            Registry registry = LocateRegistry.createRegistry(1100);
+            Gateway gateway = new Gateway( registry,
+                    "rmi://localhost:1099/queue", "rmi://localhost:" + 4320 + "/projectManager");
+            gateway.run();
+        }
+        catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 
 
