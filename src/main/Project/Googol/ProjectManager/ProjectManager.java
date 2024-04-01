@@ -26,12 +26,18 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
 
     public int createNewID(boolean isDownloader) throws RemoteException{
         HashSet <Integer> hashSet = isDownloader ? this.downloadersID : this.barrelsID;
-        if(isDownloader)
+        if(isDownloader) {
             this.numberOfDownloaders++;
-        else
+            hashSet.add(this.numberOfDownloaders);
+            return this.numberOfDownloaders;
+        }
+        else{
             this.numberOfBarrels++;
-        hashSet.add(this.numberOfBarrels);
-        return this.numberOfBarrels;
+            hashSet.add(this.numberOfBarrels);
+            return this.numberOfBarrels;
+        }
+
+
     }
 
     public int getNumberOfBarrels() throws RemoteException{
