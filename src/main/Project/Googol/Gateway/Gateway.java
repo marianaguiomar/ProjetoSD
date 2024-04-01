@@ -101,11 +101,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         //TODO -> verificar onde colocar os temporizadores
         long startTime = System.currentTimeMillis();
         System.out.println("[GATEWAY]: Searching for: " + tokens[0]);
-        WebPage[] webPages;
-        if(interstionSearch)
-            webPages = barrel.searchIntersection(tokens, pageNumber - 1);
-        else
-            webPages = barrel.searchUnion(tokens, pageNumber - 1);
+        WebPage[] webPages = barrel.search(tokens, pageNumber, interstionSearch);
         System.out.println("[GATEWAY]: Search done");
 
         long endTime = System.currentTimeMillis();

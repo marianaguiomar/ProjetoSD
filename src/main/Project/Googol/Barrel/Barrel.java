@@ -62,28 +62,12 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         return new StringTokenizer(message, delimiter);
     }
 
-    public WebPage[] searchUnion(String[] tokens, Integer pageNumber) throws RemoteException{
-        LinkedList<WebPage> result = remissiveIndex.findWebPagesUnion(tokens);
-        if(result == null || result.isEmpty())
-            return new WebPage[0];
-        String currKey = String.join(" ", tokens).toLowerCase();
-        if (searches.containsKey(currKey)) {
-            int curr = searches.get(currKey);
-            searches.put(currKey, curr+1);
-        }
-        else {
-            searches.put(currKey, 1);
-        }
-        orderWebpages(result);
-        updateSearches();
-
-        if(result.size() < pageNumber * 10)
-            return new WebPage[0];
-        return result.subList(pageNumber * 10, Math.min(pageNumber * 10 + 10, result.size())).toArray(new WebPage[0]);
-    }
-
-    public WebPage[] searchIntersection(String[] tokens, Integer pageNumber) throws RemoteException{
-        LinkedList<WebPage> result = remissiveIndex.findWebPagesIntersection(tokens);
+    public WebPage[] search(String[] tokens, Integer pageNumber, boolean intersection) throws RemoteException{
+        LinkedList<WebPage> result;
+        if(intersection)
+            result = remissiveIndex.findWebPagesIntersection(tokens);
+        else
+            result = remissiveIndex.findWebPagesUnion(tokens);
         if(result == null || result.isEmpty())
             return new WebPage[0];
         String currKey = String.join(" ", tokens).toLowerCase();
