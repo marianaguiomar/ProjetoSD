@@ -5,11 +5,13 @@ import java.rmi.RemoteException;
 import java.util.LinkedList;
 
 public interface ProjectManagerInterface extends Remote {
-    int createNewID(boolean isDownloader) throws RemoteException;
+    int createDownloaderID() throws RemoteException;
+    boolean verifyBarrelID(int ID) throws RemoteException;
 
-    int getNumberOfBarrels() throws RemoteException;
+    int getActiveBarrels() throws RemoteException;
+    int getAvailableBarrel(int n) throws RemoteException;
 
-    LinkedList<Integer> getBarrelsID() throws RemoteException;
+    LinkedList<Integer> getAvailableBarrelsID() throws RemoteException;
     int getBarrelID(int n) throws RemoteException;
 
     void removeBarrel(int barrelID) throws RemoteException;

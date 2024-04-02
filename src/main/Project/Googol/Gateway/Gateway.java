@@ -1,10 +1,8 @@
 package Googol.Gateway;
-
 import Googol.Barrel.BarrelInterface;
 import Googol.ProjectManager.ProjectManagerInterface;
 import Googol.Queue.QueueInterface;
 import Googol.Barrel.WebPage;
-
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -13,6 +11,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+
 
 public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     BarrelInterface barrel;
@@ -30,7 +29,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
 
     public Gateway(Registry registry, String queuePath, String projectManagerPath) throws RemoteException, MalformedURLException, NotBoundException {
         super();
-        this.barrelInUse = 1;
+        this.barrelInUse = 0;
         this.queuePath = queuePath;
         this.totalDuration = new HashMap<>();
         this.numSearches = new HashMap<>();
@@ -55,13 +54,13 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
 
     private void connectToBarrel() throws RemoteException {
         try{
-            int barrelPort = 4400 + projectManager.getBarrelID(barrelInUse);
+            int barrelPort = 4400 + projectManager.getAvailableBarrel(barrelInUse);
             System.out.println("[GATEWAY]: Connecting to barrel number "+ projectManager.getBarrelID(barrelInUse));
             this.barrel = (BarrelInterface) Naming.lookup("rmi://localhost:" + barrelPort + "/barrel" + projectManager.getBarrelID(barrelInUse));
         }
         catch(NotBoundException notBoundException){
             System.out.println("[GATEWAY]: Barrel number "+ projectManager.getBarrelID(barrelInUse) +" not found. Trying next barrel...");
-            barrelInUse = (barrelInUse + 1) % (this.projectManager.getNumberOfBarrels());
+            barrelInUse = (barrelInUse + 1) % (this.projectManager.getActiveBarrels());
             connectToBarrel();
         }
         catch (RemoteException remoteException){
@@ -103,7 +102,17 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         //TODO -> verificar onde colocar os temporizadores
         long startTime = System.currentTimeMillis();
         System.out.println("[GATEWAY]: Searching for: " + tokens[0]);
-        WebPage[] webPages = barrel.search(tokens, pageNumber, interstionSearch);
+        WebPage[] webPages;
+        try {
+            barrel.search(tokens, pageNumber, interstionSearch);
+        }
+        catch (RemoteException e) {
+            System.out.println("[GATEWAY]: Barrel not available");
+            connectToBarrel();
+        }
+        finally {
+            webPages = barrel.search(tokens, pageNumber, interstionSearch);
+        }
         System.out.println("[GATEWAY]: Search done");
 
         long endTime = System.currentTimeMillis();
@@ -129,15 +138,10 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
 
     //TODO -> fix
     public String status() throws RemoteException {
-        HashSet<Integer> barrelID = new HashSet<>();
-        // Get the original status message from the barrel
-        //String[] splitRes = barrel.status().split("§");
-
         String topSearches = formatSearches();
-        // Format the HashSet into a string
         StringBuilder activeBarrels = new StringBuilder();
         activeBarrels.append("\nACTIVE BARRELS \n");
-        for (int value : projectManager.getBarrelsID()) {
+        for (int value : projectManager.getAvailableBarrelsID()) {
             activeBarrels.append("BARREL#").append(value).append("\n");
         }
 

@@ -25,12 +25,13 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
     private final int barrelNumber;
     boolean multicastAvailable = true; // Initially assume multicast group is available
 
-    public Barrel(String multicastAddress, int port, int confirmationPort, String projectManagerPath) throws IOException, NotBoundException {
+    public Barrel(String multicastAddress, int port, int confirmationPort, String projectManagerPath, int barrelNumber) throws IOException, NotBoundException {
         Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
         this.searches = new LinkedHashMap<>();
         this.remissiveIndex = new RemissiveIndex();
         this.projectManager = (ProjectManagerInterface) Naming.lookup(projectManagerPath);
-        this.barrelNumber = this.projectManager.createNewID(false);
+        this.barrelNumber = barrelNumber;
+        this.projectManager.verifyBarrelID(this.barrelNumber);
         this.receiver = new Receiver(multicastAddress, port, confirmationPort);
         int barrelPort = 4400 + this.barrelNumber;
         try {
@@ -179,13 +180,13 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
     }
 
     public static void main(String[] args) throws IOException {
-        if (args.length < 5) {
+        if (args.length != 6) {
             System.out.println("Usage: java Barrel <multicastAddress> <port> <confirmationPort> <projectManagerAddress> <projectManagerPort>");
             System.exit(1);
         }
         try {
             String projectManagerAddress = "rmi://" + args[3] + ":" + args[4] + "/projectManager";
-            Barrel barrel = new Barrel( args[0],  Integer.parseInt(args[1]),Integer.parseInt(args[2]), projectManagerAddress);
+            Barrel barrel = new Barrel( args[0],  Integer.parseInt(args[1]),Integer.parseInt(args[2]), projectManagerAddress, Integer.parseInt(args[5]));
             barrel.run();
         } catch (RemoteException | NotBoundException e) {
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);

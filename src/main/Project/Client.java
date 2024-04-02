@@ -20,19 +20,20 @@ public class Client {
         this.scanner = new Scanner(System.in);
         this.gateway = (GatewayInterface) Naming.lookup(gatewayPath);
     }
-    private void retryConnection(){
+    private boolean retryConnection(){
         int conectAttempts = 0;
         boolean connected = false;
         while (conectAttempts < 5 && !connected) {
             try {
                 this.gateway = (GatewayInterface) Naming.lookup("rmi://localhost:1100/gateway");
                 System.out.println("[CLIENT]: Gateway reconnected");
-                connected = true;
+                return true;
             } catch (RemoteException | NotBoundException | MalformedURLException e) {
                 conectAttempts++;
                 System.out.println("[CLIENT]: Gateway is not available trying to reconnect");
             }
         }
+        return false;
     }
     public void listening(){
         try {
@@ -90,10 +91,13 @@ public class Client {
         }
         catch (RemoteException e) {
             System.out.println("[CLIENT]: Gateway is not available trying to reconnect");
-            retryConnection();
+            if(retryConnection())
+                listening();
         }
         catch (NullPointerException e){
             System.out.println("[CLIENT]: Failed to retrieve results from the gateway");
+            if(retryConnection())
+                listening();
         }
     }
 

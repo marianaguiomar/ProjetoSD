@@ -70,7 +70,7 @@ public class Downloader implements Runnable {
                       String queuePath, String projectManagerPath) throws NotBoundException, IOException {
         this.queue = (QueueInterface) Naming.lookup(queuePath);
         this.projectManager = (ProjectManagerInterface) Naming.lookup(projectManagerPath);
-        this.myID = projectManager.createNewID(true);
+        this.myID = projectManager.createDownloaderID();
         this.sender = new Sender(multicastAddress, port,  confirmationPort);
         this.stopwordsSet = new HashSet<>(Arrays.asList(stopwords));
         System.out.println("[DOWNLOADER#" + myID + "]:" + "   Ready...");
