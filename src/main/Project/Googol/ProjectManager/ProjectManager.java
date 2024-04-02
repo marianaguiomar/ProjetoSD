@@ -9,6 +9,9 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Random;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 public class ProjectManager extends UnicastRemoteObject implements ProjectManagerInterface{
@@ -21,20 +24,24 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
 
     int numberOfDownloaders;
     int numberOfBarrels;
-    HashSet<Integer> downloadersID;
-    HashSet<Integer> barrelsID;
+    LinkedList<Integer> downloadersID;
+    LinkedList<Integer> barrelsID;
 
     public int createNewID(boolean isDownloader) throws RemoteException{
-        HashSet <Integer> hashSet = isDownloader ? this.downloadersID : this.barrelsID;
+        LinkedList <Integer> linkedList = isDownloader ? this.downloadersID : this.barrelsID;
+        Random random = new Random();
+
+        int newID = random.nextInt(100) - 1;
+
         if(isDownloader) {
             this.numberOfDownloaders++;
-            hashSet.add(this.numberOfDownloaders);
-            return this.numberOfDownloaders;
+            linkedList.add(newID);
+            return newID;
         }
         else{
             this.numberOfBarrels++;
-            hashSet.add(this.numberOfBarrels);
-            return this.numberOfBarrels;
+            linkedList.add(newID);
+            return newID;
         }
 
 
@@ -44,8 +51,17 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
         return this.numberOfBarrels;
     }
 
-    public HashSet<Integer> getBarrelsID() throws RemoteException {
+    public LinkedList<Integer> getBarrelsID() throws RemoteException {
         return this.barrelsID;
+    }
+
+    public void removeBarrel(int barrelID) {
+        barrelsID.remove(barrelID);
+        numberOfBarrels--;
+    }
+
+    public int getBarrelID(int n) {
+        return this.barrelsID.get(n);
     }
 
     public ProjectManager(Registry registry) throws RemoteException {
@@ -53,8 +69,8 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
         try {
             this.numberOfDownloaders = 0;
             this.numberOfBarrels = 0;
-            this.downloadersID = new HashSet<>();
-            this.barrelsID = new HashSet<>();
+            this.downloadersID = new LinkedList<>();
+            this.barrelsID = new LinkedList<>();
             registry.rebind("projectManager", this);
             System.out.println("[PROJECTMANAGER#]:   Ready...");
         } catch (RemoteException e) {

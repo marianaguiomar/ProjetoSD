@@ -41,6 +41,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
 
         } catch (RemoteException e) {
             LOGGER.log(Level.SEVERE, "Remote exception occurred\n "+ e.getMessage(), e);
+            exit();
         }
         System.out.println("[BARREL#" + barrelNumber + "]:" + "   Ready...");
     }
@@ -153,9 +154,8 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
                 }
                 //remissiveIndex.printIndexHashMap(barrelNumber);
             }
-        } catch (Exception e) {
+        } catch (Exception e){
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
-
         } finally {
             // Perform cleanup operations
             /*
@@ -166,8 +166,15 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
             }
             */
             multicastAvailable = false;
+            exit();
+
         }
     }
+
+    private void exit() {
+            this.projectManager.removeBarrel(this.barrelNumber);
+    }
+
     public static void main(String[] args) throws IOException {
         if (args.length < 5) {
             System.out.println("Usage: java Barrel <multicastAddress> <port> <confirmationPort> <projectManagerAddress> <projectManagerPort>");

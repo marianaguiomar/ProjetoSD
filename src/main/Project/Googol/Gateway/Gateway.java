@@ -55,12 +55,12 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
 
     private void connectToBarrel() throws RemoteException {
         try{
-            int barrelPort = 4400 + barrelInUse;
-            System.out.println("[GATEWAY]: Connecting to barrel number "+ barrelInUse);
-            this.barrel = (BarrelInterface) Naming.lookup("rmi://localhost:" + barrelPort + "/barrel" + barrelInUse);
+            int barrelPort = 4400 + projectManager.getBarrelID(barrelInUse);
+            System.out.println("[GATEWAY]: Connecting to barrel number "+ projectManager.getBarrelID(barrelInUse));
+            this.barrel = (BarrelInterface) Naming.lookup("rmi://localhost:" + barrelPort + "/barrel" + projectManager.getBarrelID(barrelInUse));
         }
         catch(NotBoundException notBoundException){
-            System.out.println("[GATEWAY]: Barrel number "+ barrelInUse +" not found. Trying next barrel...");
+            System.out.println("[GATEWAY]: Barrel number "+ projectManager.getBarrelID(barrelInUse) +" not found. Trying next barrel...");
             barrelInUse = (barrelInUse + 1) % (this.projectManager.getNumberOfBarrels());
             connectToBarrel();
         }
