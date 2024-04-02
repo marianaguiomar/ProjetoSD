@@ -47,7 +47,7 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
 
     public void removeBarrel(int barrelID) throws RemoteException {
         System.out.println("[PROJECTMANAGER#]: Removing barrel with ID: " + barrelID);
-        barrelsID.remove(barrelID);
+        barrelsID.remove(barrelsID.indexOf(barrelID));
         numberOfBarrels--;
     }
 
