@@ -18,7 +18,6 @@ import java.util.logging.Logger;
 
 public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runnable{
     // TODO -> see static variable
-    public static HashSet<Integer> activeBarrelIds = new HashSet<>();
     private final Receiver receiver;
     ProjectManagerInterface projectManager;
     private final RemissiveIndex remissiveIndex;
@@ -32,7 +31,6 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         this.remissiveIndex = new RemissiveIndex();
         this.projectManager = (ProjectManagerInterface) Naming.lookup(projectManagerPath);
         this.barrelNumber = this.projectManager.createNewID(false);
-        activeBarrelIds.add(barrelNumber);
         this.receiver = new Receiver(multicastAddress, port, confirmationPort);
         int barrelPort = 4400 + this.barrelNumber;
         try {
