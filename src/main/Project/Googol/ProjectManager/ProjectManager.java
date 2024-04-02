@@ -25,11 +25,36 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
     LinkedList<Integer> downloadersID;
     LinkedList<Integer> barrelsID;
     HashMap<Integer, Boolean> isWorking;
+    private static final HashMap<Integer, BarrelInterface> barrelsInterfaces = new HashMap<>();
 
     private void initializeIsWorking(){
         this.isWorking = new HashMap<>();
         for (Integer integer : barrelsID) {
             isWorking.put(integer, false);
+        }
+    }
+    public static BarrelInterface lookupBarrel(int differentBarrelID) {
+        try {
+            // Check if the barrel for the specified ID has already been looked up
+            if (barrelsInterfaces.containsKey(differentBarrelID)) {
+                // If yes, return the already looked up barrel
+                System.out.println("slay1");
+                return barrelsInterfaces.get(differentBarrelID);
+
+            } else {
+                // If not, perform the lookup
+                System.out.println("slay2");
+                BarrelInterface barrel = (BarrelInterface) Naming.lookup("rmi://localhost:" + (4400 + differentBarrelID) + "/barrel" + differentBarrelID);
+                // Store the looked up barrel in the HashMap
+                barrelsInterfaces.put(differentBarrelID, barrel);
+                return barrel;
+            }
+        } catch (NotBoundException | RemoteException e) {
+            e.printStackTrace();
+            return null;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return null;
         }
     }
     public static LinkedList<Integer> readWhitelist(String filename) {
@@ -75,28 +100,27 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
         return true;
     }
 
-    public RemissiveIndex setRemissiveIndex(int barrelID) throws RemoteException{
-        if(activeBarrels == 1){
+    public RemissiveIndex setRemissiveIndex(int barrelID) throws RemoteException {
+        if (activeBarrels == 1) {
             return BackupManager.readBackupFile(backupPath);
-        }
-        else{
+        } else {
             RemissiveIndex remissiveIndex;
-            try{
-                int differentBarrelID = 1;
-                for (Integer integer : barrelsID) {
-                    if (integer != barrelID)
-                        differentBarrelID = integer;
-                }
-                // TODO -> criar hashmap com endereços dos barrels
-                BarrelInterface barrel = (BarrelInterface) Naming.lookup("rmi://localhost:" + (4400 + differentBarrelID) + "/barrel" + differentBarrelID);
-                remissiveIndex = barrel.getRemissiveIndex();
-            } catch (MalformedURLException | NotBoundException e) {
-                LOGGER.log(Level.SEVERE, "Remote exception occurred\n "+ e.getMessage(), e);
-                return new RemissiveIndex();
+            int differentBarrelID = 1;
+            for (Integer integer : barrelsID) {
+                if (integer != barrelID)
+                    differentBarrelID = integer;
             }
+            // TODO -> criar hashmap com endereços dos barrels
+            System.out.println("cheguei aqui");
+            BarrelInterface barrel = lookupBarrel(differentBarrelID);
+            assert barrel != null;
+            System.out.println(differentBarrelID);
+            remissiveIndex = barrel.getRemissiveIndex();
+
             return remissiveIndex;
         }
     }
+
 
     public int getActiveBarrels() throws RemoteException{
         return this.activeBarrels;

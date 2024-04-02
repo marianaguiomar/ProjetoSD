@@ -41,11 +41,12 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         this.receiver = new Receiver(multicastAddress, port, confirmationPort);
         this.barrelPort = 4400 + this.barrelNumber;
         try {
+            System.out.println(barrelPort);
             Registry registry = LocateRegistry.createRegistry(barrelPort);
             registry.rebind("barrel" + barrelNumber, this);
 
         } catch (RemoteException e) {
-            LOGGER.log(Level.SEVERE, "Remote exception occurred\n "+ e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, "slay pussy boss queen\n "+ e.getMessage(), e);
             exit();
         }
         System.out.println("[BARREL#" + barrelNumber + "]:" + "   Ready...");
@@ -68,6 +69,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         return new StringTokenizer(message, delimiter);
     }
     public RemissiveIndex getRemissiveIndex() throws RemoteException{
+        System.out.println("[BARREL#" + barrelNumber + "]:" + "   Returning remissive index");
         return remissiveIndex;
     }
     public WebPage[] search(String[] tokens, Integer pageNumber, boolean intersection) throws RemoteException{
@@ -178,7 +180,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
             Barrel barrel = new Barrel( args[0],  Integer.parseInt(args[1]),Integer.parseInt(args[2]), projectManagerAddress, Integer.parseInt(args[5]));
             barrel.run();
         } catch (RemoteException | NotBoundException e) {
-            LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, "slayyy"+ e.getMessage(), e);
         }
     }
 }
