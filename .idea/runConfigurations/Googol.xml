@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Googol" type="Multirun" singleton="false" separateTabs="false" reuseTabsWithFailures="true" startOneByOne="true" markFailedProcess="false" hideSuccessProcess="true" delayTime="0.0">
+  <configuration default="false" name="Googol" type="Multirun" singleton="false" separateTabs="false" reuseTabsWithFailures="true" startOneByOne="true" markFailedProcess="false" hideSuccessProcess="false" delayTime="0.0">
     <runConfiguration name="Queue" type="Application" />
     <runConfiguration name="ProjectManager" type="Application" />
     <runConfiguration name="Barrel" type="Application" />

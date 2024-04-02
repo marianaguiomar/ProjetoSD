@@ -27,14 +27,14 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
     boolean multicastAvailable = true; // Initially assume multicast group is available
 
     public Barrel(String multicastAddress, int port, int confirmationPort, String projectManagerPath) throws IOException, NotBoundException {
-
+        Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
         this.searches = new LinkedHashMap<>();
         this.remissiveIndex = new RemissiveIndex();
         this.projectManager = (ProjectManagerInterface) Naming.lookup(projectManagerPath);
         this.barrelNumber = this.projectManager.createNewID(false);
         activeBarrelIds.add(barrelNumber);
-        int barrelPort = 4400 + barrelNumber;
         this.receiver = new Receiver(multicastAddress, port, confirmationPort);
+        int barrelPort = 4400 + this.barrelNumber;
         try {
             Registry registry = LocateRegistry.createRegistry(barrelPort);
             registry.rebind("barrel" + barrelNumber, this);
@@ -172,7 +172,12 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
     }
 
     private void exit() {
+        try {
             this.projectManager.removeBarrel(this.barrelNumber);
+        }
+        catch(RemoteException e){
+            LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
+        }
     }
 
     public static void main(String[] args) throws IOException {
@@ -181,7 +186,6 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
             System.exit(1);
         }
         try {
-            // Create RMI registry
             String projectManagerAddress = "rmi://" + args[3] + ":" + args[4] + "/projectManager";
             Barrel barrel = new Barrel( args[0],  Integer.parseInt(args[1]),Integer.parseInt(args[2]), projectManagerAddress);
             barrel.run();

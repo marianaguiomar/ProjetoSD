@@ -1,25 +1,14 @@
 package Googol.ProjectManager;
-import Googol.Gateway.Gateway;
-import Googol.Queue.Queue;
 
-import java.net.MalformedURLException;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Random;
-import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 public class ProjectManager extends UnicastRemoteObject implements ProjectManagerInterface{
-    private final String MULTICAST_ADDRESS = "224.3.2.1";
-
-    private final int PORT = 4321;
-    private final String CONFIRMATION_MULTICAST_ADDRESS = "224.3.2.2";
-    private final int CONFIRMATION_PORT = 4322;
     private static final Logger LOGGER = Logger.getLogger(ProjectManager.class.getName());
 
     int numberOfDownloaders;
@@ -32,17 +21,18 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
         Random random = new Random();
 
         int newID = random.nextInt(100) - 1;
+        while(linkedList.contains(newID)){
+            newID = random.nextInt(100) - 1;
+        }
 
         if(isDownloader) {
             this.numberOfDownloaders++;
-            linkedList.add(newID);
-            return newID;
         }
         else{
             this.numberOfBarrels++;
-            linkedList.add(newID);
-            return newID;
         }
+        linkedList.add(newID);
+        return newID;
 
 
     }
@@ -55,12 +45,14 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
         return this.barrelsID;
     }
 
-    public void removeBarrel(int barrelID) {
+    public void removeBarrel(int barrelID) throws RemoteException {
+        System.out.println("[PROJECTMANAGER#]: Removing barrel with ID: " + barrelID);
         barrelsID.remove(barrelID);
         numberOfBarrels--;
     }
 
-    public int getBarrelID(int n) {
+    public int getBarrelID(int n)throws RemoteException {
+        n = n % this.barrelsID.size();
         return this.barrelsID.get(n);
     }
 
@@ -78,7 +70,7 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
         }
     }
 
-    public static void main(String[] args) throws RemoteException, MalformedURLException, NotBoundException {
+    public static void main(String[] args) throws RemoteException {
         if(args.length != 1){
             System.out.println("Usage: java ProjectManager <port>");
             System.exit(1);
