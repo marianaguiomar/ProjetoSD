@@ -54,6 +54,9 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
 
     private void connectToBarrel() throws RemoteException {
         try{
+            if (barrelInUse > projectManager.getActiveBarrels()) {
+                barrelInUse = 0;
+            }
             int barrelPort = 4400 + projectManager.getAvailableBarrel(barrelInUse);
             System.out.println("[GATEWAY]: Connecting to barrel number "+ projectManager.getBarrelID(barrelInUse));
             this.barrel = (BarrelInterface) Naming.lookup("rmi://localhost:" + barrelPort + "/barrel" + projectManager.getBarrelID(barrelInUse));
@@ -104,6 +107,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         System.out.println("[GATEWAY]: Searching for: " + tokens[0]);
         WebPage[] webPages;
         try {
+            connectToBarrel();
             barrel.search(tokens, pageNumber, interstionSearch);
         }
         catch (RemoteException e) {
@@ -111,6 +115,8 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
             connectToBarrel();
         }
         finally {
+            System.out.println("This search was performed by barrel " + barrelInUse);
+            barrelInUse = (barrelInUse + 1) % (this.projectManager.getActiveBarrels());
             webPages = barrel.search(tokens, pageNumber, interstionSearch);
         }
         System.out.println("[GATEWAY]: Search done");
