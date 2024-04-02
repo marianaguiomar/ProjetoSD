@@ -1,8 +1,13 @@
 package Googol.ProjectManager;
 
+import Googol.Barrel.BarrelInterface;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -84,10 +89,21 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
         return result;
     }
 
-    public void removeBarrel(int barrelID) throws RemoteException {
+
+    public void removeBarrel(String barrelAddress, int barrelPort, int barrelID) throws RemoteException{
         System.out.println("[PROJECTMANAGER#]: Removing barrel with ID: " + barrelID);
         barrelsID.remove((Integer) barrelID);
         activeBarrels--;
+        if(activeBarrels == 0){
+            System.out.println("[PROJECTMANAGER#]: Last barrel removed, creating backup file");
+
+        }
+        try{
+            BarrelInterface barrel = (BarrelInterface) Naming.lookup("rmi://"+barrelAddress+":" + barrelPort + "/barrel" + barrelID);
+            BackupManager.createBackupFile(barrel.getRemissiveIndex(), "backup");
+        } catch (MalformedURLException | NotBoundException e) {
+            LOGGER.log(Level.SEVERE, "Remote exception occurred\n "+ e.getMessage(), e);
+        }
     }
 
     public int getBarrelID(int n)throws RemoteException {
@@ -119,7 +135,7 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
             this.numberOfDownloaders = 0;
             this.activeBarrels = 0;
             this.downloadersID = new LinkedList<>();
-            this.barrelsID = readWhitelist("./src/main/Project/Googol/ProjectManager/whitelist.txt");
+            this.barrelsID = readWhitelist(whitelistPath);
             initializeIsWorking();
             registry.rebind("projectManager", this);
             System.out.println("[PROJECTMANAGER#]:   Ready...");
@@ -131,7 +147,7 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
 
     public static void main(String[] args) throws RemoteException {
         if(args.length != 2){
-            System.out.println("Usage: java ProjectManager <port>");
+            System.out.println("Usage: java ProjectManager <port> <whitelistPath>");
             System.exit(1);
         }
         Registry registry = LocateRegistry.createRegistry(Integer.parseInt(args[0]));

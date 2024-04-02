@@ -101,23 +101,21 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
             totalDuration.put(barrelInUse, updatedSearches);
         }
     }
-    public String search(String[] tokens, int pageNumber, boolean interstionSearch) throws RemoteException {
-        //TODO -> verificar onde colocar os temporizadores
+    public String search(String[] tokens, int pageNumber, boolean isIntersectionSearch) throws RemoteException {
         long startTime = System.currentTimeMillis();
         System.out.println("[GATEWAY]: Searching for: " + tokens[0]);
         WebPage[] webPages;
         try {
             connectToBarrel();
-            barrel.search(tokens, pageNumber, interstionSearch);
+            barrel.search(tokens, pageNumber, isIntersectionSearch);
         }
         catch (RemoteException e) {
             System.out.println("[GATEWAY]: Barrel not available");
             connectToBarrel();
         }
         finally {
-            System.out.println("This search was performed by barrel " + barrelInUse);
             barrelInUse = (barrelInUse + 1) % (this.projectManager.getActiveBarrels());
-            webPages = barrel.search(tokens, pageNumber, interstionSearch);
+            webPages = barrel.search(tokens, pageNumber, isIntersectionSearch);
         }
         System.out.println("[GATEWAY]: Search done");
 

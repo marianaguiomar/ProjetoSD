@@ -1,10 +1,9 @@
 package Googol.Barrel;
-
 import Googol.Downloader;
-import Googol.ProjectManager.ProjectManager;
 import Googol.ProjectManager.ProjectManagerInterface;
 import Multicast.MulticastMessage;
 import Multicast.Receiver;
+import java.io.File;
 import java.io.IOException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -21,19 +20,25 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
     private final Receiver receiver;
     ProjectManagerInterface projectManager;
     private final RemissiveIndex remissiveIndex;
-    private final LinkedHashMap<String, Integer> searches;
     private final int barrelNumber;
+
+    private final int barrelPort;
+
+    String pathToHere = "./src/main/Project/Googol/Barrel/";
     boolean multicastAvailable = true; // Initially assume multicast group is available
 
     public Barrel(String multicastAddress, int port, int confirmationPort, String projectManagerPath, int barrelNumber) throws IOException, NotBoundException {
-        Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
-        this.searches = new LinkedHashMap<>();
+        //this.remissiveIndex = initializeRemissiveIndex(pathToHere + "backup" + barrelNumber);
         this.remissiveIndex = new RemissiveIndex();
         this.projectManager = (ProjectManagerInterface) Naming.lookup(projectManagerPath);
         this.barrelNumber = barrelNumber;
-        this.projectManager.verifyBarrelID(this.barrelNumber);
+        if(!this.projectManager.verifyBarrelID(this.barrelNumber)){
+            System.out.println("[BARREL#" + barrelNumber + "]:" + "   Barrel ID is not valid. Exiting...");
+            System.exit(1);
+        }
+        Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
         this.receiver = new Receiver(multicastAddress, port, confirmationPort);
-        int barrelPort = 4400 + this.barrelNumber;
+        this.barrelPort = 4400 + this.barrelNumber;
         try {
             Registry registry = LocateRegistry.createRegistry(barrelPort);
             registry.rebind("barrel" + barrelNumber, this);
@@ -44,6 +49,17 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         }
         System.out.println("[BARREL#" + barrelNumber + "]:" + "   Ready...");
     }
+    /*
+    private RemissiveIndex initializeRemissiveIndex(String filename){
+        File file = new File(filename);
+        if (!file.exists()) {
+            // TODO -> call project manager to get the index
+        } else {
+            // TODO-> load from file
+            return new RemissiveIndex();
+        }
+    }
+     */
 
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
     
@@ -61,7 +77,9 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
     private StringTokenizer getTokens(String message, String delimiter) {
         return new StringTokenizer(message, delimiter);
     }
-
+    public RemissiveIndex getRemissiveIndex() throws RemoteException{
+        return remissiveIndex;
+    }
     public WebPage[] search(String[] tokens, Integer pageNumber, boolean intersection) throws RemoteException{
         LinkedList<WebPage> result;
         if(intersection)
@@ -70,18 +88,6 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
             result = remissiveIndex.findWebPagesUnion(tokens);
         if(result == null || result.isEmpty())
             return new WebPage[0];
-
-        /*
-        String currKey = String.join(" ", tokens).toLowerCase();
-        if (searches.containsKey(currKey)) {
-            int curr = searches.get(currKey);
-            searches.put(currKey, curr+1);
-        }
-        else {
-            searches.put(currKey, 1);
-        }
-        */
-
         orderWebpages(result);
         //updateSearches();
 
@@ -92,7 +98,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
 
     public void orderWebpages(LinkedList<WebPage> result) {
         // Define a custom comparator based on the length of the attribute in descending order
-        Comparator<WebPage> comparator = new Comparator<WebPage>() {
+        Comparator<WebPage> comparator = new Comparator<>() {
             @Override
             public int compare(WebPage page1, WebPage page2) {
                 String url1 = page1.getHyperlink();
@@ -156,14 +162,6 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         } catch (Exception e){
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
         } finally {
-            // Perform cleanup operations
-            /*
-            try {
-                socket.leaveGroup(new InetSocketAddress(this.MULTICAST_ADDRESS, this.PORT), NetworkInterface.getByIndex(0));
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, "Error while leaving multicast group: " + e.getMessage(), e);
-            }
-            */
             multicastAvailable = false;
             exit();
 
@@ -172,7 +170,8 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
 
     private void exit() {
         try {
-            this.projectManager.removeBarrel(this.barrelNumber);
+            //TODO -> send real address
+            this.projectManager.removeBarrel("localhost", this.barrelPort,this.barrelNumber);
         }
         catch(RemoteException e){
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);

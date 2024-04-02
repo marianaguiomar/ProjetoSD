@@ -5,6 +5,7 @@ import java.rmi.RemoteException;
 
 
 public interface BarrelInterface extends Remote {
+    RemissiveIndex getRemissiveIndex() throws RemoteException;
 
     public WebPage[] search(String[] tokens, Integer pageNumber, boolean intersection) throws RemoteException;
     String getConnections(String URL) throws RemoteException;

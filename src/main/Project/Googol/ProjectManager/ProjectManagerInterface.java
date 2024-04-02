@@ -14,5 +14,5 @@ public interface ProjectManagerInterface extends Remote {
     LinkedList<Integer> getAvailableBarrelsID() throws RemoteException;
     int getBarrelID(int n) throws RemoteException;
 
-    void removeBarrel(int barrelID) throws RemoteException;
+    void removeBarrel(String barrelAddress, int barrelPort, int barrelID) throws RemoteException;
 }

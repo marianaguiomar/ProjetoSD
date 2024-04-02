@@ -1,12 +1,13 @@
 package Googol.Barrel;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public class RemissiveIndex {
+public class RemissiveIndex implements Serializable {
     public final HashMap<String, HashSet<String>> index;
     public final HashMap<String, WebPage> webPages;
     public final HashMap<String, HashSet<String>> urlConnection;
