@@ -44,6 +44,10 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
         return this.numberOfBarrels;
     }
 
+    public HashSet<Integer> getBarrelsID() throws RemoteException {
+        return this.barrelsID;
+    }
+
     public ProjectManager(Registry registry) throws RemoteException {
         super();
         try {

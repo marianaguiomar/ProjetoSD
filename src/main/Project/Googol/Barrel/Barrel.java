@@ -70,6 +70,8 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
             result = remissiveIndex.findWebPagesUnion(tokens);
         if(result == null || result.isEmpty())
             return new WebPage[0];
+
+        /*
         String currKey = String.join(" ", tokens).toLowerCase();
         if (searches.containsKey(currKey)) {
             int curr = searches.get(currKey);
@@ -78,8 +80,10 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         else {
             searches.put(currKey, 1);
         }
+        */
+
         orderWebpages(result);
-        updateSearches();
+        //updateSearches();
 
         if(result.size() < pageNumber * 10)
             return new WebPage[0];
@@ -106,76 +110,6 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         Collections.sort(result, comparator);
     }
 
-    public String status() throws RemoteException {
-        String topTen = formatSearches();
-        String barrelID = formatActiveBarrels();
-
-        String res = "" ;
-        res = res.concat(topTen);
-        res = res.concat("§");
-        res = res.concat(barrelID);
-        return res;
-    }
-
-    public String formatActiveBarrels() {
-        // Create a StringBuilder to build the result string
-        StringBuilder result = new StringBuilder();
-
-        result.append("\nACTIVE BARRELS\n");
-
-        // Append each value with the specified format to the StringBuilder
-        for (int value : activeBarrelIds) {
-            result.append("BARREL#").append(value).append("\n");
-        }
-
-        // Convert the StringBuilder to a string
-
-        return result.toString();
-    }
-
-    public String formatSearches() {
-        StringBuilder result = new StringBuilder();
-        int count = 1;
-        result.append("TOP 10 SEARCHES \n");
-        for (Map.Entry<String, Integer> entry : searches.entrySet()) {
-            if (count > 10) {
-                break; // Stop when you've printed the first 10 entries
-            }
-            result.append("[").append(count).append("] ").append(entry.getKey()).append("\n");
-            count++;
-        }
-        return result.toString();
-    }
-
-    private void updateSearches() {
-        // Convert map entries to a list
-        List<Map.Entry<String, Integer>> entryList = new ArrayList<>(searches.entrySet());
-
-        // Sort the list based on values in descending order using a lambda expression
-        entryList.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
-
-        // Create a new LinkedHashMap to preserve the order
-        Map<String, Integer> sortedMap = new LinkedHashMap<>();
-        for (Map.Entry<String, Integer> entry : entryList) {
-            sortedMap.put(entry.getKey(), entry.getValue());
-        }
-
-        //System.out.println("[BARREL#" + barrelNumber + "]:" + "    Sorted list: " + entryList);
-        //System.out.println("[BARREL#" + barrelNumber + "]:" + "    Sorted map: " + sortedMap);
-
-        // Update the original map with the sorted entries
-        searches.clear();
-        searches.putAll(sortedMap);
-
-        //System.out.println("[BARREL#" + barrelNumber + "]:" + "    Searches: " + searches);
-    }
-
-    private void printSearches() {
-        for (Map.Entry<String, Integer> entry : searches.entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue());
-        }
-        System.out.println("[BARREL#" + barrelNumber + "]:" + "    \n");
-    }
 
 
     public String getConnections(String URL) throws RemoteException{

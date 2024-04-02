@@ -12,8 +12,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     BarrelInterface barrel;
@@ -25,6 +24,8 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     ProjectManagerInterface projectManager;
     private final HashMap<Integer,Long> totalDuration;
     private final HashMap<Integer, Integer> numSearches;
+    private final LinkedHashMap<String, Integer> searches;
+
 
 
     public Gateway(Registry registry, String queuePath, String projectManagerPath) throws RemoteException, MalformedURLException, NotBoundException {
@@ -33,6 +34,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         this.queuePath = queuePath;
         this.totalDuration = new HashMap<>();
         this.numSearches = new HashMap<>();
+        this.searches = new LinkedHashMap<>();
         this.projectManager = (ProjectManagerInterface) Naming.lookup(projectManagerPath);
         registry.rebind("gateway", this);
     }
@@ -111,6 +113,17 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         for (WebPage webPage : webPages) {
             result.append(webPage.toString()).append("\n");
         }
+
+        String currKey = String.join(" ", tokens).toLowerCase();
+        if (searches.containsKey(currKey)) {
+            int curr = searches.get(currKey);
+            searches.put(currKey, curr+1);
+        }
+        else {
+            searches.put(currKey, 1);
+        }
+        updateSearches();
+
         return result.toString();
     }
 
@@ -118,10 +131,15 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     public String status() throws RemoteException {
         HashSet<Integer> barrelID = new HashSet<>();
         // Get the original status message from the barrel
-        String[] splitRes = barrel.status().split("§");
+        //String[] splitRes = barrel.status().split("§");
 
-        String topSearches = splitRes[0];
-        String activeBarrels = splitRes[1];
+        String topSearches = formatSearches();
+        // Format the HashSet into a string
+        StringBuilder activeBarrels = new StringBuilder();
+        activeBarrels.append("\nACTIVE BARRELS \n");
+        for (int value : projectManager.getBarrelsID()) {
+            activeBarrels.append("BARREL#").append(value).append("\n");
+        }
 
         // Calculate average search time
         String averageTimeMessage = formatAverageTime();
@@ -135,6 +153,43 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         URL = URL.toLowerCase();
         System.out.println("[GATEWAY]: Inserting URL: " + URL);
         this.queue.addURL(URL);
+    }
+
+    public String formatSearches() {
+        StringBuilder result = new StringBuilder();
+        int count = 1;
+        result.append("TOP 10 SEARCHES \n");
+        for (Map.Entry<String, Integer> entry : searches.entrySet()) {
+            if (count > 10) {
+                break; // Stop when you've printed the first 10 entries
+            }
+            result.append("[").append(count).append("] ").append(entry.getKey()).append("\n");
+            count++;
+        }
+        return result.toString();
+    }
+
+    private void updateSearches() {
+        // Convert map entries to a list
+        List<Map.Entry<String, Integer>> entryList = new ArrayList<>(searches.entrySet());
+
+        // Sort the list based on values in descending order using a lambda expression
+        entryList.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
+
+        // Create a new LinkedHashMap to preserve the order
+        Map<String, Integer> sortedMap = new LinkedHashMap<>();
+        for (Map.Entry<String, Integer> entry : entryList) {
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+
+        //System.out.println("[BARREL#" + barrelNumber + "]:" + "    Sorted list: " + entryList);
+        //System.out.println("[BARREL#" + barrelNumber + "]:" + "    Sorted map: " + sortedMap);
+
+        // Update the original map with the sorted entries
+        searches.clear();
+        searches.putAll(sortedMap);
+
+        //System.out.println("[BARREL#" + barrelNumber + "]:" + "    Searches: " + searches);
     }
 
     public String formatAverageTime() {
