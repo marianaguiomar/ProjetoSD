@@ -29,13 +29,14 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
 
     public Barrel(String multicastAddress, int port, int confirmationPort, String projectManagerPath, int barrelNumber) throws IOException, NotBoundException {
         //this.remissiveIndex = initializeRemissiveIndex(pathToHere + "backup" + barrelNumber);
-        this.remissiveIndex = new RemissiveIndex();
+
         this.projectManager = (ProjectManagerInterface) Naming.lookup(projectManagerPath);
         this.barrelNumber = barrelNumber;
         if(!this.projectManager.verifyBarrelID(this.barrelNumber)){
             System.out.println("[BARREL#" + barrelNumber + "]:" + "   Barrel ID is not valid. Exiting...");
             System.exit(1);
         }
+        this.remissiveIndex = projectManager.setRemissiveIndex(this.barrelNumber);
         Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
         this.receiver = new Receiver(multicastAddress, port, confirmationPort);
         this.barrelPort = 4400 + this.barrelNumber;
@@ -49,17 +50,6 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         }
         System.out.println("[BARREL#" + barrelNumber + "]:" + "   Ready...");
     }
-    /*
-    private RemissiveIndex initializeRemissiveIndex(String filename){
-        File file = new File(filename);
-        if (!file.exists()) {
-            // TODO -> call project manager to get the index
-        } else {
-            // TODO-> load from file
-            return new RemissiveIndex();
-        }
-    }
-     */
 
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
     

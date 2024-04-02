@@ -1,6 +1,6 @@
 package Googol.ProjectManager;
-
 import Googol.Barrel.BarrelInterface;
+import Googol.Barrel.RemissiveIndex;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -19,7 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 public class ProjectManager extends UnicastRemoteObject implements ProjectManagerInterface{
     private static final Logger LOGGER = Logger.getLogger(ProjectManager.class.getName());
-
+    private static final String backupPath = "./src/main/Project/Googol/ProjectManager/backup.dat";
     int numberOfDownloaders;
     int activeBarrels;
     LinkedList<Integer> downloadersID;
@@ -75,6 +75,29 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
         return true;
     }
 
+    public RemissiveIndex setRemissiveIndex(int barrelID) throws RemoteException{
+        if(activeBarrels == 1){
+            return BackupManager.readBackupFile(backupPath);
+        }
+        else{
+            RemissiveIndex remissiveIndex;
+            try{
+                int differentBarrelID = 1;
+                for (Integer integer : barrelsID) {
+                    if (integer != barrelID)
+                        differentBarrelID = integer;
+                }
+                // TODO -> criar hashmap com endereços dos barrels
+                BarrelInterface barrel = (BarrelInterface) Naming.lookup("rmi://localhost:" + (4400 + differentBarrelID) + "/barrel" + differentBarrelID);
+                remissiveIndex = barrel.getRemissiveIndex();
+            } catch (MalformedURLException | NotBoundException e) {
+                LOGGER.log(Level.SEVERE, "Remote exception occurred\n "+ e.getMessage(), e);
+                return new RemissiveIndex();
+            }
+            return remissiveIndex;
+        }
+    }
+
     public int getActiveBarrels() throws RemoteException{
         return this.activeBarrels;
     }
@@ -100,7 +123,7 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
         }
         try{
             BarrelInterface barrel = (BarrelInterface) Naming.lookup("rmi://"+barrelAddress+":" + barrelPort + "/barrel" + barrelID);
-            BackupManager.createBackupFile(barrel.getRemissiveIndex(), "backup");
+            BackupManager.createBackupFile(barrel.getRemissiveIndex(), backupPath);
         } catch (MalformedURLException | NotBoundException e) {
             LOGGER.log(Level.SEVERE, "Remote exception occurred\n "+ e.getMessage(), e);
         }

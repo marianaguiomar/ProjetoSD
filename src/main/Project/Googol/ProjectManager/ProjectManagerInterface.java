@@ -1,5 +1,7 @@
 package Googol.ProjectManager;
 
+import Googol.Barrel.RemissiveIndex;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.LinkedList;
@@ -10,6 +12,7 @@ public interface ProjectManagerInterface extends Remote {
 
     int getActiveBarrels() throws RemoteException;
     int getAvailableBarrel(int n) throws RemoteException;
+    RemissiveIndex setRemissiveIndex(int barrelID) throws RemoteException;
 
     LinkedList<Integer> getAvailableBarrelsID() throws RemoteException;
     int getBarrelID(int n) throws RemoteException;
