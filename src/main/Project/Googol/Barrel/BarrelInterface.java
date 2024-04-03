@@ -9,4 +9,6 @@ public interface BarrelInterface extends Remote {
 
     public WebPage[] search(String[] tokens, Integer pageNumber, boolean intersection) throws RemoteException;
     String getConnections(String URL) throws RemoteException;
+
+    public int getBarrelNumber() throws RemoteException;
 }

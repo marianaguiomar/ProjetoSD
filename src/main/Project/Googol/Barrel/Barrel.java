@@ -52,7 +52,10 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
     }
 
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
-    
+    public int getBarrelNumber() throws RemoteException {
+        return this.barrelNumber;
+    }
+
     private void receiveCitation(MulticastMessage message) {
         String hyperlink = message.hyperlink();
         String citation = message.payload();

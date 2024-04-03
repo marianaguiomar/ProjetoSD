@@ -82,23 +82,23 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         }
         System.out.println("[GATEWAY]: Gateway Ready...");
     }
-    public void updateSearches(long duration){
-        if (!totalDuration.containsKey(barrelInUse)) {
-            totalDuration.put(barrelInUse, duration);
+    public void updateSearches(long duration) throws RemoteException{
+        if (!totalDuration.containsKey(this.barrel.getBarrelNumber())) {
+            totalDuration.put(this.barrel.getBarrelNumber(), duration);
         }
         else {
-            long currDuration = totalDuration.get(barrelInUse);
+            long currDuration = totalDuration.get(this.barrel.getBarrelNumber());
             long updatedDuration = currDuration + duration;
-            totalDuration.put(barrelInUse, updatedDuration);
+            totalDuration.put(this.barrel.getBarrelNumber(), updatedDuration);
         }
 
-        if (!numSearches.containsKey(barrelInUse)) {
-            numSearches.put(barrelInUse, 1);
+        if (!numSearches.containsKey(this.barrel.getBarrelNumber())) {
+            numSearches.put(this.barrel.getBarrelNumber(), 1);
         }
         else {
-            long currSearches = numSearches.get(barrelInUse);
+            long currSearches = numSearches.get(this.barrel.getBarrelNumber());
             long updatedSearches = currSearches + 1;
-            totalDuration.put(barrelInUse, updatedSearches);
+            totalDuration.put(this.barrel.getBarrelNumber(), updatedSearches);
         }
     }
     public String search(String[] tokens, int pageNumber, boolean isIntersectionSearch) throws RemoteException {
@@ -146,7 +146,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     public String status() throws RemoteException {
         String topSearches = formatSearches();
         StringBuilder activeBarrels = new StringBuilder();
-        activeBarrels.append("\nACTIVE BARRELS \n");
+        activeBarrels.append("ACTIVE BARRELS \n");
         for (int value : projectManager.getAvailableBarrelsID()) {
             activeBarrels.append("BARREL#").append(value).append("\n");
         }
@@ -208,7 +208,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         //TODO -> quando ainda não existem searches -> verificar se funciona, outro barrel n faz nada
         for (Integer barrel: totalDuration.keySet()) {
             long averageDuration = totalDuration.get(barrel) / numSearches.get(barrel);
-            result.append("BARREL#").append(barrel).append(": ").append(averageDuration).append(" ms.");
+            result.append("BARREL#").append(barrel).append(": ").append(averageDuration).append(" ms.\n");
         }
 
         return result.toString();
