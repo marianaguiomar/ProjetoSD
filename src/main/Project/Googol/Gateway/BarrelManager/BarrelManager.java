@@ -25,9 +25,9 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
     private static final String backupPath = "./src/main/Project/Googol/Gateway/BarrelManager/backup.dat";
     int numberOfDownloaders;
     int activeBarrels;
-    LinkedList<Integer> downloadersID;
     LinkedList<Integer> barrelsID;
     HashMap<Integer, String> barrelsAddresses;
+    HashMap<Integer, Integer> barrelsPorts;
     HashMap<Integer, Boolean> isWorking;
     private static final HashMap<Integer, BarrelInterface> barrelsInterfaces = new HashMap<>();
 
@@ -37,7 +37,6 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
             Registry registry = LocateRegistry.createRegistry(port);
             this.numberOfDownloaders = 0;
             this.activeBarrels = 0;
-            this.downloadersID = new LinkedList<>();
             this.barrelsAddresses = new HashMap<>();
             this.barrelsID = readWhitelist(whitelistPath);
             initializeIsWorking();
@@ -102,18 +101,6 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
             System.err.println("Error reading file: " + e.getMessage());
         }
         return whitelist;
-    }
-
-    public int createDownloaderID() throws RemoteException {
-        LinkedList<Integer> linkedList = this.downloadersID;
-        Random random = new Random();
-
-        int newID = random.nextInt(100) - 1;
-        while (linkedList.contains(newID)) {
-            newID = random.nextInt(100) - 1;
-        }
-        this.numberOfDownloaders++;
-        return newID;
     }
 
     public String getBarrelAddres(int barrelID){

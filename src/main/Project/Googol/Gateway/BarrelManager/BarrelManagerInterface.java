@@ -8,9 +8,7 @@ import java.rmi.RemoteException;
 import java.util.LinkedList;
 
 public interface BarrelManagerInterface extends Remote {
-    int createDownloaderID() throws RemoteException;
     public boolean verifyBarrelID(int ID, String barrelAddress) throws RemoteException;
-
     int getActiveBarrels() throws RemoteException;
     int getAvailableBarrel(int n) throws RemoteException;
     RemissiveIndex setRemissiveIndex(int barrelID) throws RemoteException;
