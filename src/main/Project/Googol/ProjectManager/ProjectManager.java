@@ -17,6 +17,9 @@ import java.util.LinkedList;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+//TODO -> download management goes to QUEUE
+//TODO -> project manager becomes a thread of gateway
 public class ProjectManager extends UnicastRemoteObject implements ProjectManagerInterface{
     private static final Logger LOGGER = Logger.getLogger(ProjectManager.class.getName());
     private static final String backupPath = "./src/main/Project/Googol/ProjectManager/backup.dat";

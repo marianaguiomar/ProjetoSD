@@ -13,7 +13,8 @@ public class BackupManager {
             objectOut.close();
             fileOut.close();
             System.out.println("RemissiveIndex object has been serialized and saved in " + filename);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -28,6 +29,8 @@ public class BackupManager {
             objectIn.close();
             fileIn.close();
             System.out.println("RemissiveIndex object has been deserialized from " + filename);
+        } catch(FileNotFoundException fileNotFoundException){
+            return new RemissiveIndex();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
