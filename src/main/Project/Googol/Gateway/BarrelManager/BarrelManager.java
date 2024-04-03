@@ -148,11 +148,13 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
                     differentBarrelID = integer;
             }
             // TODO -> criar hashmap com endereços dos barrels
-            System.out.println("cheguei aqui");
+            /*
             BarrelInterface barrel = lookupBarrel(differentBarrelID);
             System.out.println(differentBarrelID);
             if (barrel != null)
                 remissiveIndex = barrel.getRemissiveIndex();
+
+             */
             if (remissiveIndex == null)
                 return new RemissiveIndex();
             return remissiveIndex;
