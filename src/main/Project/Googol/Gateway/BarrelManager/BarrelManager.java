@@ -29,7 +29,7 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
     HashMap<Integer, String> barrelsAddresses;
     HashMap<Integer, Integer> barrelsPorts;
     HashMap<Integer, Boolean> isWorking;
-    private static final HashMap<Integer, BarrelInterface> barrelsInterfaces = new HashMap<>();
+    private HashMap<Integer, BarrelInterface> barrelsInterfaces;
 
     public BarrelManager(int port, String whitelistPath) throws RemoteException {
         super();
@@ -38,6 +38,9 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
             this.numberOfDownloaders = 0;
             this.activeBarrels = 0;
             this.barrelsAddresses = new HashMap<>();
+            this.barrelsInterfaces = new HashMap<>();
+            this.barrelsAddresses = new HashMap<>();
+            this.barrelsPorts = new HashMap<>();
             this.barrelsID = readWhitelist(whitelistPath);
             initializeIsWorking();
             registry.rebind("gateway", this);
@@ -167,19 +170,15 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
 
     public void removeBarrel(String barrelAddress, int barrelPort, int barrelID) throws RemoteException {
         System.out.println("[PROJECTMANAGER#]: Removing barrel with ID: " + barrelID);
-        barrelsID.remove((Integer) barrelID);
-        isWorking.put(barrelID, false);
         activeBarrels--;
         if (activeBarrels == 0) {
             System.out.println("[PROJECTMANAGER#]: Last barrel removed, creating backup file");
-
-        }
-        try {
-            BarrelInterface barrel = (BarrelInterface) Naming.lookup("rmi://" + barrelAddress + ":" + barrelPort + "/barrel" + barrelID);
+            BarrelInterface barrel = lookupBarrel(barrelID);
             BackupManager.createBackupFile(barrel.getRemissiveIndex(), backupPath);
-        } catch (MalformedURLException | NotBoundException e) {
-            LOGGER.log(Level.SEVERE, "Remote exception occurred\n " + e.getMessage(), e);
         }
+        isWorking.put(barrelID, false);
+        this.barrelsAddresses.remove(barrelID);
+        this.barrelsPorts.remove(barrelID);
     }
 
     public int getBarrelID(int n) throws RemoteException {

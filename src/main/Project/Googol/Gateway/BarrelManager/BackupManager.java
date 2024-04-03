@@ -29,10 +29,8 @@ public class BackupManager {
             objectIn.close();
             fileIn.close();
             System.out.println("RemissiveIndex object has been deserialized from " + filename);
-        } catch(FileNotFoundException fileNotFoundException){
-            return new RemissiveIndex();
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            return new RemissiveIndex();
         }
         return remissiveIndex;
     }
