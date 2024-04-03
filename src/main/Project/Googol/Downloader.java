@@ -25,13 +25,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Downloader implements Runnable {
-    //Multicast section
-    //TODO -> estes são os valores da ficha, verificar se são os corretos
     QueueInterface queue;
     private final Sender sender;
     boolean queueExists = true;
     private final Integer myID;
-    private HashSet<String> visitedURL;
+    private final HashSet<String> visitedURL;
     String[] stopwords = {
             // English stopwords
             "a", "an", "and", "are", "as", "at", "be", "but", "by",
@@ -66,7 +64,7 @@ public class Downloader implements Runnable {
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
 
     public Downloader(String multicastAddress, int port, int confirmationPort,
-                      String queuePath, String projectManagerPath) throws NotBoundException, IOException {
+                      String queuePath) throws NotBoundException, IOException {
         this.queue = (QueueInterface) Naming.lookup(queuePath);
         this.myID = port;
         this.sender = new Sender(multicastAddress, port,  confirmationPort);
@@ -106,7 +104,7 @@ public class Downloader implements Runnable {
             if (isValidURL(newURL)) {
                 visitedURL.add(newURL);
                 this.queue.addURL(newURL);
-                //System.out.printf("[DOWNLOADER#" + myID + "]:" +GETTING LINK" + "\t" + newURL + "\n");
+                System.out.printf("[DOWNLOADER#" + myID + "]:" +"GETTING LINK" + "\t" + newURL + "\n");
                 if (multicastMessage.getBytes(StandardCharsets.UTF_8).length + newURL.getBytes(StandardCharsets.UTF_8).length+1 < 700) {
                     multicastMessage = multicastMessage.concat(newURL.toLowerCase()).concat("^");
                 }
@@ -119,7 +117,6 @@ public class Downloader implements Runnable {
         }
     }
 
-    // TODO -> verificar se é necessário, se não for, apagar. (Pode ser substituído por um throw?)
     private boolean isValidURL(String url) {
         if (url == null || url.isEmpty() || url.isBlank() || visitedURL.contains(url)) {
             return false;
@@ -156,7 +153,7 @@ public class Downloader implements Runnable {
                 title = doc.title();
             }
         }
-        System.out.println("[DOWNLOADER#" + myID + "]:" + "Title: " + title);
+        //System.out.println("[DOWNLOADER#" + myID + "]:" + "Title: " + title);
         sender.sendMessage(hyperlink, title, MessageType.TITLE);
     }
 
@@ -223,14 +220,13 @@ public class Downloader implements Runnable {
     public static void main(String[] args) throws NotBoundException, IOException {
         // "224.3.2.1", 4321,
         //                4322, "rmi://localhost/queue", "rmi://localhost:"+ 4320 + "/projectManager"
-        if(args.length != 7){
+        if(args.length != 5){
             System.out.println("Usage: java Downloader <multicastAddress> <port> <confirmationPort> <queueIP> <queuePort> <projectManagerIP> <projectManagerPort>");
             System.exit(1);
         }
         String queueAddress = "rmi://" + args[3] + ":" + args[4] + "/queue";
-        String projectManagerAddress = "rmi://" + args[5] + ":" + args[6] + "/projectManager";
         Downloader downloader = new Downloader(args[0], Integer.parseInt(args[1]),
-                Integer.parseInt(args[2]), queueAddress, projectManagerAddress);
+                Integer.parseInt(args[2]), queueAddress);
         downloader.run();
     }
     }

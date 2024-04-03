@@ -12,25 +12,6 @@ public class RemissiveIndex implements Serializable {
     public final HashMap<String, WebPage> webPages;
     public final HashMap<String, HashSet<String>> urlConnection;
 
-    public void addWebPage(String hyperlink, String titulo, String citacao){
-        WebPage webPage = new WebPage(hyperlink, titulo, citacao);
-        webPages.put(webPage.getHyperlink(), webPage);
-    }
-    public void printConnections() {
-        for (Map.Entry<String, HashSet<String>> entry : urlConnection.entrySet()) {
-            System.out.println("KEY: " + entry.getKey());
-            for (String url : entry.getValue()) {
-                System.out.println("  " + url);
-            }
-        }
-    }
-    public void printWebPages() {
-        for (Map.Entry<String, WebPage> entry : webPages.entrySet()) {
-            System.out.println(entry.getKey());
-            System.out.println(entry.getValue().toString());
-        }
-    }
-
     public String getConnections(String hyperlink){
         String header = "CONNECTIONS TO LINK: " + hyperlink + "\n";
         StringBuilder result = new StringBuilder(header);
@@ -63,10 +44,10 @@ public class RemissiveIndex implements Serializable {
         LinkedList<WebPage> result = new LinkedList<>();
 
         // Initialize a set to store the web pages associated with the first token
-        HashSet<String> firstTokenWebPages = new HashSet<>();
+        HashSet<String> firstTokenWebPages;
         String firstToken = tokens[0].toLowerCase();
         if (index.containsKey(firstToken)) {
-            firstTokenWebPages.addAll(index.get(firstToken));
+            firstTokenWebPages = new HashSet<>(index.get(firstToken));
         } else {
             // If the first token is not found, return an empty list
             return result;

@@ -14,12 +14,9 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-//TODO -> download management goes to QUEUE
-//TODO -> project manager becomes a thread of gateway
 public class BarrelManager extends UnicastRemoteObject implements BarrelManagerInterface {
     private static final Logger LOGGER = Logger.getLogger(BarrelManager.class.getName());
     private static final String backupPath = "./src/main/Project/Googol/Gateway/BarrelManager/backup.dat";
@@ -46,7 +43,6 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
             registry.rebind("gateway", this);
             System.out.println("[PROJECTMANAGER#]:   " + "rmi://localhost:" + port + "/gateway");
             System.out.println("[PROJECTMANAGER#]:   Ready...");
-            //printBarrels();
         } catch (RemoteException e) {
             LOGGER.log(Level.SEVERE, "Exception occurred while initializing ProjectManager: " + e.getMessage(), e);
         }
@@ -64,23 +60,18 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
             // Check if the barrel for the specified ID has already been looked up
             if (barrelsInterfaces.containsKey(differentBarrelID)) {
                 // If yes, return the already looked up barrel
-                System.out.println("slay1");
                 return barrelsInterfaces.get(differentBarrelID);
 
             } else {
                 // If not, perform the lookup
-                System.out.println("slay2");
                 BarrelInterface barrel = (BarrelInterface) Naming.lookup("rmi://"+ getBarrelAddres(differentBarrelID)
                         + ":" + (4400 + differentBarrelID) + "/barrel" + differentBarrelID);
                 // Store the looked up barrel in the HashMap
                 barrelsInterfaces.put(differentBarrelID, barrel);
                 return barrel;
             }
-        } catch (NotBoundException | RemoteException e) {
-            e.printStackTrace();
-            return null;
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+        } catch (NotBoundException | RemoteException | MalformedURLException e) {
+             LOGGER.log(Level.SEVERE, "Exception occurred while initializing ProjectManager: " + e.getMessage(), e);
             return null;
         }
     }
@@ -137,7 +128,6 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
                 if (differentID != barrelID && isWorking.get(differentID))
                     differentBarrelID = differentID;
             }
-            // TODO -> criar hashmap com endereços dos barrel
             BarrelInterface barrel = lookupBarrel(differentBarrelID);
             System.out.println(differentBarrelID);
             if (barrel != null) {
@@ -184,12 +174,6 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
     public int getBarrelID(int n) throws RemoteException {
         n = n % this.barrelsID.size();
         return this.barrelsID.get(n);
-    }
-
-    public void printBarrels() {
-        for (Integer integer : barrelsID) {
-            System.out.println(integer);
-        }
     }
 
     public int getAvailableBarrel(int n) throws RemoteException {

@@ -93,11 +93,10 @@ public class Sender {
             byte[] buffer = message.getBytes();
             DatagramPacket packet = new DatagramPacket(buffer,buffer.length, group, PORT);
             socket.send(packet);
-            //Stem.out.println("Sent message" + message.messageID());
+            //System.out.println("Sent message" + message);
             // Keep sending package until confirmation is received
             while (!waitForConfirmation(message.messageID())){
                 socket.send(packet);
-                System.out.println("Sent message: " + message);
             }
         }
         catch (IOException e){

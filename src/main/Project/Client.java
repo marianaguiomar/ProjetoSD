@@ -1,6 +1,3 @@
-// TODO -> EXCEPTION MALFORMED URL
-// TODO -> DIFERENTES CLIENTES (USAR EXCEPTION)
-
 import Googol.Gateway.GatewayInterface;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -16,7 +13,6 @@ public class Client {
 
     GatewayInterface gateway;
     public Client(String gatewayPath) throws MalformedURLException, RemoteException, NotBoundException {
-        // TODO -> verificar se se faz isto aqui
         this.scanner = new Scanner(System.in);
         this.gateway = (GatewayInterface) Naming.lookup(gatewayPath);
     }
@@ -41,7 +37,6 @@ public class Client {
                 String command = scanner.nextLine();
                 String[] tokens = command.split(" ");
                 String result;
-                //TODO -> tratar de maiúsculas e etc
                 switch (tokens[0]) {
                     case "exit" -> listen = false;
                     case "status" -> {

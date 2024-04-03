@@ -1,8 +1,8 @@
 package Googol.Gateway;
 import Googol.Barrel.BarrelInterface;
+import Googol.Barrel.WebPage;
 import Googol.Gateway.BarrelManager.BarrelManager;
 import Googol.Queue.QueueInterface;
-import Googol.Barrel.WebPage;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -11,8 +11,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
-
-
 public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     BarrelInterface barrel;
     QueueInterface queue;
@@ -63,7 +61,6 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
                 barrelInUse = 0;
             }
             int barrelID = this.barrelManager.getAvailableBarrel(barrelInUse);
-            int barrelPort = 4400 + barrelID;
             System.out.println("[GATEWAY]: Connecting to barrel number "+ barrelID );
             this.barrel = this.barrelManager.lookupBarrel(barrelID);
         } catch (RemoteException remoteException){
@@ -111,7 +108,6 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
             connectToBarrel();
         }
         finally {
-            System.out.println(this.barrelManager.getActiveBarrels());
             if(this.barrelManager.getActiveBarrels() > 0)
                 barrelInUse = (barrelInUse + 1) % (this.barrelManager.getActiveBarrels());
             webPages = barrel.search(tokens, pageNumber, isIntersectionSearch);
@@ -139,7 +135,6 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         return result.toString();
     }
 
-    //TODO -> fix
     public String status() throws RemoteException {
         String topSearches = formatSearches();
         StringBuilder activeBarrels = new StringBuilder();
@@ -202,7 +197,6 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     public String formatAverageTime() {
         StringBuilder result = new StringBuilder();
         result.append("AVERAGE SEARCH TIME: \n");
-        //TODO -> quando ainda não existem searches -> verificar se funciona, outro barrel n faz nada
         for (Integer barrel: totalDuration.keySet()) {
             long averageDuration = totalDuration.get(barrel) / numSearches.get(barrel);
             result.append("BARREL#").append(barrel).append(": ").append(averageDuration).append(" ms.\n");
@@ -216,14 +210,10 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         String result = "Resultado: \n";
         System.out.println("[GATEWAY]: Getting connections for URL: " + URL);
         result = result.concat(barrel.getConnections(URL));
-
-        System.out.println(result);
-
         return result;
     }
 
-    public static void main(String[] args) throws RemoteException, MalformedURLException, NotBoundException {
-        //"rmi://localhost:1099/queue", "rmi://localhost:" + 4320 + "/projectManager"
+    public static void main(String[] args) throws RemoteException{
         if(args.length != 4){
             System.out.println("Usage: java Gateway <queueAddress> <queuePort> <gatewayPort> <barrelManagerPort>");
             System.exit(1);
@@ -237,7 +227,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
             gateway.run();
         }
         catch (RemoteException e) {
-            e.printStackTrace();
+            System.out.println("Failed to initiliaze gateway");
         }
     }
 

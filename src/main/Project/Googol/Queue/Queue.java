@@ -1,14 +1,22 @@
 package Googol.Queue;
 
+import Googol.Gateway.BarrelManager.BarrelManager;
+
+import java.io.Serial;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.rmi.registry.Registry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Queue extends UnicastRemoteObject implements QueueInterface {
     LinkedBlockingQueue<String> URLQueue;
+    @Serial
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOGGER = Logger.getLogger(BarrelManager.class.getName());
 
     public Queue(Registry registry) throws RemoteException {
         super();
@@ -17,9 +25,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
             registry.rebind("queue", this);
 
         } catch (RemoteException e) {
-            //String rmiAddress = "rmi://" + InetAddress.getLocalHost().getHostAddress() + ":" + PORT + "/barrel" + barrelNumber;
-            //System.out.println("[BARREL#" + barrelNumber + "]:" + "    RMI Address: " + rmiAddress);
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Exception occurred while initializing Queue: \n" + e.getMessage(), e);
         }
         System.out.println("[QUEUE#]:   Ready...");
 
@@ -45,7 +51,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
             QueueInterface queue = new Queue(registry);
     }
         catch (RemoteException e) {
-        e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Exception occurred while initializing Queue: \n" + e.getMessage(), e);
     }
     }
 }

@@ -15,13 +15,13 @@ public class BackupManager {
             System.out.println("RemissiveIndex object has been serialized and saved in " + filename);
         }
         catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Failed to create backup file");
         }
     }
 
     // Method to deserialize a RemissiveIndex object from a file
     public static RemissiveIndex readBackupFile(String filename) {
-        RemissiveIndex remissiveIndex = null;
+        RemissiveIndex remissiveIndex;
         try {
             FileInputStream fileIn = new FileInputStream(filename);
             ObjectInputStream objectIn = new ObjectInputStream(fileIn);

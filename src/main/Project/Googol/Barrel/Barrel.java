@@ -3,7 +3,6 @@ import Googol.Downloader;
 import Googol.Gateway.BarrelManager.BarrelManagerInterface;
 import Multicast.MulticastMessage;
 import Multicast.Receiver;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.rmi.Naming;
@@ -17,15 +16,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runnable{
-    // TODO -> see static variable
     private final Receiver receiver;
     BarrelManagerInterface projectManager;
     private final RemissiveIndex remissiveIndex;
     private final int barrelNumber;
 
     private final int barrelPort;
-
-    String pathToHere = "./src/main/Project/Googol/Barrel/";
     boolean multicastAvailable = true; // Initially assume multicast group is available
 
     public Barrel(String multicastAddress, int port, int confirmationPort, String gatewayAddress, int barrelNumber) throws IOException, NotBoundException {
@@ -36,7 +32,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
             registry.rebind("barrel" + barrelNumber, this);
 
         } catch (RemoteException e) {
-            LOGGER.log(Level.SEVERE, "slay pussy boss queen\n "+ e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, "Remote Exception Error\n "+ e.getMessage(), e);
             exit();
         }
         System.out.println(gatewayAddress);
@@ -94,22 +90,19 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
 
     public void orderWebpages(LinkedList<WebPage> result) {
         // Define a custom comparator based on the length of the attribute in descending order
-        Comparator<WebPage> comparator = new Comparator<>() {
-            @Override
-            public int compare(WebPage page1, WebPage page2) {
-                String url1 = page1.getHyperlink();
-                String url2 = page2.getHyperlink();
+        Comparator<WebPage> comparator = (page1, page2) -> {
+            String url1 = page1.getHyperlink();
+            String url2 = page2.getHyperlink();
 
-                int connections1 = remissiveIndex.getNumberOfConnections(url1);
-                int connections2 = remissiveIndex.getNumberOfConnections(url2);
+            int connections1 = remissiveIndex.getNumberOfConnections(url1);
+            int connections2 = remissiveIndex.getNumberOfConnections(url2);
 
-                // Compare the lengths of the attribute in each Googol.Barrel.WebPage in reverse order
-                return Integer.compare(connections2, connections1); // Compare in reverse order
-            }
+            // Compare the lengths of the attribute in each Googol.Barrel.WebPage in reverse order
+            return Integer.compare(connections2, connections1); // Compare in reverse order
         };
 
         // Sort the result list using the custom comparator
-        Collections.sort(result, comparator);
+        result.sort(comparator);
     }
 
 
@@ -166,7 +159,6 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
 
     private void exit() {
         try {
-            //TODO -> send real address
             this.projectManager.removeBarrel("localhost", this.barrelPort,this.barrelNumber);
         }
         catch(RemoteException e){
@@ -184,7 +176,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
             Barrel barrel = new Barrel( args[0],  Integer.parseInt(args[1]),Integer.parseInt(args[2]), gatewayAdress, Integer.parseInt(args[5]));
             barrel.run();
         } catch (RemoteException | NotBoundException e) {
-            LOGGER.log(Level.SEVERE, "slayyy"+ e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, "Error\n"+ e.getMessage(), e);
         }
     }
 }
