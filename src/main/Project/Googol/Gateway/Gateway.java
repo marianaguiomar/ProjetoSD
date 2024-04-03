@@ -114,7 +114,9 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
             connectToBarrel();
         }
         finally {
-            barrelInUse = (barrelInUse + 1) % (this.projectManager.getActiveBarrels());
+            System.out.println(this.projectManager.getActiveBarrels());
+            if(this.projectManager.getActiveBarrels() > 0)
+                barrelInUse = (barrelInUse + 1) % (this.projectManager.getActiveBarrels());
             webPages = barrel.search(tokens, pageNumber, isIntersectionSearch);
         }
         System.out.println("[GATEWAY]: Search done");

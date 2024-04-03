@@ -41,7 +41,6 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         this.receiver = new Receiver(multicastAddress, port, confirmationPort);
         this.barrelPort = 4400 + this.barrelNumber;
         try {
-            System.out.println(barrelPort);
             Registry registry = LocateRegistry.createRegistry(barrelPort);
             registry.rebind("barrel" + barrelNumber, this);
 
@@ -70,7 +69,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
     }
     public RemissiveIndex getRemissiveIndex() throws RemoteException{
         System.out.println("[BARREL#" + barrelNumber + "]:" + "   Returning remissive index");
-        return remissiveIndex;
+        return this.remissiveIndex;
     }
     public WebPage[] search(String[] tokens, Integer pageNumber, boolean intersection) throws RemoteException{
         LinkedList<WebPage> result;

@@ -102,9 +102,12 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
 
     public RemissiveIndex setRemissiveIndex(int barrelID) throws RemoteException {
         if (activeBarrels == 1) {
+            RemissiveIndex remissiveIndex = BackupManager.readBackupFile(backupPath);
+            if (remissiveIndex == null)
+                return new RemissiveIndex();
             return BackupManager.readBackupFile(backupPath);
         } else {
-            RemissiveIndex remissiveIndex;
+            RemissiveIndex remissiveIndex = null;
             int differentBarrelID = 1;
             for (Integer integer : barrelsID) {
                 if (integer != barrelID)
@@ -113,10 +116,11 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
             // TODO -> criar hashmap com endereços dos barrels
             System.out.println("cheguei aqui");
             BarrelInterface barrel = lookupBarrel(differentBarrelID);
-            assert barrel != null;
             System.out.println(differentBarrelID);
-            remissiveIndex = barrel.getRemissiveIndex();
-
+            if (barrel != null)
+                remissiveIndex = barrel.getRemissiveIndex();
+            if (remissiveIndex == null)
+                return new RemissiveIndex();
             return remissiveIndex;
         }
     }
