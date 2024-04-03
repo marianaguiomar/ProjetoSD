@@ -156,6 +156,7 @@ public class Downloader implements Runnable {
                 title = doc.title();
             }
         }
+        System.out.println("[DOWNLOADER#" + myID + "]:" + "Title: " + title);
         sender.sendMessage(hyperlink, title, MessageType.TITLE);
     }
 

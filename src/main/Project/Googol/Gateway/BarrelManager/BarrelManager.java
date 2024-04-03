@@ -143,20 +143,21 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
         } else {
             RemissiveIndex remissiveIndex = null;
             int differentBarrelID = 1;
-            for (Integer integer : barrelsID) {
-                if (integer != barrelID)
-                    differentBarrelID = integer;
+            for (Integer differentID : barrelsID) {
+                if (differentID != barrelID && isWorking.get(differentID))
+                    differentBarrelID = differentID;
             }
-            // TODO -> criar hashmap com endereços dos barrels
-            /*
+            // TODO -> criar hashmap com endereços dos barrel
             BarrelInterface barrel = lookupBarrel(differentBarrelID);
             System.out.println(differentBarrelID);
-            if (barrel != null)
+            if (barrel != null) {
+                System.out.println("Failed to connect");
                 remissiveIndex = barrel.getRemissiveIndex();
-
-             */
-            if (remissiveIndex == null)
+            }
+            if (remissiveIndex == null) {
+                System.out.println("Failed to retrieve");
                 return new RemissiveIndex();
+            }
             return remissiveIndex;
         }
     }
@@ -180,6 +181,7 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
     public void removeBarrel(String barrelAddress, int barrelPort, int barrelID) throws RemoteException {
         System.out.println("[PROJECTMANAGER#]: Removing barrel with ID: " + barrelID);
         barrelsID.remove((Integer) barrelID);
+        isWorking.put(barrelID, false);
         activeBarrels--;
         if (activeBarrels == 0) {
             System.out.println("[PROJECTMANAGER#]: Last barrel removed, creating backup file");

@@ -138,6 +138,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
     public void run() {
         try {
             while (multicastAvailable) {
+                remissiveIndex.printIndexHashMap(barrelNumber);
                 MulticastMessage message = receiver.receiveMessage();
                 if(message == null){
                     continue;
@@ -153,7 +154,6 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
                     case CONNECTIONS -> //System.out.println("[BARREL#" + barrelNumber + "]:" + "    Received CONNECTIONS message: " + message.payload());
                             receiveConnections(message);
                 }
-                //remissiveIndex.printIndexHashMap(barrelNumber);
             }
         } catch (Exception e){
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
