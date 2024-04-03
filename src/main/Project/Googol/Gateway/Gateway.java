@@ -1,6 +1,6 @@
 package Googol.Gateway;
 import Googol.Barrel.BarrelInterface;
-import Googol.ProjectManager.ProjectManagerInterface;
+import Googol.Gateway.BarrelManager.BarrelManager;
 import Googol.Queue.QueueInterface;
 import Googol.Barrel.WebPage;
 import java.net.MalformedURLException;
@@ -20,21 +20,21 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     private final String queuePath;
     //1100
     public int barrelInUse;
-    ProjectManagerInterface projectManager;
+    BarrelManager barrelManager;
     private final HashMap<Integer,Long> totalDuration;
     private final HashMap<Integer, Integer> numSearches;
     private final LinkedHashMap<String, Integer> searches;
 
 
 
-    public Gateway(Registry registry, String queuePath, String projectManagerPath) throws RemoteException, MalformedURLException, NotBoundException {
+    public Gateway(Registry registry, String queuePath, int barrelManagerPort) throws RemoteException {
         super();
         this.barrelInUse = 0;
         this.queuePath = queuePath;
         this.totalDuration = new HashMap<>();
         this.numSearches = new HashMap<>();
         this.searches = new LinkedHashMap<>();
-        this.projectManager = (ProjectManagerInterface) Naming.lookup(projectManagerPath);
+        this.barrelManager = new BarrelManager(barrelManagerPort,"./src/main/Project/Googol/ProjectManager/whitelist.txt");
         registry.rebind("gateway", this);
     }
     private void connectToQueue(){
@@ -54,16 +54,16 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
 
     private void connectToBarrel() throws RemoteException {
         try{
-            if (barrelInUse > projectManager.getActiveBarrels()) {
+            if (barrelInUse > this.barrelManager.getActiveBarrels()) {
                 barrelInUse = 0;
             }
-            int barrelPort = 4400 + projectManager.getAvailableBarrel(barrelInUse);
-            System.out.println("[GATEWAY]: Connecting to barrel number "+ projectManager.getBarrelID(barrelInUse));
-            this.barrel = (BarrelInterface) Naming.lookup("rmi://localhost:" + barrelPort + "/barrel" + projectManager.getBarrelID(barrelInUse));
+            int barrelPort = 4400 + this.barrelManager.getAvailableBarrel(barrelInUse);
+            System.out.println("[GATEWAY]: Connecting to barrel number "+ this.barrelManager.getBarrelID(barrelInUse));
+            this.barrel = (BarrelInterface) Naming.lookup("rmi://localhost:" + barrelPort + "/barrel" + this.barrelManager.getBarrelID(barrelInUse));
         }
         catch(NotBoundException notBoundException){
-            System.out.println("[GATEWAY]: Barrel number "+ projectManager.getBarrelID(barrelInUse) +" not found. Trying next barrel...");
-            barrelInUse = (barrelInUse + 1) % (this.projectManager.getActiveBarrels());
+            System.out.println("[GATEWAY]: Barrel number "+ this.barrelManager.getBarrelID(barrelInUse) +" not found. Trying next barrel...");
+            barrelInUse = (barrelInUse + 1) % (this.barrelManager.getActiveBarrels());
             connectToBarrel();
         }
         catch (RemoteException remoteException){
@@ -114,9 +114,9 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
             connectToBarrel();
         }
         finally {
-            System.out.println(this.projectManager.getActiveBarrels());
-            if(this.projectManager.getActiveBarrels() > 0)
-                barrelInUse = (barrelInUse + 1) % (this.projectManager.getActiveBarrels());
+            System.out.println(this.barrelManager.getActiveBarrels());
+            if(this.barrelManager.getActiveBarrels() > 0)
+                barrelInUse = (barrelInUse + 1) % (this.barrelManager.getActiveBarrels());
             webPages = barrel.search(tokens, pageNumber, isIntersectionSearch);
         }
         System.out.println("[GATEWAY]: Search done");
@@ -147,7 +147,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         String topSearches = formatSearches();
         StringBuilder activeBarrels = new StringBuilder();
         activeBarrels.append("ACTIVE BARRELS \n");
-        for (int value : projectManager.getAvailableBarrelsID()) {
+        for (int value : this.barrelManager.getAvailableBarrelsID()) {
             activeBarrels.append("BARREL#").append(value).append("\n");
         }
 
@@ -228,16 +228,15 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     public static void main(String[] args) throws RemoteException, MalformedURLException, NotBoundException {
         //"rmi://localhost:1099/queue", "rmi://localhost:" + 4320 + "/projectManager"
         if(args.length != 4){
-            System.out.println("Usage: java Gateway <queueIP> <queuePort> <projectManagerIP> <projectManagerPort>");
+            System.out.println("Usage: java Gateway <queueAddress> <queuePort> <gatewayPort> <barrelManagerPort>");
             System.exit(1);
         }
         try {
             // Create RMI registry
             String queueAddress = "rmi://" + args[0] + ":" + args[1] + "/queue";
-            String projectManagerAddress = "rmi://" + args[2] + ":" + args[3] + "/projectManager";
-            Registry registry = LocateRegistry.createRegistry(1100);
+            Registry registry = LocateRegistry.createRegistry(Integer.parseInt(args[2]));
             Gateway gateway = new Gateway( registry,
-                    queueAddress, projectManagerAddress);
+                    queueAddress, Integer.parseInt(args[3]));
             gateway.run();
         }
         catch (RemoteException e) {

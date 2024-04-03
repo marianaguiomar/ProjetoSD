@@ -1,4 +1,4 @@
-package Googol.ProjectManager;
+package Googol.Gateway.BarrelManager;
 import Googol.Barrel.BarrelInterface;
 import Googol.Barrel.RemissiveIndex;
 
@@ -20,8 +20,8 @@ import java.util.logging.Logger;
 
 //TODO -> download management goes to QUEUE
 //TODO -> project manager becomes a thread of gateway
-public class ProjectManager extends UnicastRemoteObject implements ProjectManagerInterface{
-    private static final Logger LOGGER = Logger.getLogger(ProjectManager.class.getName());
+public class BarrelManager extends UnicastRemoteObject implements BarrelManagerInterface {
+    private static final Logger LOGGER = Logger.getLogger(BarrelManager.class.getName());
     private static final String backupPath = "./src/main/Project/Googol/ProjectManager/backup.dat";
     int numberOfDownloaders;
     int activeBarrels;
@@ -30,12 +30,31 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
     HashMap<Integer, Boolean> isWorking;
     private static final HashMap<Integer, BarrelInterface> barrelsInterfaces = new HashMap<>();
 
-    private void initializeIsWorking(){
+    public BarrelManager(int port, String whitelistPath) throws RemoteException {
+        super();
+        try {
+            Registry registry = LocateRegistry.createRegistry(port);
+            this.numberOfDownloaders = 0;
+            this.activeBarrels = 0;
+            this.downloadersID = new LinkedList<>();
+            this.barrelsID = readWhitelist(whitelistPath);
+            initializeIsWorking();
+            registry.rebind("gateway", this);
+            System.out.println("[PROJECTMANAGER#]:   " + "rmi://localhost:" + port + "/gateway");
+            System.out.println("[PROJECTMANAGER#]:   Ready...");
+            //printBarrels();
+        } catch (RemoteException e) {
+            LOGGER.log(Level.SEVERE, "Exception occurred while initializing ProjectManager: " + e.getMessage(), e);
+        }
+    }
+
+    private void initializeIsWorking() {
         this.isWorking = new HashMap<>();
         for (Integer integer : barrelsID) {
             isWorking.put(integer, false);
         }
     }
+
     public static BarrelInterface lookupBarrel(int differentBarrelID) {
         try {
             // Check if the barrel for the specified ID has already been looked up
@@ -60,6 +79,7 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
             return null;
         }
     }
+
     public static LinkedList<Integer> readWhitelist(String filename) {
         LinkedList<Integer> whitelist = new LinkedList<>();
 
@@ -80,23 +100,25 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
         }
         return whitelist;
     }
-    public int createDownloaderID() throws RemoteException{
-        LinkedList <Integer> linkedList = this.downloadersID ;
+
+    public int createDownloaderID() throws RemoteException {
+        LinkedList<Integer> linkedList = this.downloadersID;
         Random random = new Random();
 
         int newID = random.nextInt(100) - 1;
-        while(linkedList.contains(newID)){
+        while (linkedList.contains(newID)) {
             newID = random.nextInt(100) - 1;
         }
         this.numberOfDownloaders++;
         return newID;
     }
-    public boolean verifyBarrelID(int ID) throws RemoteException{
-        LinkedList <Integer> linkedList = this.barrelsID;
-        if(!linkedList.contains(ID)){
+
+    public boolean verifyBarrelID(int ID) throws RemoteException {
+        LinkedList<Integer> linkedList = this.barrelsID;
+        if (!linkedList.contains(ID)) {
             return false;
         }
-        if(isWorking.get(ID))
+        if (isWorking.get(ID))
             return false;
         isWorking.put(ID, true);
         activeBarrels++;
@@ -129,14 +151,14 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
     }
 
 
-    public int getActiveBarrels() throws RemoteException{
+    public int getActiveBarrels() throws RemoteException {
         return this.activeBarrels;
     }
 
     public LinkedList<Integer> getAvailableBarrelsID() throws RemoteException {
         LinkedList<Integer> result = new LinkedList<>();
-        for(Integer barrelID : barrelsID){
-            if(isWorking.get(barrelID)){
+        for (Integer barrelID : barrelsID) {
+            if (isWorking.get(barrelID)) {
                 result.add(barrelID);
             }
         }
@@ -144,67 +166,48 @@ public class ProjectManager extends UnicastRemoteObject implements ProjectManage
     }
 
 
-    public void removeBarrel(String barrelAddress, int barrelPort, int barrelID) throws RemoteException{
+    public void removeBarrel(String barrelAddress, int barrelPort, int barrelID) throws RemoteException {
         System.out.println("[PROJECTMANAGER#]: Removing barrel with ID: " + barrelID);
         barrelsID.remove((Integer) barrelID);
         activeBarrels--;
-        if(activeBarrels == 0){
+        if (activeBarrels == 0) {
             System.out.println("[PROJECTMANAGER#]: Last barrel removed, creating backup file");
 
         }
-        try{
-            BarrelInterface barrel = (BarrelInterface) Naming.lookup("rmi://"+barrelAddress+":" + barrelPort + "/barrel" + barrelID);
+        try {
+            BarrelInterface barrel = (BarrelInterface) Naming.lookup("rmi://" + barrelAddress + ":" + barrelPort + "/barrel" + barrelID);
             BackupManager.createBackupFile(barrel.getRemissiveIndex(), backupPath);
         } catch (MalformedURLException | NotBoundException e) {
-            LOGGER.log(Level.SEVERE, "Remote exception occurred\n "+ e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, "Remote exception occurred\n " + e.getMessage(), e);
         }
     }
 
-    public int getBarrelID(int n)throws RemoteException {
+    public int getBarrelID(int n) throws RemoteException {
         n = n % this.barrelsID.size();
         return this.barrelsID.get(n);
     }
-    public void printBarrels(){
+
+    public void printBarrels() {
         for (Integer integer : barrelsID) {
             System.out.println(integer);
         }
     }
 
     public int getAvailableBarrel(int n) throws RemoteException {
+        if (activeBarrels == 0)
+            return -1;
         n = n % this.activeBarrels;
         int counter = 0;
         for (Integer barrelID : barrelsID) {
             if (isWorking.get(barrelID)) {
                 System.out.println("[PROJECTMANAGER#]: Barrel " + barrelID + " is working");
-                if(counter == n)
+                if (counter == n)
                     return barrelID;
                 counter++;
             }
         }
         return -1;
     }
-    public ProjectManager(Registry registry, String whitelistPath) throws RemoteException {
-        super();
-        try {
-            this.numberOfDownloaders = 0;
-            this.activeBarrels = 0;
-            this.downloadersID = new LinkedList<>();
-            this.barrelsID = readWhitelist(whitelistPath);
-            initializeIsWorking();
-            registry.rebind("projectManager", this);
-            System.out.println("[PROJECTMANAGER#]:   Ready...");
-            //printBarrels();
-        } catch (RemoteException e) {
-            LOGGER.log(Level.SEVERE, "Exception occurred while initializing ProjectManager: " + e.getMessage(), e);
-        }
-    }
-
-    public static void main(String[] args) throws RemoteException {
-        if(args.length != 2){
-            System.out.println("Usage: java ProjectManager <port> <whitelistPath>");
-            System.exit(1);
-        }
-        Registry registry = LocateRegistry.createRegistry(Integer.parseInt(args[0]));
-        ProjectManagerInterface projectManager = new ProjectManager(registry, args[1]);
-    }
 }
+
+

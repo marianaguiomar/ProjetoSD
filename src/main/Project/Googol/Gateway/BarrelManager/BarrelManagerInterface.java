@@ -1,4 +1,4 @@
-package Googol.ProjectManager;
+package Googol.Gateway.BarrelManager;
 
 import Googol.Barrel.RemissiveIndex;
 
@@ -6,7 +6,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.LinkedList;
 
-public interface ProjectManagerInterface extends Remote {
+public interface BarrelManagerInterface extends Remote {
     int createDownloaderID() throws RemoteException;
     boolean verifyBarrelID(int ID) throws RemoteException;
 

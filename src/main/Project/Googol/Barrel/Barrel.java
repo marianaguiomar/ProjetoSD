@@ -1,9 +1,9 @@
 package Googol.Barrel;
 import Googol.Downloader;
-import Googol.ProjectManager.ProjectManagerInterface;
+import Googol.Gateway.BarrelManager.BarrelManagerInterface;
 import Multicast.MulticastMessage;
 import Multicast.Receiver;
-import java.io.File;
+
 import java.io.IOException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runnable{
     // TODO -> see static variable
     private final Receiver receiver;
-    ProjectManagerInterface projectManager;
+    BarrelManagerInterface projectManager;
     private final RemissiveIndex remissiveIndex;
     private final int barrelNumber;
 
@@ -27,10 +27,10 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
     String pathToHere = "./src/main/Project/Googol/Barrel/";
     boolean multicastAvailable = true; // Initially assume multicast group is available
 
-    public Barrel(String multicastAddress, int port, int confirmationPort, String projectManagerPath, int barrelNumber) throws IOException, NotBoundException {
+    public Barrel(String multicastAddress, int port, int confirmationPort, String gatewayAddress, int barrelNumber) throws IOException, NotBoundException {
         //this.remissiveIndex = initializeRemissiveIndex(pathToHere + "backup" + barrelNumber);
-
-        this.projectManager = (ProjectManagerInterface) Naming.lookup(projectManagerPath);
+        System.out.println(gatewayAddress);
+        this.projectManager = (BarrelManagerInterface) Naming.lookup(gatewayAddress);
         this.barrelNumber = barrelNumber;
         if(!this.projectManager.verifyBarrelID(this.barrelNumber)){
             System.out.println("[BARREL#" + barrelNumber + "]:" + "   Barrel ID is not valid. Exiting...");
@@ -174,12 +174,12 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
 
     public static void main(String[] args) throws IOException {
         if (args.length != 6) {
-            System.out.println("Usage: java Barrel <multicastAddress> <port> <confirmationPort> <projectManagerAddress> <projectManagerPort>");
+            System.out.println("Usage: java Barrel <multicastAddress> <port> <confirmationPort> <gatewayAdress> <barrelManagerPort>");
             System.exit(1);
         }
         try {
-            String projectManagerAddress = "rmi://" + args[3] + ":" + args[4] + "/projectManager";
-            Barrel barrel = new Barrel( args[0],  Integer.parseInt(args[1]),Integer.parseInt(args[2]), projectManagerAddress, Integer.parseInt(args[5]));
+            String gatewayAdress = "rmi://" + args[3] + ":" + args[4] + "/gateway";
+            Barrel barrel = new Barrel( args[0],  Integer.parseInt(args[1]),Integer.parseInt(args[2]), gatewayAdress, Integer.parseInt(args[5]));
             barrel.run();
         } catch (RemoteException | NotBoundException e) {
             LOGGER.log(Level.SEVERE, "slayyy"+ e.getMessage(), e);

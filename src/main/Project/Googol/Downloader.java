@@ -1,6 +1,5 @@
 package Googol;
 
-import Googol.ProjectManager.ProjectManagerInterface;
 import Googol.Queue.QueueInterface;
 import Multicast.MessageType;
 import Multicast.Sender;
@@ -29,7 +28,6 @@ public class Downloader implements Runnable {
     //Multicast section
     //TODO -> estes são os valores da ficha, verificar se são os corretos
     QueueInterface queue;
-    ProjectManagerInterface projectManager;
     private final Sender sender;
     boolean queueExists = true;
     private final Integer myID;
@@ -69,8 +67,7 @@ public class Downloader implements Runnable {
     public Downloader(String multicastAddress, int port, int confirmationPort,
                       String queuePath, String projectManagerPath) throws NotBoundException, IOException {
         this.queue = (QueueInterface) Naming.lookup(queuePath);
-        this.projectManager = (ProjectManagerInterface) Naming.lookup(projectManagerPath);
-        this.myID = projectManager.createDownloaderID();
+        this.myID = port;
         this.sender = new Sender(multicastAddress, port,  confirmationPort);
         this.stopwordsSet = new HashSet<>(Arrays.asList(stopwords));
         System.out.println("[DOWNLOADER#" + myID + "]:" + "   Ready...");
