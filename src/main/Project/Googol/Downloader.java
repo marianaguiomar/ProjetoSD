@@ -31,6 +31,7 @@ public class Downloader implements Runnable {
     private final Sender sender;
     boolean queueExists = true;
     private final Integer myID;
+    private HashSet<String> visitedURL;
     String[] stopwords = {
             // English stopwords
             "a", "an", "and", "are", "as", "at", "be", "but", "by",
@@ -70,6 +71,7 @@ public class Downloader implements Runnable {
         this.myID = port;
         this.sender = new Sender(multicastAddress, port,  confirmationPort);
         this.stopwordsSet = new HashSet<>(Arrays.asList(stopwords));
+        this.visitedURL = new HashSet<>();
         System.out.println("[DOWNLOADER#" + myID + "]:" + "   Ready...");
     }
 
@@ -102,6 +104,7 @@ public class Downloader implements Runnable {
         for (Element link : links) {
             String newURL = link.attr("abs:href");
             if (isValidURL(newURL)) {
+                visitedURL.add(newURL);
                 this.queue.addURL(newURL);
                 //System.out.printf("[DOWNLOADER#" + myID + "]:" +GETTING LINK" + "\t" + newURL + "\n");
                 if (multicastMessage.getBytes(StandardCharsets.UTF_8).length + newURL.getBytes(StandardCharsets.UTF_8).length+1 < 700) {
@@ -118,7 +121,7 @@ public class Downloader implements Runnable {
 
     // TODO -> verificar se é necessário, se não for, apagar. (Pode ser substituído por um throw?)
     private boolean isValidURL(String url) {
-        if (url == null || url.isEmpty() || url.isBlank()) {
+        if (url == null || url.isEmpty() || url.isBlank() || visitedURL.contains(url)) {
             return false;
         }
         try {
