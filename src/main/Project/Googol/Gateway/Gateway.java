@@ -34,7 +34,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         this.totalDuration = new HashMap<>();
         this.numSearches = new HashMap<>();
         this.searches = new LinkedHashMap<>();
-        this.barrelManager = new BarrelManager(barrelManagerPort,"./src/main/Project/Googol/ProjectManager/whitelist.txt");
+        this.barrelManager = new BarrelManager(barrelManagerPort,"./src/main/Project/Googol/Gateway/BarrelManager/whitelist.txt");
         registry.rebind("gateway", this);
     }
     private void connectToQueue(){

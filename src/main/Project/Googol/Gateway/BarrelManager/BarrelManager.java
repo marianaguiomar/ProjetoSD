@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 //TODO -> project manager becomes a thread of gateway
 public class BarrelManager extends UnicastRemoteObject implements BarrelManagerInterface {
     private static final Logger LOGGER = Logger.getLogger(BarrelManager.class.getName());
-    private static final String backupPath = "./src/main/Project/Googol/ProjectManager/backup.dat";
+    private static final String backupPath = "./src/main/Project/Googol/Gateway/BarrelManager/backup.dat";
     int numberOfDownloaders;
     int activeBarrels;
     LinkedList<Integer> downloadersID;
