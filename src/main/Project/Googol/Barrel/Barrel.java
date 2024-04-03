@@ -5,6 +5,7 @@ import Multicast.MulticastMessage;
 import Multicast.Receiver;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -28,17 +29,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
     boolean multicastAvailable = true; // Initially assume multicast group is available
 
     public Barrel(String multicastAddress, int port, int confirmationPort, String gatewayAddress, int barrelNumber) throws IOException, NotBoundException {
-        //this.remissiveIndex = initializeRemissiveIndex(pathToHere + "backup" + barrelNumber);
-        System.out.println(gatewayAddress);
-        this.projectManager = (BarrelManagerInterface) Naming.lookup(gatewayAddress);
         this.barrelNumber = barrelNumber;
-        if(!this.projectManager.verifyBarrelID(this.barrelNumber)){
-            System.out.println("[BARREL#" + barrelNumber + "]:" + "   Barrel ID is not valid. Exiting...");
-            System.exit(1);
-        }
-        this.remissiveIndex = projectManager.setRemissiveIndex(this.barrelNumber);
-        Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
-        this.receiver = new Receiver(multicastAddress, port, confirmationPort);
         this.barrelPort = 4400 + this.barrelNumber;
         try {
             Registry registry = LocateRegistry.createRegistry(barrelPort);
@@ -48,6 +39,17 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
             LOGGER.log(Level.SEVERE, "slay pussy boss queen\n "+ e.getMessage(), e);
             exit();
         }
+        System.out.println(gatewayAddress);
+        this.projectManager = (BarrelManagerInterface) Naming.lookup(gatewayAddress);
+        InetAddress address = InetAddress.getLocalHost();
+        String registryAddress = address.getHostAddress();
+        if(!this.projectManager.verifyBarrelID(this.barrelNumber,registryAddress)){
+            System.out.println("[BARREL#" + barrelNumber + "]:" + "   Barrel ID is not valid. Exiting...");
+            System.exit(1);
+        }
+        this.remissiveIndex = projectManager.setRemissiveIndex(this.barrelNumber);
+        Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
+        this.receiver = new Receiver(multicastAddress, port, confirmationPort);
         System.out.println("[BARREL#" + barrelNumber + "]:" + "   Ready...");
     }
 

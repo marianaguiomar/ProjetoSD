@@ -27,6 +27,7 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
     int activeBarrels;
     LinkedList<Integer> downloadersID;
     LinkedList<Integer> barrelsID;
+    HashMap<Integer, String> barrelsAddresses;
     HashMap<Integer, Boolean> isWorking;
     private static final HashMap<Integer, BarrelInterface> barrelsInterfaces = new HashMap<>();
 
@@ -37,6 +38,7 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
             this.numberOfDownloaders = 0;
             this.activeBarrels = 0;
             this.downloadersID = new LinkedList<>();
+            this.barrelsAddresses = new HashMap<>();
             this.barrelsID = readWhitelist(whitelistPath);
             initializeIsWorking();
             registry.rebind("gateway", this);
@@ -55,7 +57,7 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
         }
     }
 
-    public static BarrelInterface lookupBarrel(int differentBarrelID) {
+    public BarrelInterface lookupBarrel(int differentBarrelID) throws RemoteException {
         try {
             // Check if the barrel for the specified ID has already been looked up
             if (barrelsInterfaces.containsKey(differentBarrelID)) {
@@ -66,7 +68,8 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
             } else {
                 // If not, perform the lookup
                 System.out.println("slay2");
-                BarrelInterface barrel = (BarrelInterface) Naming.lookup("rmi://localhost:" + (4400 + differentBarrelID) + "/barrel" + differentBarrelID);
+                BarrelInterface barrel = (BarrelInterface) Naming.lookup("rmi://"+ getBarrelAddres(differentBarrelID)
+                        + ":" + (4400 + differentBarrelID) + "/barrel" + differentBarrelID);
                 // Store the looked up barrel in the HashMap
                 barrelsInterfaces.put(differentBarrelID, barrel);
                 return barrel;
@@ -113,7 +116,11 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
         return newID;
     }
 
-    public boolean verifyBarrelID(int ID) throws RemoteException {
+    public String getBarrelAddres(int barrelID){
+        return barrelsAddresses.get(barrelID);
+    }
+
+    public boolean verifyBarrelID(int ID, String barrelAddress) throws RemoteException {
         LinkedList<Integer> linkedList = this.barrelsID;
         if (!linkedList.contains(ID)) {
             return false;
@@ -121,7 +128,9 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
         if (isWorking.get(ID))
             return false;
         isWorking.put(ID, true);
+        barrelsAddresses.put(ID, barrelAddress);
         activeBarrels++;
+        System.out.println("[BARRELMANAGER]: Barrel#" + ID + " connect with addres " + barrelAddress);
         return true;
     }
 

@@ -53,24 +53,21 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     }
 
     private void connectToBarrel() throws RemoteException {
+        if(this.barrelManager.getActiveBarrels() == 0){
+            System.out.println("[GATEWAY]: No barrels available");
+            return;
+        }
+
         try{
             if (barrelInUse > this.barrelManager.getActiveBarrels()) {
                 barrelInUse = 0;
             }
-            int barrelPort = 4400 + this.barrelManager.getAvailableBarrel(barrelInUse);
-            System.out.println("[GATEWAY]: Connecting to barrel number "+ this.barrelManager.getBarrelID(barrelInUse));
-            this.barrel = (BarrelInterface) Naming.lookup("rmi://localhost:" + barrelPort + "/barrel" + this.barrelManager.getBarrelID(barrelInUse));
-        }
-        catch(NotBoundException notBoundException){
-            System.out.println("[GATEWAY]: Barrel number "+ this.barrelManager.getBarrelID(barrelInUse) +" not found. Trying next barrel...");
-            barrelInUse = (barrelInUse + 1) % (this.barrelManager.getActiveBarrels());
-            connectToBarrel();
-        }
-        catch (RemoteException remoteException){
+            int barrelID = this.barrelManager.getAvailableBarrel(barrelInUse);
+            int barrelPort = 4400 + barrelID;
+            System.out.println("[GATEWAY]: Connecting to barrel number "+ barrelID );
+            this.barrel = this.barrelManager.lookupBarrel(barrelID);
+        } catch (RemoteException remoteException){
             System.out.println("[GATEWAY]: Remote Exception");
-        }
-        catch (MalformedURLException malformedURLException){
-            System.out.println("[GATEWAY]: Malformed URL Exception");
         }
     }
     public void run(){
