@@ -97,6 +97,7 @@ public class Sender {
             // Keep sending package until confirmation is received
             while (!waitForConfirmation(message.messageID())){
                 socket.send(packet);
+                System.out.println("Sent message: " + message);
             }
         }
         catch (IOException e){
