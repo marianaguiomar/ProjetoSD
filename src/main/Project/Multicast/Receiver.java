@@ -75,7 +75,7 @@ public class Receiver{
             assert message != null;
             // Send acknowledgment (confirmation) to the sender
             sendConfirmationMulticastMessage(message.hyperlink(), message.messageID());
-            System.out.println("Received message " + message.messageID());
+            //System.out.println("Received message " + message.messageID());
             return message;
         }
         catch (InterruptedException | IOException e){
