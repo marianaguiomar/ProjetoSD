@@ -121,7 +121,7 @@ public class Downloader implements Runnable {
             if (isValidURL(newURL)) {
                 visitedURL.add(newURL);
                 this.queue.addURL(newURL);
-                System.out.println("[DOWNLOADER#" + myID + "]:" + "GETTING LINK" + "\t" + newURL); // Change here
+                //System.out.println("[DOWNLOADER#" + myID + "]:" + "INSERTING LINK" + "\t" + newURL); // Change here
                 if (multicastMessage.getBytes(StandardCharsets.UTF_8).length + newURL.getBytes(StandardCharsets.UTF_8).length+1 < 700) {
                     multicastMessage = multicastMessage.concat(newURL.toLowerCase()).concat("^");
                 }

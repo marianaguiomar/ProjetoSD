@@ -58,6 +58,10 @@ public abstract class InstanceManager extends UnicastRemoteObject {
         this.addresses = new HashMap<>();
         initializeIsWorking();
     }
+    public int getActiveInstances() throws RemoteException {
+        System.out.println("There are " + this.activeInstances + " active instances");
+        return this.activeInstances;
+    }
     public boolean verifyID(int ID, String address, int port) throws RemoteException {
         LinkedList<Integer> linkedList = this.IDs;
         if (!linkedList.contains(ID)) {

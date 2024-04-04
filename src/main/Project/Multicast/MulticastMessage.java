@@ -5,18 +5,24 @@ import java.util.UUID;
 /**
  * Represents a multicast message containing information such as hyperlink, message type, payload, and message ID.
  */
-public record MulticastMessage(String hyperlink, MessageType messageType, String payload , String messageID) implements Serializable {
+public record MulticastMessage(String hyperlink, MessageType messageType, String payload , String messageID, Integer activeBarrels) implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    /**
-     * Constructs a MulticastMessage.
-     *
-     * @param hyperlink    Hyperlink associated with the message.
-     * @param messageType  Type of the message.
-     * @param payload      Payload of the message.
-     */
-    public MulticastMessage(String hyperlink, MessageType messageType, String payload) {
-        this(hyperlink, messageType, payload, generateUniqueId());
+    /*
+
+    public MulticastMessage(String hyperlink, MessageType messageType, String payload, String messageID, Integer activeBarrels) {
+        this(hyperlink, messageType, payload, messageID, activeBarrels);
+    }
+    */
+    @Override
+    public String toString() {
+        return "MulticastMessage{" +
+                "hyperlink='" + hyperlink + '\'' +
+                ", messageType=" + messageType +
+                ", payload='" + payload + '\'' +
+                ", messageID='" + messageID + '\'' +
+                ", activeBarrels=" + activeBarrels +
+                '}';
     }
     /**
      * Converts the MulticastMessage object into a byte array.

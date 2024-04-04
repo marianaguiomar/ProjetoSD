@@ -69,12 +69,12 @@ public class Receiver{
      * @throws InterruptedException If the thread is interrupted.
      */
 
-    public void sendConfirmationMulticastMessage(String hyperlink, String messageID) throws InterruptedException {
+    public void sendConfirmationMulticastMessage(String hyperlink, String messageID, int activeBarrels) throws InterruptedException {
         try{
-            MulticastMessage message = new MulticastMessage(hyperlink, MessageType.CONFIRMATION, messageID);
+            MulticastMessage message = new MulticastMessage(hyperlink, MessageType.CONFIRMATION, messageID, "",activeBarrels);
             byte[] buffer = message.getBytes();
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, this.group, CONFIRMATION_PORT);
-            //Stem.out.println("Sent confirmation" + message.payload());
+            System.out.println(message);
             this.confirmationSocket.send(packet);
         }
         catch(SocketException e) {
@@ -90,7 +90,7 @@ public class Receiver{
      *
      * @return Received multicast message.
      */
-    public MulticastMessage receiveMessage(){
+    public MulticastMessage receiveMessage(int activeBarrels){
         try{
             byte[] buffer = new byte[PACKET_SIZE];
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
@@ -99,7 +99,7 @@ public class Receiver{
             MulticastMessage message = MulticastMessage.getMessage(packet.getData());
             assert message != null;
             // Send acknowledgment (confirmation) to the sender
-            sendConfirmationMulticastMessage(message.hyperlink(), message.messageID());
+            sendConfirmationMulticastMessage(message.hyperlink(), message.messageID(), activeBarrels);
             //System.out.println("Received message " + message.messageID());
             return message;
         }

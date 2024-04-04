@@ -136,7 +136,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         try {
             while (multicastAvailable) {
                 //remissiveIndex.printIndexHashMap(barrelNumber);
-                MulticastMessage message = receiver.receiveMessage();
+                MulticastMessage message = receiver.receiveMessage(barrelManager.getActiveInstances());
                 if(message == null){
                     continue;
                 }

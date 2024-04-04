@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.SocketTimeoutException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 /* Sender class for handling multicast messages.
@@ -26,6 +28,7 @@ public class Sender {
     private MulticastSocket socket;
     private MulticastSocket confirmationSocket;
     private final int CONFIRMATION_PORT;
+    private AtomicInteger messageID = new AtomicInteger(0);
     InetAddress group;
     /**
      * Initializes the sender sockets.
@@ -37,6 +40,7 @@ public class Sender {
 
             this.confirmationSocket = new MulticastSocket(this.CONFIRMATION_PORT);
             this.confirmationSocket.joinGroup(group);
+            this.confirmationSocket.setSoTimeout(50000);
 
         }
         catch (IOException | SecurityException | IllegalArgumentException e) {
@@ -68,25 +72,37 @@ public class Sender {
         Instant startTime = Instant.now();
         Duration elapsedTime;
         try{
+            int packCounter = 0;
+            int activeBarrels = 2;
             // Wait for confirmation message during timeout period
             do{
                 byte[] buffer = new byte[PACKET_SIZE];
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-                confirmationSocket.receive(packet);
+                try {
+                    confirmationSocket.receive(packet);
+                } catch (SocketTimeoutException e) {
+                    // If timeout occurs, return false
+                    return false;
+                }
                 MulticastMessage message = MulticastMessage.getMessage(packet.getData());
-                assert message != null;
-                //Stem.out.println("Reived confirmation" + message.payload());
+                elapsedTime = Duration.between(startTime, Instant.now());
+                if(message == null){
+                    continue;
+                }
                 // Evalute message type and compare messageID with sent packet sequence number
                 if(message.messageType() == MessageType.CONFIRMATION && message.payload().equals(sentMessageID)){
                     //Stem.out.println("received confirmation\n");
-                    return true;
+                    activeBarrels = message.activeBarrels();
+                    System.out.println("Active barrels set to " + activeBarrels);
+                    packCounter++;
                 }
-                elapsedTime = Duration.between(startTime, Instant.now());
-
+                System.out.println(packCounter + " barrels have confirmed the message");
             }
-            while(elapsedTime.compareTo(timeoutDuration) < 0);
-            //If the confirmation message is not receive, resend package
-            return false;
+            while(elapsedTime.compareTo(timeoutDuration) < 0  && packCounter < activeBarrels);
+            if (packCounter >= activeBarrels){
+                System.out.println("All barrels have confirmed the message");
+            }
+            return packCounter >= activeBarrels;
         }
         catch (IOException e){
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
@@ -107,11 +123,11 @@ public class Sender {
             return; // Exit the method if the message is empty
         }
         try{
-            MulticastMessage message = new MulticastMessage(hyperlink, messageType, payload);
+            MulticastMessage message = new MulticastMessage(hyperlink, messageType, payload, Integer.toString(messageID.getAndAdd(1)),0);
             byte[] buffer = message.getBytes();
             DatagramPacket packet = new DatagramPacket(buffer,buffer.length, group, PORT);
             socket.send(packet);
-            //System.out.println("Sent message" + message);
+            System.out.println("Sent message" + message);
             // Keep sending package until confirmation is received
             while (!waitForConfirmation(message.messageID())){
                 socket.send(packet);

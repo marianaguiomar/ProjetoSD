@@ -67,9 +67,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
                     differentBarrelID = differentID;
             }
             BarrelInterface barrel = lookupBarrel(differentBarrelID);
-            System.out.println(differentBarrelID);
             if (barrel != null) {
-                System.out.println("Failed to connect");
                 remissiveIndex = barrel.getRemissiveIndex();
             }
             if (remissiveIndex == null) {
@@ -81,9 +79,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
     }
 
 
-    public int getActiveInstances() throws RemoteException {
-        return this.activeInstances;
-    }
+
 
     public LinkedList<Integer> getAvailableBarrelsID() throws RemoteException {
         LinkedList<Integer> result = new LinkedList<>();
@@ -121,7 +117,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
         int counter = 0;
         for (Integer barrelID : IDs) {
             if (isWorking.get(barrelID)) {
-                System.out.println(this.instanceType + ": Removing BARREL#" + barrelID);
+                //System.out.println(this.instanceType + ": Available BARREL#" + barrelID);
                 if (counter == n)
                     return barrelID;
                 counter++;
