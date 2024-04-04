@@ -208,7 +208,7 @@ public class Downloader implements Runnable {
         while (queueExists) {
             try {
                 String url = this.queue.fetchURL();
-                //System.out.println("[DOWNLOADER#" + myID + "]:" +"URL: " + url);
+                System.out.println("[DOWNLOADER#" + myID + "]:" +"URL: " + url);
                 Document doc;
                 try {
                     doc = Jsoup.connect(url).get();
