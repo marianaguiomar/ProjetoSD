@@ -7,21 +7,40 @@ import java.util.Scanner;
 
 public class Client {
 
-    Scanner scanner;
+    private final Scanner scanner;
 
-    boolean listen = true;
+    String welcomeMessage = """
+        **************************************************************
+        *                【Welcome to the Server】                    *
+        *                                                            *
+        *  Available commands:                                       *
+        *  ➜ exit:   To exit the server                              *
+        *  ➜ status: To get the status                               *
+        *  ➜ search [type] [pageNumber] [query]: To search for items *
+        *       ➜[type] can be 'i' for items or 'u' for users        *
+        *  ➜ connections [parameter]: To get connections information *
+        *  ➜ insert [link]: To insert a link                         *
+        *                                                            *
+        *      ❦ Made by Saulo José Mendes and Mariana Guiomar ❦     *
+        **************************************************************
+        """;
 
-    GatewayInterface gateway;
-    public Client(String gatewayPath) throws MalformedURLException, RemoteException, NotBoundException {
+    private boolean listen = true;
+
+    private final String gatewayAddress;
+    private GatewayInterface gateway;
+    public Client(String gatewayAddress) throws MalformedURLException, RemoteException, NotBoundException {
         this.scanner = new Scanner(System.in);
-        this.gateway = (GatewayInterface) Naming.lookup(gatewayPath);
+        this.gatewayAddress = gatewayAddress;
+        this.gateway = (GatewayInterface) Naming.lookup(gatewayAddress);
     }
+
     private boolean retryConnection(){
         int conectAttempts = 0;
         boolean connected = false;
         while (conectAttempts < 5 && !connected) {
             try {
-                this.gateway = (GatewayInterface) Naming.lookup("rmi://localhost:1100/gateway");
+                this.gateway = (GatewayInterface) Naming.lookup(this.gatewayAddress);
                 System.out.println("[CLIENT]: Gateway reconnected");
                 return true;
             } catch (RemoteException | NotBoundException | MalformedURLException e) {
@@ -32,8 +51,10 @@ public class Client {
         return false;
     }
     public void listening(){
+        System.out.println(welcomeMessage);
         try {
             while (listen) {
+                System.out.println("[CLIENT]: Please input your commands to interact with the server.");
                 String command = scanner.nextLine();
                 String[] tokens = command.split(" ");
                 String result;
