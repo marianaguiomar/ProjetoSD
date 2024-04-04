@@ -11,15 +11,33 @@ import java.rmi.registry.Registry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Class that manages the URLQueue
+ */
 public class Queue extends UnicastRemoteObject implements QueueInterface {
+    /**
+     * URLQueue
+     */
     LinkedBlockingQueue<String> URLQueue;
+    /**
+     * Download manager
+     */
     DownloaderManager downloaderManager;
 
     @Serial
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Logger to print error messages
+     */
     private static final Logger LOGGER = Logger.getLogger(BarrelManager.class.getName());
 
+    //TODO -> RMI
+    /**
+     * Class constructor, attributes are initialized
+     * @param registryQueue Queue RMI registry
+     * @throws RemoteException
+     */
     public Queue(Registry registryQueue) throws RemoteException {
         super();
         this.URLQueue = new LinkedBlockingQueue<>();
@@ -32,18 +50,46 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
         System.out.println("[QUEUE#]:   Ready...");
 
     }
+
+    /**
+     * Method that adds URL to queue
+     * @param URL URL to be added
+     */
     public void addURL(String URL) {
         this.URLQueue.add(URL);
     }
+
+    /**
+     * Method that fetches a URL from queue to be analysed by Downloader
+     * @return URL from queue
+     * @throws InterruptedException
+     */
     public String fetchURL() throws InterruptedException {
         return this.URLQueue.take();
     }
 
+    /**
+     * Method that removes a downloader from the list of active downloader, also removing its interface, address and port
+     * from the respective lists (calls method from DownloadManager)
+     * @param address downloader's address
+     * @param port downloader's port
+     * @param ID downloader's id
+     * @throws RemoteException
+     */
     @Override
     public void removeInstance(String address, int port, int ID) throws RemoteException {
         this.downloaderManager.removeInstance(address, port, ID);
     }
 
+    //TODO -> ??
+    /**
+     * Method that verifies if a given ID is available. If true, adds the instance to all lists
+     * @param ID id to verify
+     * @param address address of instance
+     * @param port port of instance
+     * @return true if ID is available
+     * @throws RemoteException
+     */
     @Override
     public boolean verifyID(int ID, String address, int port) throws RemoteException {
         return this.downloaderManager.verifyID(ID, address, port);

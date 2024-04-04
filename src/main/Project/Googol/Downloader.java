@@ -20,13 +20,43 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Class that manages a Downloader
+ */
 public class Downloader implements Runnable {
+    /**
+     * URL Queue
+     */
     QueueInterface queue;
+
+    /**
+     * Sender (sends MulticastMessages)
+     */
     private final Sender sender;
+
+    /**
+     * Boolean that returns wether a queue exists or not
+     */
     boolean queueExists = true;
+
+    /**
+     * Port
+     */
     private final int port;
+    //TODO -> ??
+    /**
+     * ID
+     */
     private final Integer myID;
+
+    /**
+     * Set of URL that have been visited
+     */
     private final HashSet<String> visitedURL;
+
+    /**
+     * Stopwords that won't be sent as tokens to the barrels
+     */
     String[] stopwords = {
             // English stopwords
             "a", "an", "and", "are", "as", "at", "be", "but", "by",
@@ -56,9 +86,25 @@ public class Downloader implements Runnable {
             "nela", "nele", "neles", "nelas", "neste", "neste", "nesta", "nestes", "nestas",
             "nisto", "nesse", "nessa", "nesses", "nessas",  "nisso"};
 
+    //todo -> ???
     HashSet<String> stopwordsSet;
+
+    /**
+     * Logger to print error messages
+     */
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
 
+
+    /**
+     * Class constructor, attributes are initialized
+     * @param multicastAddress Multicast address
+     * @param port Port
+     * @param confirmationPort Port to receive ACKs
+     * @param queuePath Path to queue
+     * @param ID Downloader ID
+     * @throws NotBoundException
+     * @throws IOException
+     */
     public Downloader(String multicastAddress, int port, int confirmationPort,
                       String queuePath, int ID) throws NotBoundException, IOException {
         this.port = port;
@@ -74,6 +120,10 @@ public class Downloader implements Runnable {
         System.out.println("[DOWNLOADER#" + myID + "]:" + "   Ready...");
         Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
     }
+
+    /**
+     * Method that has queue remove this downloader from the list of active downloaders when it stops running
+     */
     private void exit() {
         try {
             this.queue.removeInstance(getMyAddress(), this.port,this.myID);
@@ -85,11 +135,22 @@ public class Downloader implements Runnable {
         }
     }
 
+    /**
+     * Method that returns localhost address
+     * @return localhost address
+     * @throws UnknownHostException
+     */
     private String getMyAddress() throws UnknownHostException {
         InetAddress address = InetAddress.getLocalHost();
         return address.getHostAddress();
     }
 
+    /**
+     * Method that send MulticastMessages with tokens
+     * @param hyperlink hyperlink where the tokens where found
+     * @param doc website, from connection to sjoup
+     * @throws IOException
+     */
     private void sendTokens(String hyperlink, Document doc) throws IOException {
         StringTokenizer tokens = new StringTokenizer(doc.text());
         //System.out.println(tokens);
@@ -114,6 +175,12 @@ public class Downloader implements Runnable {
         }
     }
 
+    /**
+     * Method that sends MulticastMessages with all URLs referenced in the hyperlink
+     * @param hyperlink hyperlink
+     * @param doc website, from connection to sjoup
+     * @throws IOException
+     */
     private void updateURLs(String hyperlink, Document doc) throws IOException {
         String multicastMessage = "";
         Elements links = doc.select("a[href]");
@@ -135,7 +202,11 @@ public class Downloader implements Runnable {
         }
     }
 
-
+    /**
+     * Method that evaluates if a given URL is valid
+     * @param url
+     * @return
+     */
     private boolean isValidURL(String url) {
         if (url == null || url.isEmpty() || url.isBlank() || visitedURL.contains(url)) {
             return false;
@@ -147,6 +218,12 @@ public class Downloader implements Runnable {
             return false;
         }
     }
+
+    /**
+     * Method that sends a MulticastMessage with the title
+     * @param hyperlink hyperlink
+     * @param doc website, from connection to sjoup
+     */
     private void sendTitle(String hyperlink, Document doc){
         //verificar se há titulo
         String title;
@@ -176,6 +253,11 @@ public class Downloader implements Runnable {
         sender.sendMessage(hyperlink, title, MessageType.TITLE);
     }
 
+    /**
+     * Method that sends a MulticastMessage with the citation
+     * @param hyperlink hyperlink
+     * @param doc website, from connection to sjoup
+     */
     private void sendCitation(String hyperlink, Document doc){
         //verificar se existe um firstParagraph
         Element firstParagraph = doc.select("p").first();
@@ -205,6 +287,9 @@ public class Downloader implements Runnable {
         sender.sendMessage(hyperlink, firstParagraphText, MessageType.CITATION);
     }
 
+    /**
+     * Method that performs Downloader's operations while it's running
+     */
     public void run() {
         while (queueExists) {
             try {

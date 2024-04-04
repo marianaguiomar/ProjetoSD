@@ -16,15 +16,47 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Barrel extends UnicastRemoteObject implements BarrelInterface{
-    private final Receiver receiver;
-    BarrelManagerInterface barrelManager;
-    private final RemissiveIndex remissiveIndex;
-    private final int barrelNumber;
+/**
+ * Class that handles barrels
+ */
 
+public class Barrel extends UnicastRemoteObject implements BarrelInterface{
+    /**
+     * Receives MulticastMessages
+     */
+    private final Receiver receiver;
+    /**
+     * Manages all barrels
+     */
+    BarrelManagerInterface barrelManager;
+    /**
+     * Remissive Index
+     */
+    private final RemissiveIndex remissiveIndex;
+    /**
+     * This barrel's number (id)
+     */
+    private final int barrelNumber;
+    /**
+     * This barrel's port
+     */
     private final int barrelPort;
+    /**
+     * Returns true if multicast is available
+     */
     boolean multicastAvailable = true; // Initially assume multicast group is available
 
+    /**
+     * Class constructer, attributes are initialized
+     * @param multicastAddress Multicast address
+     * @param port             Port for receiving multicast messages.
+     * @param confirmationPort Port for sending confirmation messages.
+     * @param gatewayAddress   Gateway address
+     * @param barrelNumber     Barrel number (id)
+     * @param barrelPort       Barrel port
+     * @throws IOException
+     * @throws NotBoundException
+     */
     public Barrel(String multicastAddress, int port, int confirmationPort, String gatewayAddress, int barrelNumber, int barrelPort) throws IOException, NotBoundException {
         this.barrelNumber = barrelNumber;
         this.barrelPort = barrelPort;
@@ -49,33 +81,98 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     }
 
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
+
+    /**
+     * Method that returns the Barrel number (id)
+     * @return Barrel Number
+     * @throws RemoteException
+     */
     public int getBarrelNumber() throws RemoteException {
         return this.barrelNumber;
     }
 
+    /**
+     * Method that returns localhost address
+     * @return localhost address
+     * @throws UnknownHostException
+     */
     private String getMyAddress() throws UnknownHostException {
         InetAddress address = InetAddress.getLocalHost();
         return address.getHostAddress();
     }
 
+    /**
+     * Method that receives MulticastMessage of CITATION type and inserts them in its hyperlink's position in the remissive index
+     * @param message MulticastMessage of CITATION type
+     */
     private void receiveCitation(MulticastMessage message) {
         String hyperlink = message.hyperlink();
         String citation = message.payload();
         remissiveIndex.insertWebPageCitation(hyperlink, citation);
     }
+
+    /**
+     * Method that receives MulticastMessage of TITLE type and inserts them in its hyperlink's position in the remissive index
+     * @param message MulticastMessage of TITLE type
+     */
     private void receiveTitle(MulticastMessage message) {
         String hyperlink = message.hyperlink();
         String title = message.payload();
         remissiveIndex.insertWebPageTitle(hyperlink, title);
     }
 
+    /**
+     * Method that receives MulticastMessage of TOKEN type and inserts them in its hyperlink's position in the remissive index
+     * @param message MulticastMessage of TOKEN type
+     */
+    private void receiveTokens(MulticastMessage message) {
+        StringTokenizer tokens = getTokens(message.payload(), " ");
+        while (tokens.hasMoreElements()) {
+            String token = tokens.nextToken();
+            remissiveIndex.addIndex(message.hyperlink(), token.trim());
+        }
+    }
+
+    /**
+     * Method that receives MulticastMessage of CONNECTIONS type and inserts them in its hyperlink's position in the remissive index
+     * @param message MulticastMessage of TOKEN type
+     */
+    private void receiveConnections(MulticastMessage message){
+        StringTokenizer mentionsURLS = getTokens(message.payload(), "^");
+        while (mentionsURLS.hasMoreElements()) {
+            String url = mentionsURLS.nextToken();
+            remissiveIndex.addURLConnections(url, message.hyperlink());
+        }
+    }
+
+    /**
+     * Method that receives a String of tokens and inserts them in a StringTokenizer
+     * @param message MulticastMessage of TOKEN or CONNECTIONS type
+     * @param delimiter delimiter between tokens
+     * @return StringTokenizer of tokens
+     */
     private StringTokenizer getTokens(String message, String delimiter) {
         return new StringTokenizer(message, delimiter);
     }
+
+    /**
+     * Method that returns this barrel's RemissiveIndex
+     * @return RemissiveIndex
+     * @throws RemoteException
+     */
     public RemissiveIndex getRemissiveIndex() throws RemoteException{
         System.out.println("[BARREL#" + barrelNumber + "]:" + "   Returning remissive index");
         return this.remissiveIndex;
     }
+
+    /**
+     * Method that performs a search based on given tokens and returns the websites that contain them
+     * @param tokens Tokens to search for in the RemissiveIndex's keyset
+     * @param pageNumber Page number (each page contains 10 results)
+     * @param intersection If true, returns only pages that contain all tokens. If false, returns only pages that contain each token
+     * @return Set of 10 websites, according to the requested page
+     * @throws RemoteException
+     */
     public WebPage[] search(String[] tokens, Integer pageNumber, boolean intersection) throws RemoteException{
         LinkedList<WebPage> result;
         if(intersection)
@@ -84,14 +181,18 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
             result = remissiveIndex.findWebPagesUnion(tokens);
         if(result == null || result.isEmpty())
             return new WebPage[0];
-        System.out.println(result.toString());
+        //System.out.println(result.toString());
         orderWebpages(result);
-        System.out.println(result.toString());
+        //System.out.println(result.toString());
         if(result.size() < pageNumber * 10)
             return result.toArray(new WebPage[0]);
         return result.subList(Math.min(result.size(),pageNumber * 10), Math.min(pageNumber * 10 + 10, result.size())).toArray(new WebPage[0]);
     }
 
+    /**
+     * Method that orders a linkedlist of Webpages based on its number of connections
+     * @param result ordered linkedlist of Webpages
+     */
     public void orderWebpages(LinkedList<WebPage> result) {
         // Define a custom comparator based on the length of the attribute in descending order
         Comparator<WebPage> comparator = (page1, page2) -> {
@@ -109,29 +210,19 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         result.sort(comparator);
     }
 
-
-
+    /**
+     * Method that returns a given Webpage's connections
+     * @param URL Webpage
+     * @return number of connections
+     * @throws RemoteException
+     */
     public String getConnections(String URL) throws RemoteException{
         return remissiveIndex.getConnections(URL);
     }
 
-
-
-    private void receiveTokens(MulticastMessage message) {
-        StringTokenizer tokens = getTokens(message.payload(), " ");
-        while (tokens.hasMoreElements()) {
-            String token = tokens.nextToken();
-            remissiveIndex.addIndex(message.hyperlink(), token.trim());
-        }
-    }
-
-    private void receiveConnections(MulticastMessage message){
-        StringTokenizer mentionsURLS = getTokens(message.payload(), "^");
-        while (mentionsURLS.hasMoreElements()) {
-            String url = mentionsURLS.nextToken();
-            remissiveIndex.addURLConnections(url, message.hyperlink());
-        }
-    }
+    /**
+     * Method that performs Barrel's operations while it's running
+     */
     public void run() {
         try {
             while (multicastAvailable) {
@@ -161,6 +252,9 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         }
     }
 
+    /**
+     * Method that has BarralManager remove this barrel from the list of active barrels when it stops running
+     */
     private void exit() {
         try {
             this.barrelManager.removeInstance(getMyAddress(), this.barrelPort,this.barrelNumber);

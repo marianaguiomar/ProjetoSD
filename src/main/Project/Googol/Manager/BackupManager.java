@@ -2,9 +2,15 @@ package Googol.Manager;
 import Googol.Barrel.RemissiveIndex;
 import java.io.*;
 
+/**
+ * Class that manages the backup files
+ */
 public class BackupManager {
-
-    // Method to serialize a RemissiveIndex object to a file
+    /**
+     * Mothod that creates a file, serializing a RemissiveIndex object
+     * @param remissiveIndex RemissiveIndex
+     * @param filename name of the destination file
+     */
     public static void createBackupFile(RemissiveIndex remissiveIndex, String filename) {
         try {
             FileOutputStream fileOut = new FileOutputStream(filename);
@@ -19,7 +25,10 @@ public class BackupManager {
         }
     }
 
-    // Method to deserialize a RemissiveIndex object from a file
+    /**
+     * Mothod that derializes a RemissiveIndex object from a file
+     * @param filename name of the source file
+     */
     public static RemissiveIndex readBackupFile(String filename) {
         RemissiveIndex remissiveIndex;
         try {

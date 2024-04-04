@@ -7,11 +7,29 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.stream.Stream;
 
+/**
+ * Class that manages a Remissive Index
+ */
 public class RemissiveIndex implements Serializable {
+    /**
+     * Index
+     */
     public final HashMap<String, HashSet<String>> index;
+    /**
+     * Webpages
+     */
     public final HashMap<String, WebPage> webPages;
+    /**
+     * Each Webpage's connections (other Webpages that reference them)
+     */
     public final HashMap<String, HashSet<String>> urlConnection;
 
+
+    /**
+     * Method that returns a given Webpage's connections
+     * @param hyperlink URL of a Webpage
+     * @return List of Webpages
+     */
     public String getConnections(String hyperlink){
         String header = "CONNECTIONS TO LINK: " + hyperlink + "\n";
         StringBuilder result = new StringBuilder(header);
@@ -25,6 +43,12 @@ public class RemissiveIndex implements Serializable {
         }
         return result.toString();
     }
+
+    /**
+     * Method that finds the Webpages that contain at least one of the given tokens
+     * @param tokens Token to search for
+     * @return List of Webpages
+     */
     public LinkedList<WebPage> findWebPagesUnion(String[] tokens){
         if(tokens == null)
             return new LinkedList<>();
@@ -40,6 +64,11 @@ public class RemissiveIndex implements Serializable {
         return result;
     }
 
+    /**
+     * Method that finds the Webpages that contain all of the given tokens
+     * @param tokens Token to search for
+     * @return List of Webpages
+     */
     public LinkedList<WebPage> findWebPagesIntersection(String[] tokens){
         LinkedList<WebPage> result = new LinkedList<>();
 
@@ -78,6 +107,11 @@ public class RemissiveIndex implements Serializable {
         return result;
     }
 
+    /**
+     * Method that finds a given Webpage's number of connections
+     * @param hyperlink URL of a Webpage
+     * @return A Webpage's number of connections
+     */
     public int getNumberOfConnections(String hyperlink){
         if(!urlConnection.containsKey(hyperlink)){
             return 0;
@@ -85,19 +119,11 @@ public class RemissiveIndex implements Serializable {
         return urlConnection.get(hyperlink).size();
     }
 
-    public void printIndexHashMap(int barrelNumber) {
-
-        for (Map.Entry<String, HashSet<String>> entry : index.entrySet()) {
-            String keyword = entry.getKey();
-            HashSet<String> urls = entry.getValue();
-
-            System.out.println("[BARREL#" + barrelNumber + "]:" + "    Keyword: " + keyword);
-            System.out.println("[BARREL#" + barrelNumber + "]:" + "    URLs:");
-            for (String url : urls) {
-                System.out.println("[BARREL#" + barrelNumber + "]:" + "      " + url);
-            }
-        }
-    }
+    /**
+     * Method that adds a hyperlink that contains a token to Index
+     * @param hyperlink URL to add
+     * @param token token that the hyperlink contains
+     */
     public void addIndex(String hyperlink, String token) {
         if(hyperlink == null || token == null){
             return;
@@ -112,6 +138,11 @@ public class RemissiveIndex implements Serializable {
         }
     }
 
+    /**
+     * Insert a Webpage's citation in the Webpage list
+     * @param hyperlink URL of webpage
+     * @param citation citation of webpage
+     */
     public void insertWebPageCitation(String hyperlink, String citation) {
         if(hyperlink == null || citation == null){
             return;
@@ -125,6 +156,11 @@ public class RemissiveIndex implements Serializable {
         }
     }
 
+    /**
+     * Insert a Webpage's title in the Webpage list
+     * @param hyperlink URL of webpage
+     * @param title title of webpage
+     */
     public void insertWebPageTitle(String hyperlink, String title) {
         if(hyperlink == null || title == null){
             return;
@@ -138,6 +174,11 @@ public class RemissiveIndex implements Serializable {
         }
     }
 
+    /**
+     * Insert a Webpage's citation in the URLConnections list
+     * @param url URL of main Webpage
+     * @param hyperlink URLs of webpages that reference the main Webpage
+     */
     public void addURLConnections(String url, String hyperlink) {
         HashSet<String> currentResult;
         if (urlConnection.containsKey(url)) {
@@ -151,9 +192,30 @@ public class RemissiveIndex implements Serializable {
         }
     }
 
+    /**
+     * Class constructer, attributes are initialized
+     */
     public RemissiveIndex() {
         this.index = new HashMap<>();
         this.webPages = new HashMap<>();
         this.urlConnection = new HashMap<>();
+    }
+
+    /**
+     * Auxiliary method to print a barrel's Index
+     * @param barrelNumber number of barrel
+     */
+    public void printIndexHashMap(int barrelNumber) {
+
+        for (Map.Entry<String, HashSet<String>> entry : index.entrySet()) {
+            String keyword = entry.getKey();
+            HashSet<String> urls = entry.getValue();
+
+            System.out.println("[BARREL#" + barrelNumber + "]:" + "    Keyword: " + keyword);
+            System.out.println("[BARREL#" + barrelNumber + "]:" + "    URLs:");
+            for (String url : urls) {
+                System.out.println("[BARREL#" + barrelNumber + "]:" + "      " + url);
+            }
+        }
     }
 }

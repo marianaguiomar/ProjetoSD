@@ -11,20 +11,59 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+
+/**
+ * Class that manages the Gateway
+ */
 public class Gateway extends UnicastRemoteObject implements GatewayInterface{
+    /**
+     * Barrel interface
+     */
     BarrelInterface barrel;
+
+    /**
+     * Queue interface
+     */
     QueueInterface queue;
 
+    /**
+     * Queue path
+     */
     private final String queuePath;
     //1100
+
+    /**
+     * Barrel that's being used
+     */
     public int barrelInUse;
+    /**
+     * Barrel manager
+     */
     BarrelManager barrelManager;
+
+    /**
+     * Hash map that keeps the total duration of searches performed by a barrel
+     */
     private final HashMap<Integer,Long> totalDuration;
+
+    /**
+     * Hash map that keeps the number of searches performed by a barrel
+     */
     private final HashMap<Integer, Integer> numSearches;
+
+    /**
+     * Hash map that keeps the searches performed
+     */
     private final LinkedHashMap<String, Integer> searches;
 
 
-
+    /**
+     * Class constructer, attributes are initialized
+     * @param registry RMI registry
+     * @param queuePath Queue path
+     * @param barrelManagerPort Barrel manager port
+     * @throws RemoteException
+     */
     public Gateway(Registry registry, String queuePath, int barrelManagerPort) throws RemoteException {
         super();
         this.barrelInUse = 0;
@@ -35,6 +74,10 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         this.barrelManager = new BarrelManager(barrelManagerPort,"./src/main/Project/Googol/Manager/BarrelManager/whitelist.txt");
         registry.rebind("gateway", this);
     }
+
+    /**
+     * Method that connects the Gateway to the Queue
+     */
     private void connectToQueue(){
         try{
             this.queue = (QueueInterface) Naming.lookup(queuePath);
@@ -50,6 +93,10 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         }
     }
 
+    /**
+     * Method that connects the Gateway to a barrel
+     * @throws RemoteException
+     */
     private void connectToBarrel() throws RemoteException {
         if(this.barrelManager.getActiveInstances() == 0){
             System.out.println("[GATEWAY]: No barrels available");
@@ -67,6 +114,10 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
             System.out.println("[GATEWAY]: Remote Exception");
         }
     }
+
+    /**
+     * Method that performs Gateway's operations while it's running
+     */
     public void run(){
         try {
             connectToQueue();
@@ -76,6 +127,12 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         }
         System.out.println("[GATEWAY]: Gateway Ready...");
     }
+
+    /**
+     * Method that updates searches performed (by each barrel and in total)
+     * @param duration Time it took to perform a search
+     * @throws RemoteException
+     */
     public void updateSearches(long duration) throws RemoteException{
         if (!totalDuration.containsKey(this.barrel.getBarrelNumber())) {
             totalDuration.put(this.barrel.getBarrelNumber(), duration);
@@ -95,6 +152,15 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
             totalDuration.put(this.barrel.getBarrelNumber(), updatedSearches);
         }
     }
+
+    /**
+     * Method that performs a search (communicating with the Barrels)
+     * @param tokens okens to search for
+     * @param pageNumber Page number (each page contains 10 results)
+     * @param isIntersectionSearch If true, intersection. If false, union
+     * @return Set of 10 websites, according to the requested page
+     * @throws RemoteException
+     */
     public String search(String[] tokens, int pageNumber, boolean isIntersectionSearch) throws RemoteException {
         long startTime = System.currentTimeMillis();
         System.out.println("[GATEWAY]: Searching for: " + tokens[0]);
@@ -131,11 +197,17 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         else {
             searches.put(currKey, 1);
         }
-        updateSearches();
+        orderSearches();
 
         return result.toString();
     }
 
+    /**
+     * Method that returns the administrator informatin of the system (top10 searches performed,
+     * average duration of search per barrel, active barrels
+     * @return top10 searches performed, average duration of search per barrel, active barrels
+     * @throws RemoteException
+     */
     public String status() throws RemoteException {
         String topSearches = formatSearches();
         StringBuilder activeBarrels = new StringBuilder();
@@ -147,24 +219,32 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         // Calculate average search time
         String averageTimeMessage = formatAverageTime();
 
-        // Combine the original status message and the average time message
-
         // Return the combined message
         return topSearches + "\n" + averageTimeMessage + "\n" + activeBarrels + "\n";
     }
+
+    /**
+     * Method that inserts a URL in the URLQueue
+     * @param URL URL to be inserted
+     * @throws RemoteException
+     */
     public void insert(String URL) throws RemoteException {
         URL = URL.toLowerCase();
         System.out.println("[GATEWAY]: Inserting URL: " + URL);
         this.queue.addURL(URL);
     }
 
+    /**
+     * Method that formats the top10 searches
+     * @return Formatted string with the top10 searches
+     */
     public String formatSearches() {
         StringBuilder result = new StringBuilder();
         int count = 1;
         result.append("TOP 10 SEARCHES \n");
         for (Map.Entry<String, Integer> entry : searches.entrySet()) {
             if (count > 10) {
-                break; // Stop when you've printed the first 10 entries
+                break;
             }
             result.append("[").append(count).append("] ").append(entry.getKey()).append("\n");
             count++;
@@ -172,7 +252,10 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         return result.toString();
     }
 
-    private void updateSearches() {
+    /**
+     * Method that orders the searches based on the number of times they were searched
+     */
+    private void orderSearches() {
         // Convert map entries to a list
         List<Map.Entry<String, Integer>> entryList = new ArrayList<>(searches.entrySet());
 
@@ -195,6 +278,10 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         //System.out.println("[BARREL#" + barrelNumber + "]:" + "    Searches: " + searches);
     }
 
+    /**
+     * Method that formats the average time a barrel takes to perform a search
+     * @return Formatted string with the average time a barrel takes to perform a search
+     */
     public String formatAverageTime() {
         StringBuilder result = new StringBuilder();
         result.append("AVERAGE SEARCH TIME: \n");
@@ -206,6 +293,12 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         return result.toString();
     }
 
+    /**
+     * Method that gets a Webpages connections, communicating with the barrels
+     * @param URL URL
+     * @return Webpage's connections
+     * @throws RemoteException
+     */
     public String getConnections(String URL) throws RemoteException {
         URL = URL.toLowerCase();
         String result = "Resultado: \n";
@@ -231,7 +324,5 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
             System.out.println("Failed to initiliaze gateway");
         }
     }
-
-
 
 }

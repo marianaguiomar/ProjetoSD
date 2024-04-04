@@ -5,10 +5,19 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.Scanner;
 
+/**
+ * Class that manages the client
+ */
 public class Client {
 
+    /**
+     * Scanner to receive input
+     */
     private final Scanner scanner;
 
+    /**
+     * Welcome message
+     */
     String welcomeMessage = """
         **************************************************************
         *                【Welcome to the Server】                    *
@@ -25,10 +34,28 @@ public class Client {
         **************************************************************
         """;
 
+    /**
+     * True if the client process is listening for input
+     */
     private boolean listen = true;
 
+    /**
+     * Gateway address
+     */
     private final String gatewayAddress;
+
+    /**
+     * Gateway inteface
+     */
     private GatewayInterface gateway;
+
+    /**
+     * Class constructor, attributes are initialized
+     * @param gatewayAddress Gateway address
+     * @throws MalformedURLException
+     * @throws RemoteException
+     * @throws NotBoundException
+     */
     public Client(String gatewayAddress) throws MalformedURLException, RemoteException, NotBoundException {
         this.scanner = new Scanner(System.in);
         this.gatewayAddress = gatewayAddress;
@@ -36,6 +63,10 @@ public class Client {
         System.out.println(welcomeMessage);
     }
 
+    /**
+     * Method that retries connection to Gateway a maximum of 5 times
+     * @return wether the reconnection was successful
+     */
     private boolean retryConnection(){
         int conectAttempts = 0;
         boolean connected = false;
@@ -51,6 +82,10 @@ public class Client {
         }
         return false;
     }
+
+    /**
+     * Method that performs Client's operations while it's running
+     */
     public void listening(){
         try {
             while (listen) {

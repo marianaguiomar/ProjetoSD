@@ -19,16 +19,56 @@ import java.util.logging.Logger;
  * If the sender does not receive an acknowledgment for a packet within a specified timeout period, it retransmits that packet.
  *
  * */
+
+/**
+ * Sender class for handling multicast messages.
+ */
 public class Sender {
+    /**
+     * Max size of packet
+     */
     private static final int PACKET_SIZE = 1500;
+
+    /**
+     * Timeout duration
+     */
     private static final Duration timeoutDuration = Duration.ofSeconds(15);
+
+    /**
+     * Logger to print error messages
+     */
     private static final Logger LOGGER = Logger.getLogger(Sender.class.getName());
+
+    /**
+     * Multicast address
+     */
     private final String MULTICAST_ADDRESS;
+
+    /**
+     * Port for messages with a hyperlink's data
+     */
     private final int PORT;
+
+    /**
+     * Socket for messages with a hyperlink's data
+     */
     private MulticastSocket socket;
+
+    /**
+     * Port for ACKS
+     */
     private MulticastSocket confirmationSocket;
+
+    /**
+     * Socket for ACKS
+     */
     private final int CONFIRMATION_PORT;
+
+    /**
+     * Multicast group
+     */
     InetAddress group;
+
     /**
      * Initializes the sender sockets.
      */
@@ -48,8 +88,7 @@ public class Sender {
         }
     }
     /**
-     * Constructor for Sender class.
-     *
+     * Class constructor, attributes are initialized.
      * @param multicastAddress  Multicast address.
      * @param port              Port for sending multicast messages.
      * @param confirmationPort  Port for receiving confirmation messages.
@@ -63,7 +102,6 @@ public class Sender {
 
     /**
      * Waits for confirmation from the receiver.
-     *
      * @param sentMessageID ID of the message sent.
      * @return True if confirmation received within timeout, false otherwise.
      */
@@ -108,7 +146,6 @@ public class Sender {
     }
     /**
      * Sends a multicast message.
-     *
      * @param hyperlink    Hyperlink associated with the message.
      * @param payload      Payload of the message.
      * @param messageType  Type of the message.

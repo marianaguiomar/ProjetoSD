@@ -9,11 +9,21 @@ public record MulticastMessage(String hyperlink, MessageType messageType, String
     @Serial
     private static final long serialVersionUID = 1L;
 
-
+    /**
+     * Class constructor, attributes are initialized
+     * @param hyperlink hyperlink
+     * @param messageType type of message
+     * @param payload payload
+     * @param activeBarrels number of active barrels
+     */
     public MulticastMessage(String hyperlink, MessageType messageType, String payload,  Integer activeBarrels) {
         this(hyperlink, messageType, payload, generateUniqueId(), activeBarrels);
     }
 
+    /**
+     * Prints the message's info
+     * @return
+     */
     @Override
     public String toString() {
         return "MulticastMessage{" +
@@ -24,9 +34,9 @@ public record MulticastMessage(String hyperlink, MessageType messageType, String
                 ", activeBarrels=" + activeBarrels +
                 '}';
     }
+
     /**
      * Converts the MulticastMessage object into a byte array.
-     *
      * @return Byte array representing the MulticastMessage object.
      * @throws IOException If an I/O error occurs while writing to the byte array.
      */
@@ -40,7 +50,6 @@ public record MulticastMessage(String hyperlink, MessageType messageType, String
 
     /**
      * Generates a unique ID for the message.
-     *
      * @return A unique ID string.
      */
     public static String generateUniqueId() {
@@ -54,9 +63,9 @@ public record MulticastMessage(String hyperlink, MessageType messageType, String
 
         return timestamp + "-" + uuid;
     }
+
     /**
      * Retrieves a MulticastMessage object from the given byte array.
-     *
      * @param data Byte array representing the MulticastMessage object.
      * @return MulticastMessage object retrieved from the byte array.
      */

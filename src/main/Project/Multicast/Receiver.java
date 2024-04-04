@@ -18,17 +18,54 @@ import static java.lang.Thread.sleep;
  * If the sender does not receive an acknowledgment for a packet within a specified timeout period, it retransmits that packet.
  *
  */
+
+/**
+ * Receiver class for handling multicast messages.
+ */
 public class Receiver{
-    private static final int PACKET_SIZE = 1500;
-    private static final Logger LOGGER = Logger.getLogger(Receiver.class.getName());
-    private final String MULTICAST_ADDRESS;
-    private final int PORT;
-    private MulticastSocket socket;
-    private final int CONFIRMATION_PORT;
-    private MulticastSocket confirmationSocket;
-    InetAddress group;
     /**
-     * Receiver class for handling multicast messages.
+     * Max packet size
+     */
+    private static final int PACKET_SIZE = 1500;
+
+    /**
+     * Logger to print error messages
+     */
+    private static final Logger LOGGER = Logger.getLogger(Receiver.class.getName());
+
+    /**
+     * Multicast address
+     */
+    private final String MULTICAST_ADDRESS;
+
+    /**
+     * Port for messages with a hyperlink's data
+     */
+    private final int PORT;
+
+    /**
+     * Socket for messages with a hyperlink's data
+     */
+    private MulticastSocket socket;
+
+    /**
+     * Port for ACKS
+     */
+    private final int CONFIRMATION_PORT;
+
+    /**
+     * Socket for ACKS
+     */
+    private MulticastSocket confirmationSocket;
+
+    /**
+     * Multicast group
+     */
+    InetAddress group;
+
+
+    /**
+     * Method that initializes the receiver sockets
      */
     private void initializeReceiverSockets(){
         try {
@@ -43,9 +80,9 @@ public class Receiver{
             throw new RuntimeException("Failed to create MulticastSocket");
         }
     }
+
     /**
-     * Constructor for Receiver class.
-     *
+     * Class constructor, attributes are initialized
      * @param multicastAddress Multicast address.
      * @param port             Port for receiving multicast messages.
      * @param confirmationPort Port for sending confirmation messages.
@@ -57,7 +94,7 @@ public class Receiver{
         initializeReceiverSockets();
     }
 
-    /*
+    /**
      * Method to send acknowledgment (confirmation) to the sender
      * Each packet sent by the sender contains a sequence number,
      * and the receiver acknowledges the receipt of each packet individually.
@@ -87,7 +124,6 @@ public class Receiver{
     }
     /**
      * Receives a multicast message.
-     *
      * @return Received multicast message.
      */
     public MulticastMessage receiveMessage(int activeBarrels){

@@ -13,10 +13,26 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.logging.Level;
 
+/**
+ * Class that manages all barrels
+ */
 public class BarrelManager extends InstanceManager implements BarrelManagerInterface {
+    /**
+     * Hash map with all barrel interfaces
+     */
     private final HashMap<Integer, BarrelInterface> barrelsInterfaces;
+
+    /**
+     * Path to backup file
+     */
     private final String backupPath;
 
+    /**
+     * Class constructer, attributes are initialized
+     * @param port Barrel manager port
+     * @param whitelistPath Path to the barrel's whitelist
+     * @throws RemoteException
+     */
     public BarrelManager(int port, String whitelistPath) throws RemoteException {
         super(whitelistPath);
         this.instanceType = "[BARRELMANAGER#]";
@@ -32,6 +48,12 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
         this.barrelsInterfaces = new HashMap<>();
     }
 
+    /**
+     * Method that performs a lookup if it hasn't been performed. Else, it returns the already looked up barrel
+     * @param barrelID
+     * @return
+     * @throws RemoteException
+     */
     public BarrelInterface lookupBarrel(int barrelID) throws RemoteException {
         try {
             // Check if the barrel for the specified ID has already been looked up
@@ -53,6 +75,12 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
         }
     }
 
+    /**
+     * Method that syncronizes a new barrel's remissive index with the others, or sets it up with the info on backup.dat
+     * @param barrelID barrel id
+     * @return remissive index
+     * @throws RemoteException
+     */
     public RemissiveIndex setRemissiveIndex(int barrelID) throws RemoteException {
         if (activeInstances == 1) {
             RemissiveIndex remissiveIndex = BackupManager.readBackupFile(backupPath);
@@ -79,8 +107,11 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
     }
 
 
-
-
+    /**
+     * Method that returns all available barrels' ids
+     * @return all available barrels' ids
+     * @throws RemoteException
+     */
     public LinkedList<Integer> getAvailableBarrelsID() throws RemoteException {
         LinkedList<Integer> result = new LinkedList<>();
         for (Integer barrelID : IDs) {
@@ -92,6 +123,14 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
     }
 
 
+    /**
+     * Method that removes a barrel from the list of active barrels, also removing its interface, address and port
+     * from the respective lists
+     * @param address barrel's address
+     * @param port barrel's port
+     * @param ID barrel's id
+     * @throws RemoteException
+     */
     public void removeInstance(String address, int port, int ID) throws RemoteException {
         System.out.println(this.instanceType + ": Removing barrel with ID: " + ID);
         activeInstances--;
@@ -106,11 +145,19 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
         this.ports.remove(ID);
     }
 
+    //TODO -> never used
     public int getBarrelID(int n) throws RemoteException {
         n = n % this.IDs.size();
         return this.IDs.get(n);
     }
 
+    //TODO -> ???
+    /**
+     * Method that returns
+     * @param n
+     * @return
+     * @throws RemoteException
+     */
     public int getAvailableBarrel(int n) throws RemoteException {
         if (activeInstances == 0)
             return -1;
