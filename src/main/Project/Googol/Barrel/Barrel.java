@@ -86,7 +86,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
             return new WebPage[0];
         System.out.println(result.toString());
         orderWebpages(result);
-        //updateSearches();
+        System.out.println(result.toString());
         if(result.size() < pageNumber * 10)
             return result.toArray(new WebPage[0]);
         return result.subList(Math.min(result.size(),pageNumber * 10), Math.min(pageNumber * 10 + 10, result.size())).toArray(new WebPage[0]);

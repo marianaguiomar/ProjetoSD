@@ -57,7 +57,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         }
 
         try{
-            if (barrelInUse > this.barrelManager.getActiveInstances()) {
+            if (++barrelInUse > this.barrelManager.getActiveInstances()) {
                 barrelInUse = 0;
             }
             int barrelID = this.barrelManager.getAvailableBarrel(barrelInUse);

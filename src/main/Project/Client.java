@@ -33,6 +33,7 @@ public class Client {
         this.scanner = new Scanner(System.in);
         this.gatewayAddress = gatewayAddress;
         this.gateway = (GatewayInterface) Naming.lookup(gatewayAddress);
+        System.out.println(welcomeMessage);
     }
 
     private boolean retryConnection(){
@@ -51,7 +52,6 @@ public class Client {
         return false;
     }
     public void listening(){
-        System.out.println(welcomeMessage);
         try {
             while (listen) {
                 System.out.println("[CLIENT]: Please input your commands to interact with the server.");
@@ -112,8 +112,7 @@ public class Client {
         }
         catch (NullPointerException e){
             System.out.println("[CLIENT]: Failed to retrieve results from the gateway");
-            if(retryConnection())
-                listening();
+            listening();
         }
     }
 
