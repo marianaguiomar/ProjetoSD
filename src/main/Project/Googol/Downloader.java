@@ -91,14 +91,15 @@ public class Downloader implements Runnable {
     }
 
     private void sendTokens(String hyperlink, Document doc) throws IOException {
-        StringTokenizer tokens = new StringTokenizer(doc.text().replaceAll("[^a-zA-Z0-9\\s]", ""));
+        StringTokenizer tokens = new StringTokenizer(doc.text());
+        //System.out.println(tokens);
         String multicastMessage = "";
         while (tokens.hasMoreElements()) {
-            String token = tokens.nextToken(); // Store the next token in a variable
+            String token = tokens.nextToken().replaceAll("[^a-zA-Z0-9\\-\\s]", "").trim(); // Store the next token in a variable
             if(token.length()<3){
                 continue;
             }
-            if (multicastMessage.getBytes(StandardCharsets.UTF_8).length + token.getBytes(StandardCharsets.UTF_8).length+1 < 700) {
+            if (multicastMessage.getBytes(StandardCharsets.UTF_8).length + token.getBytes(StandardCharsets.UTF_8).length+1 < 700 && tokens.hasMoreTokens()) {
                 if (!stopwordsSet.contains(token)) {
                     // Append the token to the multicast message
                     multicastMessage = multicastMessage.concat(" ").concat(token.toLowerCase());
@@ -216,6 +217,7 @@ public class Downloader implements Runnable {
                     //System.out.println("[DOWNLOADER#" + myID + "]: HTTP status exception occurred, discarding hyperlink");
                     continue;
                 }
+                System.out.println(doc.text());
                 sendTitle(url, doc);
                 sendCitation(url, doc);
                 sendTokens(url, doc);
