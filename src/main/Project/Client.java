@@ -17,7 +17,7 @@ public class Client {
         *  ➜ exit:   To exit the server                              *
         *  ➜ status: To get the status                               *
         *  ➜ search [type] [pageNumber] [query]: To search for items *
-        *       ➜[type] can be 'i' for items or 'u' for users        *
+        *       ➜[type] can be 'i' for intersection or 'u' for union *
         *  ➜ connections [parameter]: To get connections information *
         *  ➜ insert [link]: To insert a link                         *
         *                                                            *
