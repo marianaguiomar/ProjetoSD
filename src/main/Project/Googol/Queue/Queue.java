@@ -32,9 +32,6 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
         System.out.println("[QUEUE#]:   Ready...");
 
     }
-    public void clearQueue(){
-        this.URLQueue.clear();
-    }
     public void addURL(String URL) {
         this.URLQueue.add(URL);
     }

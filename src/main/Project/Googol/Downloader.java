@@ -24,7 +24,7 @@ public class Downloader implements Runnable {
     QueueInterface queue;
     private final Sender sender;
     boolean queueExists = true;
-    private int port;
+    private final int port;
     private final Integer myID;
     private final HashSet<String> visitedURL;
     String[] stopwords = {
