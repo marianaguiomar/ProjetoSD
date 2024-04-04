@@ -1,4 +1,4 @@
-package Googol.Gateway.BarrelManager;
+package Googol.Manager;
 import Googol.Barrel.RemissiveIndex;
 import java.io.*;
 

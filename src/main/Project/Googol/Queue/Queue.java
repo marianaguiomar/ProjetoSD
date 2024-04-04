@@ -1,6 +1,6 @@
 package Googol.Queue;
 
-import Googol.Gateway.BarrelManager.BarrelManager;
+import Googol.Manager.BarrelManager.BarrelManager;
 
 import java.io.Serial;
 import java.rmi.RemoteException;

@@ -1,7 +1,7 @@
 package Googol.Gateway;
 import Googol.Barrel.BarrelInterface;
 import Googol.Barrel.WebPage;
-import Googol.Gateway.BarrelManager.BarrelManager;
+import Googol.Manager.BarrelManager.BarrelManager;
 import Googol.Queue.QueueInterface;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -32,7 +32,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         this.totalDuration = new HashMap<>();
         this.numSearches = new HashMap<>();
         this.searches = new LinkedHashMap<>();
-        this.barrelManager = new BarrelManager(barrelManagerPort,"./src/main/Project/Googol/Gateway/BarrelManager/whitelist.txt");
+        this.barrelManager = new BarrelManager(barrelManagerPort,"./src/main/Project/Googol/Manager/BarrelManager/whitelist.txt");
         registry.rebind("gateway", this);
     }
     private void connectToQueue(){
@@ -51,13 +51,13 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     }
 
     private void connectToBarrel() throws RemoteException {
-        if(this.barrelManager.getActiveBarrels() == 0){
+        if(this.barrelManager.getActiveInstances() == 0){
             System.out.println("[GATEWAY]: No barrels available");
             return;
         }
 
         try{
-            if (barrelInUse > this.barrelManager.getActiveBarrels()) {
+            if (barrelInUse > this.barrelManager.getActiveInstances()) {
                 barrelInUse = 0;
             }
             int barrelID = this.barrelManager.getAvailableBarrel(barrelInUse);
@@ -108,8 +108,8 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
             connectToBarrel();
         }
         finally {
-            if(this.barrelManager.getActiveBarrels() > 0)
-                barrelInUse = (barrelInUse + 1) % (this.barrelManager.getActiveBarrels());
+            if(this.barrelManager.getActiveInstances() > 0)
+                barrelInUse = (barrelInUse + 1) % (this.barrelManager.getActiveInstances());
             webPages = barrel.search(tokens, pageNumber, isIntersectionSearch);
         }
         System.out.println("[GATEWAY]: Search done");

@@ -1,6 +1,6 @@
 package Googol.Barrel;
 import Googol.Downloader;
-import Googol.Gateway.BarrelManager.BarrelManagerInterface;
+import Googol.Manager.BarrelManager.BarrelManagerInterface;
 import Multicast.MulticastMessage;
 import Multicast.Receiver;
 import java.io.IOException;
@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runnable{
+public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     private final Receiver receiver;
     BarrelManagerInterface projectManager;
     private final RemissiveIndex remissiveIndex;
@@ -39,7 +39,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         this.projectManager = (BarrelManagerInterface) Naming.lookup(gatewayAddress);
         InetAddress address = InetAddress.getLocalHost();
         String registryAddress = address.getHostAddress();
-        if(!this.projectManager.verifyBarrelID(this.barrelNumber,registryAddress, this.barrelPort)){
+        if(!this.projectManager.verifyID(this.barrelNumber,registryAddress, this.barrelPort)){
             System.out.println("[BARREL#" + barrelNumber + "]:" + "   Barrel ID is not valid. Exiting...");
             System.exit(1);
         }
@@ -131,7 +131,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
     public void run() {
         try {
             while (multicastAvailable) {
-                remissiveIndex.printIndexHashMap(barrelNumber);
+                //remissiveIndex.printIndexHashMap(barrelNumber);
                 MulticastMessage message = receiver.receiveMessage();
                 if(message == null){
                     continue;
@@ -159,7 +159,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
 
     private void exit() {
         try {
-            this.projectManager.removeBarrel("localhost", this.barrelPort,this.barrelNumber);
+            this.projectManager.removeInstance("localhost", this.barrelPort,this.barrelNumber);
         }
         catch(RemoteException e){
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
