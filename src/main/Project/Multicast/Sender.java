@@ -8,15 +8,14 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-// Follows Pragmatic General Multicast (PGM) algorithm.
-// PGM is an IETF standard (RFC 3208) for reliable multicast transport of bulk data.
-
-/*
+/* Sender class for handling multicast messages.
+ * <p>
  * Since Googol is a real-time application that cannot keep track of the packets it's sending, to maintain a reliable multicast machanism,
- * it is necessary to ensure the packet delivery, by confirming the receipt of each packet individually.
+ * it is necessary to ensure the packet delivery by confirming the receipt of each packet individually.
  * For that matter, it is implemented a method known as Positive Acknowledgment with Retransmission (PAR) at the application level.
  * In this approach, each packet sent by the sender contains a sequence number (messageID), and the receiver acknowledges the receipt of each packet individually.
  * If the sender does not receive an acknowledgment for a packet within a specified timeout period, it retransmits that packet.
+ *
  * */
 public class Sender {
     private static final int PACKET_SIZE = 1500;
@@ -28,7 +27,9 @@ public class Sender {
     private MulticastSocket confirmationSocket;
     private final int CONFIRMATION_PORT;
     InetAddress group;
-
+    /**
+     * Initializes the sender sockets.
+     */
     private void initializeSenderSockets(){
         try {
             this.socket = new MulticastSocket();
@@ -43,7 +44,13 @@ public class Sender {
             throw new RuntimeException("Failed to create MulticastSocket");
         }
     }
-
+    /**
+     * Constructor for Sender class.
+     *
+     * @param multicastAddress  Multicast address.
+     * @param port              Port for sending multicast messages.
+     * @param confirmationPort  Port for receiving confirmation messages.
+     */
     public Sender(String multicastAddress, int port, int confirmationPort) {
         this.MULTICAST_ADDRESS = multicastAddress;
         this.PORT = port;
@@ -51,7 +58,12 @@ public class Sender {
         initializeSenderSockets();
     }
 
-    // Method to process acknowledgment (confirmation) from the receiver
+    /**
+     * Waits for confirmation from the receiver.
+     *
+     * @param sentMessageID ID of the message sent.
+     * @return True if confirmation received within timeout, false otherwise.
+     */
     private boolean waitForConfirmation(String sentMessageID){
         Instant startTime = Instant.now();
         Duration elapsedTime;
@@ -81,7 +93,13 @@ public class Sender {
             return false;
         }
     }
-    // Method to send data packet
+    /**
+     * Sends a multicast message.
+     *
+     * @param hyperlink    Hyperlink associated with the message.
+     * @param payload      Payload of the message.
+     * @param messageType  Type of the message.
+     */
     public void sendMessage(String hyperlink, String payload, MessageType messageType){
         // Check if the message is empty
         if (hyperlink == null || hyperlink.isEmpty() || hyperlink.isBlank()|| payload == null || payload.isEmpty() || payload.isBlank()) {

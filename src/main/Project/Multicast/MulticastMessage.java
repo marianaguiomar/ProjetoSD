@@ -2,14 +2,28 @@ package Multicast;
 
 import java.io.*;
 import java.util.UUID;
+/**
+ * Represents a multicast message containing information such as hyperlink, message type, payload, and message ID.
+ */
 public record MulticastMessage(String hyperlink, MessageType messageType, String payload , String messageID) implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-
+    /**
+     * Constructs a MulticastMessage.
+     *
+     * @param hyperlink    Hyperlink associated with the message.
+     * @param messageType  Type of the message.
+     * @param payload      Payload of the message.
+     */
     public MulticastMessage(String hyperlink, MessageType messageType, String payload) {
         this(hyperlink, messageType, payload, generateUniqueId());
     }
-
+    /**
+     * Converts the MulticastMessage object into a byte array.
+     *
+     * @return Byte array representing the MulticastMessage object.
+     * @throws IOException If an I/O error occurs while writing to the byte array.
+     */
     public byte[] getBytes() throws IOException {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              ObjectOutputStream oos = new ObjectOutputStream(bos)) {
@@ -18,6 +32,11 @@ public record MulticastMessage(String hyperlink, MessageType messageType, String
         }
     }
 
+    /**
+     * Generates a unique ID for the message.
+     *
+     * @return A unique ID string.
+     */
     public static String generateUniqueId() {
         // Get current timestamp
         long timestamp = System.currentTimeMillis();
@@ -26,11 +45,15 @@ public record MulticastMessage(String hyperlink, MessageType messageType, String
         UUID uuid = UUID.randomUUID();
 
         // Combine timestamp and UUID to create a unique ID
-        String uniqueId = timestamp + "-" + uuid.toString();
 
-        return uniqueId;
+        return timestamp + "-" + uuid;
     }
-
+    /**
+     * Retrieves a MulticastMessage object from the given byte array.
+     *
+     * @param data Byte array representing the MulticastMessage object.
+     * @return MulticastMessage object retrieved from the byte array.
+     */
     public static MulticastMessage getMessage(byte[] data){
         try (ByteArrayInputStream bis = new ByteArrayInputStream(data);
              ObjectInputStream ois = new ObjectInputStream(bis)) {

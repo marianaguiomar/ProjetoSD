@@ -9,7 +9,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static java.lang.Thread.sleep;
-
+/* Receiver class for handling multicast messages.
+ * <p>
+ * Since Googol is a real-time application that cannot keep track of the packets it's sending, to maintain a reliable multicast machanism,
+ * it is necessary to ensure the packet delivery by confirming the receipt of each packet individually.
+ * For that matter, it is implemented a method known as Positive Acknowledgment with Retransmission (PAR) at the application level.
+ * In this approach, each packet sent by the sender contains a sequence number (messageID), and the receiver acknowledges the receipt of each packet individually.
+ * If the sender does not receive an acknowledgment for a packet within a specified timeout period, it retransmits that packet.
+ *
+ */
 public class Receiver{
     private static final int PACKET_SIZE = 1500;
     private static final Logger LOGGER = Logger.getLogger(Receiver.class.getName());
@@ -19,6 +27,9 @@ public class Receiver{
     private final int CONFIRMATION_PORT;
     private MulticastSocket confirmationSocket;
     InetAddress group;
+    /**
+     * Receiver class for handling multicast messages.
+     */
     private void initializeReceiverSockets(){
         try {
             this.socket = new MulticastSocket(this.PORT); // Use the same port used for sending
@@ -32,7 +43,13 @@ public class Receiver{
             throw new RuntimeException("Failed to create MulticastSocket");
         }
     }
-
+    /**
+     * Constructor for Receiver class.
+     *
+     * @param multicastAddress Multicast address.
+     * @param port             Port for receiving multicast messages.
+     * @param confirmationPort Port for sending confirmation messages.
+     */
     public Receiver(String multicastAddress, int port, int confirmationPort) {
         this.MULTICAST_ADDRESS = multicastAddress;
         this.PORT = port;
@@ -46,7 +63,11 @@ public class Receiver{
      * and the receiver acknowledges the receipt of each packet individually.
      * The sequence number is the MessageID, which is unique for each message.
      * Every confirmation message has the type Multicast.MessageType.CONFIRMATION to distinguish it from other messages.
-     * */
+     *
+     * @param hyperlink  Hyperlink to be confirmed.
+     * @param messageID  ID of the message being confirmed.
+     * @throws InterruptedException If the thread is interrupted.
+     */
 
     public void sendConfirmationMulticastMessage(String hyperlink, String messageID) throws InterruptedException {
         try{
@@ -64,7 +85,11 @@ public class Receiver{
         }
 
     }
-    // Method to process received packet
+    /**
+     * Receives a multicast message.
+     *
+     * @return Received multicast message.
+     */
     public MulticastMessage receiveMessage(){
         try{
             byte[] buffer = new byte[PACKET_SIZE];
