@@ -24,9 +24,9 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
     private final int barrelPort;
     boolean multicastAvailable = true; // Initially assume multicast group is available
 
-    public Barrel(String multicastAddress, int port, int confirmationPort, String gatewayAddress, int barrelNumber) throws IOException, NotBoundException {
+    public Barrel(String multicastAddress, int port, int confirmationPort, String gatewayAddress, int barrelNumber, int barrelPort) throws IOException, NotBoundException {
         this.barrelNumber = barrelNumber;
-        this.barrelPort = 4400 + this.barrelNumber;
+        this.barrelPort = barrelPort;
         try {
             Registry registry = LocateRegistry.createRegistry(barrelPort);
             registry.rebind("barrel" + barrelNumber, this);
@@ -39,7 +39,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
         this.projectManager = (BarrelManagerInterface) Naming.lookup(gatewayAddress);
         InetAddress address = InetAddress.getLocalHost();
         String registryAddress = address.getHostAddress();
-        if(!this.projectManager.verifyBarrelID(this.barrelNumber,registryAddress)){
+        if(!this.projectManager.verifyBarrelID(this.barrelNumber,registryAddress, this.barrelPort)){
             System.out.println("[BARREL#" + barrelNumber + "]:" + "   Barrel ID is not valid. Exiting...");
             System.exit(1);
         }
@@ -167,13 +167,13 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface, Runn
     }
 
     public static void main(String[] args) throws IOException {
-        if (args.length != 6) {
-            System.out.println("Usage: java Barrel <multicastAddress> <port> <confirmationPort> <gatewayAdress> <barrelManagerPort>");
+        if (args.length != 7) {
+            System.out.println("Usage: java Barrel <multicastAddress> <port> <confirmationPort> <gatewayAdress> <barrelManagerPort> <barrelPort>");
             System.exit(1);
         }
         try {
             String gatewayAdress = "rmi://" + args[3] + ":" + args[4] + "/gateway";
-            Barrel barrel = new Barrel( args[0],  Integer.parseInt(args[1]),Integer.parseInt(args[2]), gatewayAdress, Integer.parseInt(args[5]));
+            Barrel barrel = new Barrel( args[0],  Integer.parseInt(args[1]),Integer.parseInt(args[2]), gatewayAdress, Integer.parseInt(args[5]), Integer.parseInt(args[6]));
             barrel.run();
         } catch (RemoteException | NotBoundException e) {
             LOGGER.log(Level.SEVERE, "Error\n"+ e.getMessage(), e);

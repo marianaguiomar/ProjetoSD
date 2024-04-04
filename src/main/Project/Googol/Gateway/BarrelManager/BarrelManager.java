@@ -20,7 +20,6 @@ import java.util.logging.Logger;
 public class BarrelManager extends UnicastRemoteObject implements BarrelManagerInterface {
     private static final Logger LOGGER = Logger.getLogger(BarrelManager.class.getName());
     private static final String backupPath = "./src/main/Project/Googol/Gateway/BarrelManager/backup.dat";
-    int numberOfDownloaders;
     int activeBarrels;
     LinkedList<Integer> barrelsID;
     HashMap<Integer, String> barrelsAddresses;
@@ -32,7 +31,6 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
         super();
         try {
             Registry registry = LocateRegistry.createRegistry(port);
-            this.numberOfDownloaders = 0;
             this.activeBarrels = 0;
             this.barrelsAddresses = new HashMap<>();
             this.barrelsInterfaces = new HashMap<>();
@@ -55,19 +53,19 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
         }
     }
 
-    public BarrelInterface lookupBarrel(int differentBarrelID) throws RemoteException {
+    public BarrelInterface lookupBarrel(int barrelID) throws RemoteException {
         try {
             // Check if the barrel for the specified ID has already been looked up
-            if (barrelsInterfaces.containsKey(differentBarrelID)) {
+            if (barrelsInterfaces.containsKey(barrelID)) {
                 // If yes, return the already looked up barrel
-                return barrelsInterfaces.get(differentBarrelID);
+                return barrelsInterfaces.get(barrelID);
 
             } else {
                 // If not, perform the lookup
-                BarrelInterface barrel = (BarrelInterface) Naming.lookup("rmi://"+ getBarrelAddres(differentBarrelID)
-                        + ":" + (4400 + differentBarrelID) + "/barrel" + differentBarrelID);
+                BarrelInterface barrel = (BarrelInterface) Naming.lookup("rmi://"+ getBarrelAddres(barrelID)
+                        + ":" + (barrelsPorts.get(barrelID)) + "/barrel" + barrelID);
                 // Store the looked up barrel in the HashMap
-                barrelsInterfaces.put(differentBarrelID, barrel);
+                barrelsInterfaces.put(barrelID, barrel);
                 return barrel;
             }
         } catch (NotBoundException | RemoteException | MalformedURLException e) {
@@ -101,7 +99,7 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
         return barrelsAddresses.get(barrelID);
     }
 
-    public boolean verifyBarrelID(int ID, String barrelAddress) throws RemoteException {
+    public boolean verifyBarrelID(int ID, String barrelAddress, int barrelPort) throws RemoteException {
         LinkedList<Integer> linkedList = this.barrelsID;
         if (!linkedList.contains(ID)) {
             return false;
@@ -110,9 +108,15 @@ public class BarrelManager extends UnicastRemoteObject implements BarrelManagerI
             return false;
         isWorking.put(ID, true);
         barrelsAddresses.put(ID, barrelAddress);
+        barrelsPorts.put(ID, barrelPort);
         activeBarrels++;
-        System.out.println("[BARRELMANAGER]: Barrel#" + ID + " connect with addres " + barrelAddress);
+        System.out.println("[BARRELMANAGER]: Barrel#" + ID + " connected with address " + barrelAddress + ":"
+                + barrelPort);
         return true;
+    }
+
+    public int getBarrelPort(int barrelID){
+        return this.barrelsPorts.get(barrelID);
     }
 
     public RemissiveIndex setRemissiveIndex(int barrelID) throws RemoteException {
