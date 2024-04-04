@@ -28,7 +28,6 @@ public class Sender {
     private MulticastSocket socket;
     private MulticastSocket confirmationSocket;
     private final int CONFIRMATION_PORT;
-    private AtomicInteger messageID = new AtomicInteger(0);
     InetAddress group;
     /**
      * Initializes the sender sockets.
@@ -93,14 +92,12 @@ public class Sender {
                 if(message.messageType() == MessageType.CONFIRMATION && message.payload().equals(sentMessageID)){
                     //Stem.out.println("received confirmation\n");
                     activeBarrels = message.activeBarrels();
-                    System.out.println("Active barrels set to " + activeBarrels);
                     packCounter++;
                 }
-                System.out.println(packCounter + " barrels have confirmed the message");
             }
             while(elapsedTime.compareTo(timeoutDuration) < 0  && packCounter < activeBarrels);
             if (packCounter >= activeBarrels){
-                System.out.println("All barrels have confirmed the message");
+                //System.out.println("All barrels have confirmed the message");
             }
             return packCounter >= activeBarrels;
         }
@@ -123,11 +120,11 @@ public class Sender {
             return; // Exit the method if the message is empty
         }
         try{
-            MulticastMessage message = new MulticastMessage(hyperlink, messageType, payload, Integer.toString(messageID.getAndAdd(1)),0);
+            MulticastMessage message = new MulticastMessage(hyperlink, messageType, payload,0);
             byte[] buffer = message.getBytes();
             DatagramPacket packet = new DatagramPacket(buffer,buffer.length, group, PORT);
             socket.send(packet);
-            System.out.println("Sent message" + message);
+            //System.out.println("Sent message" + message);
             // Keep sending package until confirmation is received
             while (!waitForConfirmation(message.messageID())){
                 socket.send(packet);

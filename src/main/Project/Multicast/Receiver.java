@@ -71,10 +71,10 @@ public class Receiver{
 
     public void sendConfirmationMulticastMessage(String hyperlink, String messageID, int activeBarrels) throws InterruptedException {
         try{
-            MulticastMessage message = new MulticastMessage(hyperlink, MessageType.CONFIRMATION, messageID, "",activeBarrels);
+            MulticastMessage message = new MulticastMessage(hyperlink, MessageType.CONFIRMATION, messageID, activeBarrels);
             byte[] buffer = message.getBytes();
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, this.group, CONFIRMATION_PORT);
-            System.out.println(message);
+            //System.out.println(message);
             this.confirmationSocket.send(packet);
         }
         catch(SocketException e) {

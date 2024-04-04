@@ -8,12 +8,12 @@ import java.util.UUID;
 public record MulticastMessage(String hyperlink, MessageType messageType, String payload , String messageID, Integer activeBarrels) implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    /*
 
-    public MulticastMessage(String hyperlink, MessageType messageType, String payload, String messageID, Integer activeBarrels) {
-        this(hyperlink, messageType, payload, messageID, activeBarrels);
+
+    public MulticastMessage(String hyperlink, MessageType messageType, String payload,  Integer activeBarrels) {
+        this(hyperlink, messageType, payload, generateUniqueId(), activeBarrels);
     }
-    */
+
     @Override
     public String toString() {
         return "MulticastMessage{" +
