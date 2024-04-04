@@ -59,7 +59,7 @@ public abstract class InstanceManager extends UnicastRemoteObject {
         initializeIsWorking();
     }
     public int getActiveInstances() throws RemoteException {
-        System.out.println("There are " + this.activeInstances + " active instances");
+        //System.out.println("There are " + this.activeInstances + " active instances");
         return this.activeInstances;
     }
     public boolean verifyID(int ID, String address, int port) throws RemoteException {

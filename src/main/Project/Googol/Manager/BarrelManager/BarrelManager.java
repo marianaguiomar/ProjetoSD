@@ -100,6 +100,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
             BarrelInterface barrel = lookupBarrel(ID);
             BackupManager.createBackupFile(barrel.getRemissiveIndex(), backupPath);
         }
+        barrelsInterfaces.remove(ID);
         isWorking.put(ID, false);
         this.addresses.remove(ID);
         this.ports.remove(ID);
