@@ -7,15 +7,28 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.logging.Level;
 
 public class BarrelManager extends InstanceManager implements BarrelManagerInterface {
     private final HashMap<Integer, BarrelInterface> barrelsInterfaces;
+    private final String backupPath;
 
     public BarrelManager(int port, String whitelistPath) throws RemoteException {
-        super(port, whitelistPath, "./src/main/Project/Googol/Manager/BarrelManager/backup.dat");
+        super(whitelistPath);
+        this.instanceType = "[BARRELMANAGER#]";
+        try {
+            Registry registry = LocateRegistry.createRegistry(port);
+            registry.rebind("gateway", this);
+            System.out.println(this.instanceType + ":   " + "rmi://localhost:" + port + "/gateway");
+            System.out.println(this.instanceType + ":   Ready...");
+        } catch (RemoteException e) {
+            LOGGER.log(Level.SEVERE, "Exception occurred while initializing ProjectManager: " + e.getMessage(), e);
+        }
+        this.backupPath = "./src/main/Project/Googol/Manager/BarrelManager/backup.dat";
         this.barrelsInterfaces = new HashMap<>();
     }
 
@@ -38,21 +51,6 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
              LOGGER.log(Level.SEVERE, "Exception occurred while initializing ProjectManager: " + e.getMessage(), e);
             return null;
         }
-    }
-    public boolean verifyID(int ID, String address, int port) throws RemoteException {
-        LinkedList<Integer> linkedList = this.IDs;
-        if (!linkedList.contains(ID)) {
-            return false;
-        }
-        if (isWorking.get(ID))
-            return false;
-        isWorking.put(ID, true);
-        addresses.put(ID, address);
-        ports.put(ID, port);
-        activeInstances++;
-        System.out.println("[BARRELMANAGER]: Barrel#" + ID + " connected with address " + address + ":"
-                + port);
-        return true;
     }
 
     public RemissiveIndex setRemissiveIndex(int barrelID) throws RemoteException {
@@ -99,10 +97,10 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
 
 
     public void removeInstance(String address, int port, int ID) throws RemoteException {
-        System.out.println("[PROJECTMANAGER#]: Removing barrel with ID: " + ID);
+        System.out.println(this.instanceType + ": Removing barrel with ID: " + ID);
         activeInstances--;
         if (activeInstances == 0) {
-            System.out.println("[PROJECTMANAGER#]: Last barrel removed, creating backup file");
+            System.out.println(this.instanceType + ": Last barrel removed, creating backup file");
             BarrelInterface barrel = lookupBarrel(ID);
             BackupManager.createBackupFile(barrel.getRemissiveIndex(), backupPath);
         }
@@ -123,7 +121,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
         int counter = 0;
         for (Integer barrelID : IDs) {
             if (isWorking.get(barrelID)) {
-                System.out.println("[PROJECTMANAGER#]: Barrel " + barrelID + " is working");
+                System.out.println(this.instanceType + ": Removing BARREL#" + barrelID);
                 if (counter == n)
                     return barrelID;
                 counter++;

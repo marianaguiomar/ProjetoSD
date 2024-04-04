@@ -1,5 +1,4 @@
 package Googol;
-
 import Googol.Queue.QueueInterface;
 import Multicast.MessageType;
 import Multicast.Sender;
@@ -10,10 +9,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -28,6 +24,7 @@ public class Downloader implements Runnable {
     QueueInterface queue;
     private final Sender sender;
     boolean queueExists = true;
+    private int port;
     private final Integer myID;
     private final HashSet<String> visitedURL;
     String[] stopwords = {
@@ -60,17 +57,37 @@ public class Downloader implements Runnable {
             "nisto", "nesse", "nessa", "nesses", "nessas",  "nisso"};
 
     HashSet<String> stopwordsSet;
-
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
 
     public Downloader(String multicastAddress, int port, int confirmationPort,
-                      String queuePath) throws NotBoundException, IOException {
+                      String queuePath, int ID) throws NotBoundException, IOException {
+        this.port = port;
         this.queue = (QueueInterface) Naming.lookup(queuePath);
-        this.myID = port;
+        this.myID =  ID;
+        if(!this.queue.verifyID(this.myID,getMyAddress(), port)){
+            System.out.println("[BARREL#" + this.myID + "]:" + "   Downloader ID is not valid. Exiting...");
+            System.exit(1);
+        }
         this.sender = new Sender(multicastAddress, port,  confirmationPort);
         this.stopwordsSet = new HashSet<>(Arrays.asList(stopwords));
         this.visitedURL = new HashSet<>();
         System.out.println("[DOWNLOADER#" + myID + "]:" + "   Ready...");
+        Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
+    }
+    private void exit() {
+        try {
+            this.queue.removeInstance(getMyAddress(), this.port,this.myID);
+        }
+        catch(RemoteException e){
+            LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String getMyAddress() throws UnknownHostException {
+        InetAddress address = InetAddress.getLocalHost();
+        return address.getHostAddress();
     }
 
     private void sendTokens(String hyperlink, Document doc) throws IOException {
@@ -104,7 +121,7 @@ public class Downloader implements Runnable {
             if (isValidURL(newURL)) {
                 visitedURL.add(newURL);
                 this.queue.addURL(newURL);
-                System.out.printf("[DOWNLOADER#" + myID + "]:" +"GETTING LINK" + "\t" + newURL + "\n");
+                System.out.println("[DOWNLOADER#" + myID + "]:" + "GETTING LINK" + "\t" + newURL); // Change here
                 if (multicastMessage.getBytes(StandardCharsets.UTF_8).length + newURL.getBytes(StandardCharsets.UTF_8).length+1 < 700) {
                     multicastMessage = multicastMessage.concat(newURL.toLowerCase()).concat("^");
                 }
@@ -116,6 +133,7 @@ public class Downloader implements Runnable {
             }
         }
     }
+
 
     private boolean isValidURL(String url) {
         if (url == null || url.isEmpty() || url.isBlank() || visitedURL.contains(url)) {
@@ -191,7 +209,13 @@ public class Downloader implements Runnable {
             try {
                 String url = this.queue.fetchURL();
                 //System.out.println("[DOWNLOADER#" + myID + "]:" +"URL: " + url);
-                Document doc = Jsoup.connect(url).get();
+                Document doc;
+                try {
+                    doc = Jsoup.connect(url).get();
+                } catch(Exception e){
+                    //System.out.println("[DOWNLOADER#" + myID + "]: HTTP status exception occurred, discarding hyperlink");
+                    continue;
+                }
                 sendTitle(url, doc);
                 sendCitation(url, doc);
                 sendTokens(url, doc);
@@ -218,15 +242,13 @@ public class Downloader implements Runnable {
 
     }
     public static void main(String[] args) throws NotBoundException, IOException {
-        // "224.3.2.1", 4321,
-        //                4322, "rmi://localhost/queue", "rmi://localhost:"+ 4320 + "/projectManager"
-        if(args.length != 5){
-            System.out.println("Usage: java Downloader <multicastAddress> <port> <confirmationPort> <queueIP> <queuePort> <projectManagerIP> <projectManagerPort>");
+        if(args.length != 6){
+            System.out.println("Usage: java Downloader <multicastAddress> <port> <confirmationPort> <queueIP> <queuePort> <ID>");
             System.exit(1);
         }
         String queueAddress = "rmi://" + args[3] + ":" + args[4] + "/queue";
         Downloader downloader = new Downloader(args[0], Integer.parseInt(args[1]),
-                Integer.parseInt(args[2]), queueAddress);
+                Integer.parseInt(args[2]), queueAddress, Integer.parseInt(args[5]));
         downloader.run();
     }
     }

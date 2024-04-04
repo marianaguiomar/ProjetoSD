@@ -5,6 +5,7 @@ import Multicast.MulticastMessage;
 import Multicast.Receiver;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -17,7 +18,7 @@ import java.util.logging.Logger;
 
 public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     private final Receiver receiver;
-    BarrelManagerInterface projectManager;
+    BarrelManagerInterface barrelManager;
     private final RemissiveIndex remissiveIndex;
     private final int barrelNumber;
 
@@ -35,15 +36,13 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
             LOGGER.log(Level.SEVERE, "Remote Exception Error\n "+ e.getMessage(), e);
             exit();
         }
-        System.out.println(gatewayAddress);
-        this.projectManager = (BarrelManagerInterface) Naming.lookup(gatewayAddress);
-        InetAddress address = InetAddress.getLocalHost();
-        String registryAddress = address.getHostAddress();
-        if(!this.projectManager.verifyID(this.barrelNumber,registryAddress, this.barrelPort)){
+        String registryAddress = getMyAddress();
+        this.barrelManager = (BarrelManagerInterface) Naming.lookup(gatewayAddress);
+        if(!this.barrelManager.verifyID(this.barrelNumber,registryAddress, this.barrelPort)){
             System.out.println("[BARREL#" + barrelNumber + "]:" + "   Barrel ID is not valid. Exiting...");
             System.exit(1);
         }
-        this.remissiveIndex = projectManager.setRemissiveIndex(this.barrelNumber);
+        this.remissiveIndex = barrelManager.setRemissiveIndex(this.barrelNumber);
         Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
         this.receiver = new Receiver(multicastAddress, port, confirmationPort);
         System.out.println("[BARREL#" + barrelNumber + "]:" + "   Ready...");
@@ -52,6 +51,11 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
     public int getBarrelNumber() throws RemoteException {
         return this.barrelNumber;
+    }
+
+    private String getMyAddress() throws UnknownHostException {
+        InetAddress address = InetAddress.getLocalHost();
+        return address.getHostAddress();
     }
 
     private void receiveCitation(MulticastMessage message) {
@@ -159,9 +163,9 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
 
     private void exit() {
         try {
-            this.projectManager.removeInstance("localhost", this.barrelPort,this.barrelNumber);
+            this.barrelManager.removeInstance(getMyAddress(), this.barrelPort,this.barrelNumber);
         }
-        catch(RemoteException e){
+        catch(RemoteException | UnknownHostException e){
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
         }
     }

@@ -12,10 +12,10 @@ public class BackupManager {
             objectOut.writeObject(remissiveIndex);
             objectOut.close();
             fileOut.close();
-            System.out.println("RemissiveIndex object has been serialized and saved in " + filename);
+            //System.out.println("[BACKUPMANAGER#]: RemissiveIndex object has been serialized and saved in " + filename);
         }
         catch (IOException e) {
-            System.out.println("Failed to create backup file");
+            //System.out.println("[BACKUPMANAGER#]:Failed to create backup file");
         }
     }
 
@@ -28,7 +28,7 @@ public class BackupManager {
             remissiveIndex = (RemissiveIndex) objectIn.readObject();
             objectIn.close();
             fileIn.close();
-            System.out.println("RemissiveIndex object has been deserialized from " + filename);
+            //System.out.println("[BACKUPMANAGER#]:RemissiveIndex object has been deserialized from " + filename);
         } catch (IOException | ClassNotFoundException e) {
             return new RemissiveIndex();
         }

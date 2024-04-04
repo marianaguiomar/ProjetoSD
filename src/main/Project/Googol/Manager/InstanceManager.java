@@ -4,23 +4,19 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public abstract class InstanceManager extends UnicastRemoteObject {
     protected final Logger LOGGER;
-    protected String backupPath;
     protected int activeInstances;
     protected LinkedList<Integer> IDs;
     protected HashMap<Integer, String> addresses;
     protected HashMap<Integer, Integer> ports;
     protected HashMap<Integer, Boolean> isWorking;
-
+    protected String instanceType;
 
     public static LinkedList<Integer> readWhitelist(String filename) {
         LinkedList<Integer> whitelist = new LinkedList<>();
@@ -39,6 +35,7 @@ public abstract class InstanceManager extends UnicastRemoteObject {
         } catch (IOException e) {
             // Handle file IO exception
             System.err.println("Error reading file: " + e.getMessage());
+            return whitelist;
         }
         return whitelist;
     }
@@ -50,25 +47,31 @@ public abstract class InstanceManager extends UnicastRemoteObject {
         }
     }
 
-    protected InstanceManager(int port, String whitelistPath, String backupPath) throws RemoteException {
+    protected abstract void removeInstance(String address, int port, int ID) throws RemoteException;
+
+    protected InstanceManager(String whitelistPath) throws RemoteException {
         this.LOGGER = Logger.getLogger(this.getClass().getName());
-        this.backupPath = backupPath;
         this.addresses = new HashMap<>();
         this.ports = new HashMap<>();
         this.IDs = readWhitelist(whitelistPath);
-
-        Registry registry = LocateRegistry.createRegistry(port);
         this.activeInstances = 0;
         this.addresses = new HashMap<>();
-
-        try {
-            initializeIsWorking();
-            registry.rebind("gateway", this);
-            System.out.println("[PROJECTMANAGER#]:   " + "rmi://localhost:" + port + "/gateway");
-            System.out.println("[PROJECTMANAGER#]:   Ready...");
-        } catch (RemoteException e) {
-            LOGGER.log(Level.SEVERE, "Exception occurred while initializing ProjectManager: " + e.getMessage(), e);
-        }
+        initializeIsWorking();
     }
-    public abstract boolean verifyID(int ID, String address, int port) throws RemoteException;
+    public boolean verifyID(int ID, String address, int port) throws RemoteException {
+        LinkedList<Integer> linkedList = this.IDs;
+        if (!linkedList.contains(ID)) {
+            return false;
+        }
+        if (isWorking.get(ID))
+            return false;
+        isWorking.put(ID, true);
+        addresses.put(ID, address);
+        ports.put(ID, port);
+        activeInstances++;
+        String objectType = this.getClass().getName().equals("DownloaderManager") ? "DOWNLOADER#" : "BARREL#";
+        System.out.println(this.instanceType + ": "+ objectType + ID + " connected with address " + address + ":"
+                + port);
+        return true;
+    }
 }
