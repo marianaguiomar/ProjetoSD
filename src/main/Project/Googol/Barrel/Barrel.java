@@ -95,8 +95,8 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     }
 
     /**
-     * Method that returns localhost address
-     * @return localhost address
+     * Method that returns the running machine address
+     * @return running machine address
      * @throws UnknownHostException Hostname provided is unknown or could not be resolved.
      */
     private String getMyAddress() throws UnknownHostException {

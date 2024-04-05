@@ -29,6 +29,7 @@ public class Downloader implements Runnable {
      */
     QueueInterface queue;
 
+    private final int maxPayloadMessageSize = 700;
     /**
      * Sender (sends MulticastMessages)
      */
@@ -83,7 +84,9 @@ public class Downloader implements Runnable {
             "nela", "nele", "neles", "nelas", "neste", "neste", "nesta", "nestes", "nestas",
             "nisto", "nesse", "nessa", "nesses", "nessas",  "nisso"};
 
-    //todo -> ???
+    /**
+     * HashSet containing stopwords (for faster search)
+     */
     HashSet<String> stopwordsSet;
 
     /**
@@ -133,10 +136,9 @@ public class Downloader implements Runnable {
         }
     }
 
-    //TODO check
     /**
-     * Method that returns localhost address
-     * @return localhost address
+     * Method that returns the running machine address
+     * @return running machine address
      * @throws UnknownHostException Hostname provided is unknown or could not be resolved.
      */
     private String getMyAddress() throws UnknownHostException {
@@ -161,7 +163,7 @@ public class Downloader implements Runnable {
             if(token.length()<3){
                 continue;
             }
-            if (multicastMessage.getBytes(StandardCharsets.UTF_8).length + token.getBytes(StandardCharsets.UTF_8).length+1 < 700 && tokens.hasMoreTokens()) {
+            if (exceedsSize(multicastMessage.concat(" ").concat(token), hyperlink) && tokens.hasMoreTokens()) {
                 if (!stopwordsSet.contains(token)) {
                     // Append the token to the multicast message
                     multicastMessage = multicastMessage.concat(" ").concat(token.toLowerCase());
@@ -221,6 +223,17 @@ public class Downloader implements Runnable {
             return false;
         }
     }
+    /**
+     * Verifies if message exceeds the maximum payload message size
+     * @param text text in payload
+     * @param hyperlink hyperlink associated with message
+     * @return boolean if iy exceeds or not
+     */
+    private boolean exceedsSize(String text, String hyperlink){
+        int textLength = text.getBytes(StandardCharsets.UTF_8).length;
+        int hyperlinkLength = hyperlink.getBytes(StandardCharsets.UTF_8).length;
+        return textLength + hyperlinkLength > this.maxPayloadMessageSize;
+    }
 
     /**
      * Method that sends a MulticastMessage with the title
@@ -234,12 +247,10 @@ public class Downloader implements Runnable {
             title = "No title found.";
         }
         else{
-            if(doc.title().getBytes(StandardCharsets.UTF_8).length + hyperlink.getBytes(StandardCharsets.UTF_8).length > 700) {
+            if(exceedsSize(doc.title(), hyperlink)){
                 // Calculate the remaining space for the text
                 int remainingSpace = 700 - hyperlink.getBytes(StandardCharsets.UTF_8).length - 3;
-
-                //TODO -> is this necessary
-                // Get the substring of the first paragraph text to fit the remaining space
+                // Truncates title to fit the size
                 String truncatedText = new String(
                         doc.title().getBytes(StandardCharsets.UTF_8),
                         0,
@@ -267,7 +278,7 @@ public class Downloader implements Runnable {
         Element firstParagraph = doc.select("p").first();
         String firstParagraphText;
         if(firstParagraph != null && !firstParagraph.text().isEmpty() && !firstParagraph.text().isBlank()){
-            if(firstParagraph.text().getBytes(StandardCharsets.UTF_8).length + hyperlink.getBytes(StandardCharsets.UTF_8).length > 700) {
+            if(exceedsSize(firstParagraph.text(), hyperlink)) {
                 // Calculate the remaining space for the text
                 int remainingSpace = 700 - hyperlink.getBytes(StandardCharsets.UTF_8).length - 3;
 
@@ -293,7 +304,7 @@ public class Downloader implements Runnable {
 
     /**
      * Method that performs Downloader's operations while it's running
-     * Connects to JSOUP so it can get data websites
+     * Connects to JSOUP, so it can get data websites
      */
     public void run() {
         while (queueExists) {
