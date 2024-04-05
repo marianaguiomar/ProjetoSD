@@ -48,11 +48,10 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
         this.barrelsInterfaces = new HashMap<>();
     }
 
-    //TODO return
     /**
      * Method that performs a lookup if it hasn't been performed. Else, it returns the already looked up barrel
-     * @param barrelID
-     * @return
+     * @param barrelID Barrel id
+     * @return Barrel interface connected to the specified barrel by RMI
      * @throws RemoteException If a remote communication error occurs.
      */
     public BarrelInterface lookupBarrel(int barrelID) throws RemoteException {
@@ -146,17 +145,11 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
         this.ports.remove(ID);
     }
 
-    //TODO -> never used
-    public int getBarrelID(int n) throws RemoteException {
-        n = n % this.IDs.size();
-        return this.IDs.get(n);
-    }
 
-    //TODO -> ???
     /**
-     * Method that returns
-     * @param n
-     * @return
+     * Method that returns ID of the n-th available barrel
+     * @param n position of the barrel
+     * @return ID of the n-th available barrel
      * @throws RemoteException If a remote communication error occurs.
      */
     public int getAvailableBarrel(int n) throws RemoteException {

@@ -7,7 +7,6 @@ import java.rmi.RemoteException;
  * Interface for GATEWAY Class
  */
 public interface GatewayInterface extends Remote {
-    //TODO na gateway está isIntersectionSearch
     /**
      * Method that performs a search (communicating with the Barrels)
      * @param tokens okens to search for

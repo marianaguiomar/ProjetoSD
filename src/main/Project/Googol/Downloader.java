@@ -43,9 +43,9 @@ public class Downloader implements Runnable {
      * Port
      */
     private final int port;
-    //TODO -> ??
+
     /**
-     * ID
+     * Downloader ID
      */
     private final Integer myID;
 

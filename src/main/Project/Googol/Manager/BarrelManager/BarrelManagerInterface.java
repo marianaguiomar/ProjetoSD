@@ -11,8 +11,6 @@ import java.util.LinkedList;
  * Interface for BARRELMANAGER Class
  */
 public interface BarrelManagerInterface extends Remote {
-
-    //TODO -> ??
     /**
      * Method that verifies if a given ID is available. If true, adds the instance to all lists
      * @param ID id to verify
@@ -21,7 +19,7 @@ public interface BarrelManagerInterface extends Remote {
      * @return true if ID is available
      * @throws RemoteException If a remote communication error occurs.
      */
-    public boolean verifyID(int ID, String barrelAddress, int barrelPort) throws RemoteException;
+    public boolean verifyID(int ID, String address, int port) throws RemoteException;
 
     /**
      * Method that returns number of active instances
@@ -29,12 +27,10 @@ public interface BarrelManagerInterface extends Remote {
      * @throws RemoteException If a remote communication error occurs.
      */
     int getActiveInstances() throws RemoteException;
-
-    //TODO -> ???
     /**
-     * Method that returns
-     * @param n
-     * @return
+     * Method that returns ID of the n-th available barrel
+     * @param n position of the barrel
+     * @return ID of the n-th available barrel
      * @throws RemoteException If a remote communication error occurs.
      */
     int getAvailableBarrel(int n) throws RemoteException;
@@ -47,11 +43,10 @@ public interface BarrelManagerInterface extends Remote {
      */
     RemissiveIndex setRemissiveIndex(int barrelID) throws RemoteException;
 
-    //TODO return, parâmetros diferentes
     /**
      * Method that performs a lookup if it hasn't been performed. Else, it returns the already looked up barrel
      * @param differentBarrelID
-     * @return
+     * @return Barrel interface connected to the specified barrel by RMI
      * @throws RemoteException If a remote communication error occurs.
      */
     public BarrelInterface lookupBarrel(int differentBarrelID) throws RemoteException;
@@ -62,9 +57,6 @@ public interface BarrelManagerInterface extends Remote {
      * @throws RemoteException If a remote communication error occurs.
      */
     LinkedList<Integer> getAvailableBarrelsID() throws RemoteException;
-
-    //TODO -> never used
-    int getBarrelID(int n) throws RemoteException;
 
     /**
      * Method that removes an instance from the list of active instances, also removing its interface, address and port

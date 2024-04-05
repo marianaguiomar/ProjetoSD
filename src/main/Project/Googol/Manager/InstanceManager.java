@@ -23,19 +23,18 @@ public abstract class InstanceManager extends UnicastRemoteObject {
      */
     protected int activeInstances;
 
-    //TODO -> active??
     /**
-     * IDs of instances
+     * IDs of instances given by the whitelist
      */
     protected LinkedList<Integer> IDs;
 
     /**
-     * Addresses of instances
+     * Addresses of active instances
      */
     protected HashMap<Integer, String> addresses;
 
     /**
-     * Ports of instances
+     * Ports of active instances
      */
     protected HashMap<Integer, Integer> ports;
 
@@ -96,9 +95,8 @@ public abstract class InstanceManager extends UnicastRemoteObject {
      */
     protected abstract void removeInstance(String address, int port, int ID) throws RemoteException;
 
-    //todo -> constructor
     /**
-     * Class constructer, attributes are initializes
+     * Class constructor, attributes are initializes
      * @param whitelistPath path to whitelist file
      * @throws RemoteException If a remote communication error occurs.
      */
@@ -122,7 +120,6 @@ public abstract class InstanceManager extends UnicastRemoteObject {
         return this.activeInstances;
     }
 
-    //TODO -> ??
     /**
      * Method that verifies if a given ID is available. If true, adds the instance to all lists
      * @param ID id to verify
