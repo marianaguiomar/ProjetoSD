@@ -27,11 +27,11 @@ public class Sender {
      * Max size of packet
      */
     private static final int PACKET_SIZE = 1500;
-
+    private final int  numberOfRetries = 0;
     /**
      * Timeout duration
      */
-    private static final Duration timeoutDuration = Duration.ofSeconds(15);
+    private static final Duration timeoutDuration = Duration.ofMillis(1);
 
     /**
      * Logger to print error messages
@@ -170,9 +170,11 @@ public class Sender {
             socket.send(packet);
             //System.out.println("Sent message" + message);
             // Keep sending package until confirmation is received
-            while (!waitForConfirmation(message.messageID())){
+            int counter = 0;
+            while (!waitForConfirmation(message.messageID()) && counter <= numberOfRetries){
                 System.out.println("im here");
                 socket.send(packet);
+                counter++;
             }
         }
         catch (IOException e){
