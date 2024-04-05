@@ -29,21 +29,16 @@ public class RemissiveIndex implements Serializable {
     /**
      * Method that returns a given Webpage's connections
      * @param hyperlink URL of a Webpage
-     * @return List of Webpages
+     * @return String with Webpages
      */
     public String getConnections(String hyperlink){
         String header = "CONNECTIONS TO LINK: " + hyperlink + "\n";
         StringBuilder result = new StringBuilder(header);
-        System.out.println("Starting connection");
         if (urlConnection.containsKey(hyperlink)) {
-            System.out.println("Connections found for link: " + hyperlink);
             for (String url: urlConnection.get(hyperlink)) {
                 System.out.println(url);
                 result.append(webPages.get(url).toString());
             }
-        }
-        else{
-            System.out.println("No connections found for link: " + hyperlink);
         }
         return result.toString();
     }

@@ -293,6 +293,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         URL = URL.toLowerCase();
         String result = "Resultado: \n";
         System.out.println("[GATEWAY]: Getting connections for URL: " + URL);
+        connectToBarrel();
         result = result.concat(barrel.getConnections(URL));
         if (result.isEmpty())
             return "No connections found";
