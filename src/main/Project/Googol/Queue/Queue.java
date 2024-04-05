@@ -2,6 +2,8 @@ package Googol.Queue;
 
 import Googol.Manager.BarrelManager.BarrelManager;
 import Googol.Manager.DownloaderManager.DownloaderManager;
+import Googol.Manager.DownloaderManager.DownloaderManagerInterface;
+
 import java.io.Serial;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -49,13 +51,14 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
         super();
         this.visitedURL = new HashSet<>();
         this.URLQueue = new LinkedBlockingQueue<>();
-        this.queueSemaphore = new Semaphore(1);
+
         downloaderManager = new DownloaderManager("./src/main/Project/Googol/Manager/DownloaderManager/whitelist");
         try {
             registryQueue.rebind("queue", this);
         } catch (RemoteException e) {
             LOGGER.log(Level.SEVERE, "Exception occurred while initializing Queue: \n" + e.getMessage(), e);
         }
+        this.queueSemaphore = new Semaphore(downloaderManager.getMaxInstances());
         System.out.println("[QUEUE#]:   Ready...");
 
     }
@@ -116,7 +119,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
      */
     public void block() throws RemoteException{
         try {
-            //System.out.println("block");
+            System.out.println("block");
             this.queueSemaphore.acquire();
         } catch (InterruptedException e) {
             LOGGER.log(Level.SEVERE, "Exception occurred while blocking Queue: \n" + e.getMessage(), e);
@@ -127,8 +130,22 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
      * @throws RemoteException If a remote communication error occurs.
      */
     public void unblock() throws RemoteException{
-        //System.out.println("unblock");
+        System.out.println("unblock");
         this.queueSemaphore.release(); // Release the permit
+    }
+    /**
+     * Method that drains the queue
+     * @throws RemoteException If a remote communication error occurs.
+     */
+    public void drainSemaphore() throws RemoteException {
+        this.queueSemaphore.drainPermits();
+    }
+    /**
+     * Method that resets the queue's semaphore
+     * @throws RemoteException If a remote communication error occurs.
+     */
+    public void resetSemaphore() throws RemoteException {
+        this.queueSemaphore.release(downloaderManager.getMaxInstances());
     }
     public static void main(String[] args) throws RemoteException {
         if (args.length != 1) {
@@ -142,6 +159,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
     }
         catch (RemoteException e) {
             LOGGER.log(Level.SEVERE, "Exception occurred while initializing Queue: \n" + e.getMessage(), e);
+     }
     }
-    }
+
 }

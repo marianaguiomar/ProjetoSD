@@ -144,4 +144,8 @@ public abstract class InstanceManager extends UnicastRemoteObject {
                 + port);
         return true;
     }
+
+    public int getMaxInstances() throws RemoteException {
+        return this.IDs.size();
+    }
 }
