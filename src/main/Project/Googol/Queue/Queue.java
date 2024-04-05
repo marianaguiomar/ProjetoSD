@@ -9,6 +9,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.HashSet;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.rmi.registry.Registry;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,6 +30,8 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
      */
     private final HashSet<String> visitedURL;
 
+    private final Semaphore queueSemaphore;
+
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -47,6 +50,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
         super();
         this.visitedURL = new HashSet<>();
         this.URLQueue = new LinkedBlockingQueue<>();
+        this.queueSemaphore = new Semaphore(1);
         downloaderManager = new DownloaderManager("./src/main/Project/Googol/Manager/DownloaderManager/whitelist");
         try {
             registryQueue.rebind("queue", this);
@@ -73,8 +77,11 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
      * @return URL from queue
      * @throws InterruptedException If the operation is interrupted
      */
-    public String fetchURL() throws InterruptedException {
-        return this.URLQueue.take();
+    public String fetchURL() throws InterruptedException, RemoteException {
+        block();
+        String result = URLQueue.take();
+        unblock();
+        return result;
     }
 
     /**
@@ -104,6 +111,17 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
         return this.downloaderManager.verifyID(ID, address, port);
     }
 
+    public void block() throws RemoteException{
+        try {
+            this.queueSemaphore.acquire();
+        } catch (InterruptedException e) {
+            LOGGER.log(Level.SEVERE, "Exception occurred while blocking Queue: \n" + e.getMessage(), e);
+        }
+    }
+
+    public void unblock() throws RemoteException{
+        this.queueSemaphore.release(); // Release the permit
+    }
     public static void main(String[] args) throws RemoteException {
         if (args.length != 1) {
             System.out.println("Usage: java Queue <port>");

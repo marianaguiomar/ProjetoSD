@@ -3,6 +3,8 @@ import Googol.Barrel.BarrelInterface;
 import Googol.Barrel.RemissiveIndex;
 import Googol.Manager.BackupManager;
 import Googol.Manager.InstanceManager;
+import Googol.Queue.QueueInterface;
+
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -27,15 +29,18 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
      */
     private final String backupPath;
 
+    private final QueueInterface queue;
+
     /**
      * Class constructer, attributes are initialized
      * @param port Barrel manager port
      * @param whitelistPath Path to the barrel's whitelist
      * @throws RemoteException If a remote communication error occurs.
      */
-    public BarrelManager(int port, String whitelistPath) throws RemoteException {
+    public BarrelManager(int port, String whitelistPath, QueueInterface queueInterface) throws RemoteException {
         super(whitelistPath);
         this.instanceType = "[BARRELMANAGER#]";
+        this.queue = queueInterface;
         try {
             Registry registry = LocateRegistry.createRegistry(port);
             registry.rebind("gateway", this);
@@ -83,6 +88,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
      */
     public RemissiveIndex setRemissiveIndex(int barrelID) throws RemoteException {
         if (activeInstances == 1) {
+            this.queue.unblock();
             RemissiveIndex remissiveIndex = BackupManager.readBackupFile(backupPath);
             if (remissiveIndex == null)
                 return new RemissiveIndex();
@@ -136,6 +142,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
         activeInstances--;
         if (activeInstances == 0) {
             System.out.println(this.instanceType + ": Last barrel removed, creating backup file");
+            this.queue.block();
             BarrelInterface barrel = lookupBarrel(ID);
             BackupManager.createBackupFile(barrel.getRemissiveIndex(), backupPath);
         }

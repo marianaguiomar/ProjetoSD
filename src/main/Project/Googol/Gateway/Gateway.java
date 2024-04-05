@@ -71,7 +71,8 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         this.totalDuration = new HashMap<>();
         this.numSearches = new HashMap<>();
         this.searches = new LinkedHashMap<>();
-        this.barrelManager = new BarrelManager(barrelManagerPort,"./src/main/Project/Googol/Manager/BarrelManager/whitelist.txt");
+        connectToQueue();
+        this.barrelManager = new BarrelManager(barrelManagerPort,"./src/main/Project/Googol/Manager/BarrelManager/whitelist.txt", this.queue);
         registry.rebind("gateway", this);
     }
 
@@ -115,18 +116,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         }
     }
 
-    /**
-     * Method that performs Gateway's operations while it's running
-     */
-    public void run(){
-        try {
-            connectToQueue();
-            connectToBarrel();
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
-        System.out.println("[GATEWAY]: Gateway Ready...");
-    }
+
 
     /**
      * Method that updates searches performed (by each barrel and in total)
@@ -318,7 +308,6 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
             Registry registry = LocateRegistry.createRegistry(Integer.parseInt(args[2]));
             Gateway gateway = new Gateway( registry,
                     queueAddress, Integer.parseInt(args[3]));
-            gateway.run();
         }
         catch (RemoteException e) {
             System.out.println("Failed to initiliaze gateway");

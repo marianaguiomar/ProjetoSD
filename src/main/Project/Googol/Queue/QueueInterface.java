@@ -41,4 +41,8 @@ public interface QueueInterface extends Remote {
      * @throws RemoteException If a remote communication error occurs.
      */
     boolean verifyID(int ID, String address, int port) throws RemoteException;
+
+    void block() throws RemoteException;
+
+    void unblock() throws RemoteException;
 }
