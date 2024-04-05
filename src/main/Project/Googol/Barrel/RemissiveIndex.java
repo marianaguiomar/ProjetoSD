@@ -12,13 +12,14 @@ import java.util.stream.Stream;
  */
 public class RemissiveIndex implements Serializable {
     /**
-     * Index
+     * Index with a token and the URL's that contain it
      */
     public final HashMap<String, HashSet<String>> index;
     /**
-     * Webpages
+     * All Webpages sent by Downloader
      */
     public final HashMap<String, WebPage> webPages;
+
     /**
      * Each Webpage's connections (other Webpages that reference them)
      */
@@ -45,7 +46,7 @@ public class RemissiveIndex implements Serializable {
     }
 
     /**
-     * Method that finds the Webpages that contain at least one of the given tokens
+     * Method that finds the Webpages that contain at least one of the given tokens in the Remissive Index
      * @param tokens Token to search for
      * @return List of Webpages
      */
@@ -65,7 +66,7 @@ public class RemissiveIndex implements Serializable {
     }
 
     /**
-     * Method that finds the Webpages that contain all of the given tokens
+     * Method that finds the Webpages that contain all of the given tokens in the Remissive Index
      * @param tokens Token to search for
      * @return List of Webpages
      */
@@ -120,7 +121,10 @@ public class RemissiveIndex implements Serializable {
     }
 
     /**
-     * Method that adds a hyperlink that contains a token to Index
+     * Method that adds a hyperlink that contains a token to the Remissive Index
+     * Checks if neither are null
+     * If token is already a key in Remissive Index, the URL is added to its values
+     * Else, a new key is created for the token, the URL is added to its values
      * @param hyperlink URL to add
      * @param token token that the hyperlink contains
      */
@@ -139,7 +143,10 @@ public class RemissiveIndex implements Serializable {
     }
 
     /**
-     * Insert a Webpage's citation in the Webpage list
+     * Insert a Webpage's citation in the Webpages list
+     * Checks if neither is null
+     * If hyperlink is already a key in Webpages, find it and set its citation as the one given
+     * Else, create a new Webpage and set it as a value, setting its citation as the one given
      * @param hyperlink URL of webpage
      * @param citation citation of webpage
      */
@@ -158,6 +165,9 @@ public class RemissiveIndex implements Serializable {
 
     /**
      * Insert a Webpage's title in the Webpage list
+     * Checks if neither is null
+     * If hyperlink is already a key in Webpages, find it and set its title as the one given
+     * Else, create a new Webpage and set it as a value, setting its title as the one given
      * @param hyperlink URL of webpage
      * @param title title of webpage
      */
@@ -176,6 +186,9 @@ public class RemissiveIndex implements Serializable {
 
     /**
      * Insert a Webpage's citation in the URLConnections list
+     * Checks if neither is null
+     * If hyperlink is already a key in Webpages, find it and add given connection to its Connections
+     * Else, create a new Webpage and set it as a value, setting its connections as a new set and adding given connection to it
      * @param url URL of main Webpage
      * @param hyperlink URLs of webpages that reference the main Webpage
      */

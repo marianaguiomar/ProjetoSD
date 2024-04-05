@@ -66,6 +66,8 @@ public class Receiver{
 
     /**
      * Method that initializes the receiver sockets
+     * socket receives URL data messages, so it joing multicast group
+     * confirmationSocket sends ACKS
      */
     private void initializeReceiverSockets(){
         try {

@@ -71,8 +71,9 @@ public class Sender {
 
     /**
      * Initializes the sender sockets.
+     * socket sends URL data messages
+     * confirmationSocket receives ACKS, so it jois the multicast group
      */
-    //TODO -> explicar socjets
     private void initializeSenderSockets(){
         try {
             this.socket = new MulticastSocket();
@@ -114,7 +115,6 @@ public class Sender {
         Duration elapsedTime;
         try{
             int packCounter = 0;
-            //todo -> not 2
             int activeBarrels = 2;
             // Wait for confirmation message during timeout period
             do{
@@ -165,7 +165,6 @@ public class Sender {
             return; // Exit the method if the message is empty
         }
         try{
-            //TODO active barrels = 0
             MulticastMessage message = new MulticastMessage(hyperlink, messageType, payload,0);
             byte[] buffer = message.getBytes();
             DatagramPacket packet = new DatagramPacket(buffer,buffer.length, group, PORT);
