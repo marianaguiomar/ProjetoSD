@@ -58,7 +58,8 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
         } catch (RemoteException e) {
             LOGGER.log(Level.SEVERE, "Exception occurred while initializing Queue: \n" + e.getMessage(), e);
         }
-        this.queueSemaphore = new Semaphore(downloaderManager.getMaxInstances());
+        System.out.println();
+        this.queueSemaphore = new Semaphore( 500);
         System.out.println("[QUEUE#]:   Ready...");
 
     }
@@ -88,6 +89,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
     public String fetchURL() throws InterruptedException, RemoteException {
         block();
         String result = URLQueue.take();
+        unblock();
 
         return result;
     }
@@ -151,7 +153,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
      * @throws RemoteException If a remote communication error occurs.
      */
     public void resetSemaphore() throws RemoteException {
-        this.queueSemaphore.release(downloaderManager.getMaxInstances());
+        this.queueSemaphore.release(500);
     }
     public static void main(String[] args) throws RemoteException {
         if (args.length != 1) {
