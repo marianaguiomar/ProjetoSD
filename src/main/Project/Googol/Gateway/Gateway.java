@@ -62,7 +62,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
      * @param registry RMI registry
      * @param queuePath Queue path
      * @param barrelManagerPort Barrel manager port
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     public Gateway(Registry registry, String queuePath, int barrelManagerPort) throws RemoteException {
         super();
@@ -95,7 +95,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
 
     /**
      * Method that connects the Gateway to a barrel
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     private void connectToBarrel() throws RemoteException {
         if(this.barrelManager.getActiveInstances() == 0){
@@ -131,7 +131,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     /**
      * Method that updates searches performed (by each barrel and in total)
      * @param duration Time it took to perform a search
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     public void updateSearches(long duration) throws RemoteException{
         if (!totalDuration.containsKey(this.barrel.getBarrelNumber())) {
@@ -159,7 +159,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
      * @param pageNumber Page number (each page contains 10 results)
      * @param isIntersectionSearch If true, intersection. If false, union
      * @return Set of 10 websites, according to the requested page
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     public String search(String[] tokens, int pageNumber, boolean isIntersectionSearch) throws RemoteException {
         long startTime = System.currentTimeMillis();
@@ -206,7 +206,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
      * Method that returns the administrator informatin of the system (top10 searches performed,
      * average duration of search per barrel, active barrels
      * @return top10 searches performed, average duration of search per barrel, active barrels
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     public String status() throws RemoteException {
         String topSearches = formatSearches();
@@ -226,7 +226,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     /**
      * Method that inserts a URL in the URLQueue
      * @param URL URL to be inserted
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     public void insert(String URL) throws RemoteException {
         URL = URL.toLowerCase();
@@ -297,7 +297,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
      * Method that gets a Webpages connections, communicating with the barrels
      * @param URL URL
      * @return Webpage's connections
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     public String getConnections(String URL) throws RemoteException {
         URL = URL.toLowerCase();

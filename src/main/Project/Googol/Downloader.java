@@ -102,8 +102,8 @@ public class Downloader implements Runnable {
      * @param confirmationPort Port to receive ACKs
      * @param queuePath Path to queue
      * @param ID Downloader ID
-     * @throws NotBoundException
-     * @throws IOException
+     * @throws NotBoundException Remote object is not bound to the specified name in the registry.
+     * @throws IOException An I/O exception has occurred.
      */
     public Downloader(String multicastAddress, int port, int confirmationPort,
                       String queuePath, int ID) throws NotBoundException, IOException {
@@ -138,7 +138,7 @@ public class Downloader implements Runnable {
     /**
      * Method that returns localhost address
      * @return localhost address
-     * @throws UnknownHostException
+     * @throws UnknownHostException Hostname provided is unknown or could not be resolved.
      */
     private String getMyAddress() throws UnknownHostException {
         InetAddress address = InetAddress.getLocalHost();
@@ -149,7 +149,7 @@ public class Downloader implements Runnable {
      * Method that send MulticastMessages with tokens
      * @param hyperlink hyperlink where the tokens where found
      * @param doc website, from connection to sjoup
-     * @throws IOException
+     * @throws IOException An I/O exception has occurred.
      */
     private void sendTokens(String hyperlink, Document doc) throws IOException {
         StringTokenizer tokens = new StringTokenizer(doc.text());
@@ -179,7 +179,7 @@ public class Downloader implements Runnable {
      * Method that sends MulticastMessages with all URLs referenced in the hyperlink
      * @param hyperlink hyperlink
      * @param doc website, from connection to sjoup
-     * @throws IOException
+     * @throws IOException An I/O exception has occurred.
      */
     private void updateURLs(String hyperlink, Document doc) throws IOException {
         String multicastMessage = "";
@@ -204,8 +204,8 @@ public class Downloader implements Runnable {
 
     /**
      * Method that evaluates if a given URL is valid
-     * @param url
-     * @return
+     * @param url URL
+     * @return True if the URL is valid
      */
     private boolean isValidURL(String url) {
         if (url == null || url.isEmpty() || url.isBlank() || visitedURL.contains(url)) {

@@ -31,7 +31,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
      * Class constructer, attributes are initialized
      * @param port Barrel manager port
      * @param whitelistPath Path to the barrel's whitelist
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     public BarrelManager(int port, String whitelistPath) throws RemoteException {
         super(whitelistPath);
@@ -48,11 +48,12 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
         this.barrelsInterfaces = new HashMap<>();
     }
 
+    //TODO return
     /**
      * Method that performs a lookup if it hasn't been performed. Else, it returns the already looked up barrel
      * @param barrelID
      * @return
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     public BarrelInterface lookupBarrel(int barrelID) throws RemoteException {
         try {
@@ -79,7 +80,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
      * Method that syncronizes a new barrel's remissive index with the others, or sets it up with the info on backup.dat
      * @param barrelID barrel id
      * @return remissive index
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     public RemissiveIndex setRemissiveIndex(int barrelID) throws RemoteException {
         if (activeInstances == 1) {
@@ -110,7 +111,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
     /**
      * Method that returns all available barrels' ids
      * @return all available barrels' ids
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     public LinkedList<Integer> getAvailableBarrelsID() throws RemoteException {
         LinkedList<Integer> result = new LinkedList<>();
@@ -129,7 +130,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
      * @param address barrel's address
      * @param port barrel's port
      * @param ID barrel's id
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     public void removeInstance(String address, int port, int ID) throws RemoteException {
         System.out.println(this.instanceType + ": Removing barrel with ID: " + ID);
@@ -156,7 +157,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
      * Method that returns
      * @param n
      * @return
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     public int getAvailableBarrel(int n) throws RemoteException {
         if (activeInstances == 0)

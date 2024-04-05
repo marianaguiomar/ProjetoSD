@@ -36,7 +36,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
     /**
      * Class constructor, attributes are initialized
      * @param registryQueue Queue RMI registry
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     public Queue(Registry registryQueue) throws RemoteException {
         super();
@@ -52,7 +52,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
     }
 
     /**
-     * Method that adds URL to queue
+     * Method that inserts URL in queue
      * @param URL URL to be added
      */
     public void addURL(String URL) {
@@ -62,7 +62,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
     /**
      * Method that fetches a URL from queue to be analysed by Downloader
      * @return URL from queue
-     * @throws InterruptedException
+     * @throws InterruptedException If the operation is interrupted
      */
     public String fetchURL() throws InterruptedException {
         return this.URLQueue.take();
@@ -74,7 +74,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
      * @param address downloader's address
      * @param port downloader's port
      * @param ID downloader's id
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     @Override
     public void removeInstance(String address, int port, int ID) throws RemoteException {
@@ -88,7 +88,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
      * @param address address of instance
      * @param port port of instance
      * @return true if ID is available
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     @Override
     public boolean verifyID(int ID, String address, int port) throws RemoteException {

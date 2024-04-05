@@ -92,7 +92,7 @@ public abstract class InstanceManager extends UnicastRemoteObject {
      * @param address instance's address
      * @param port instance's port
      * @param ID instance's id
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     protected abstract void removeInstance(String address, int port, int ID) throws RemoteException;
 
@@ -100,7 +100,7 @@ public abstract class InstanceManager extends UnicastRemoteObject {
     /**
      * Class constructer, attributes are initializes
      * @param whitelistPath path to whitelist file
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     protected InstanceManager(String whitelistPath) throws RemoteException {
         this.LOGGER = Logger.getLogger(this.getClass().getName());
@@ -115,7 +115,7 @@ public abstract class InstanceManager extends UnicastRemoteObject {
     /**
      * Method that returns number of active instances
      * @return number of active instances
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     public int getActiveInstances() throws RemoteException {
         //System.out.println("There are " + this.activeInstances + " active instances");
@@ -129,7 +129,7 @@ public abstract class InstanceManager extends UnicastRemoteObject {
      * @param address address of instance
      * @param port port of instance
      * @return true if ID is available
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     public boolean verifyID(int ID, String address, int port) throws RemoteException {
         LinkedList<Integer> linkedList = this.IDs;
