@@ -2,16 +2,14 @@ package Googol.Queue;
 
 import Googol.Manager.BarrelManager.BarrelManager;
 import Googol.Manager.DownloaderManager.DownloaderManager;
-import Googol.Manager.DownloaderManager.DownloaderManagerInterface;
 
 import java.io.Serial;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashSet;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.rmi.registry.Registry;
-import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,7 +30,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
      */
     private final HashSet<String> visitedURL;
 
-    private final Semaphore queueSemaphore;
+    private final QueueSemaphore queueSemaphore;
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -59,7 +57,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
             LOGGER.log(Level.SEVERE, "Exception occurred while initializing Queue: \n" + e.getMessage(), e);
         }
         System.out.println();
-        this.queueSemaphore = new Semaphore( 500);
+        this.queueSemaphore = new QueueSemaphore();
         System.out.println("[QUEUE#]:   Ready...");
 
     }
@@ -89,6 +87,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
     public String fetchURL() throws InterruptedException, RemoteException {
         block();
         String result = URLQueue.take();
+        System.out.println("URL fetched: " + result);
         unblock();
 
         return result;
@@ -121,40 +120,26 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
         return this.downloaderManager.verifyID(ID, address, port);
     }
 
-    /**
-     * Method that blocks the queue
-     * @throws RemoteException If a remote communication error occurs.
-     */
-    public void block() throws RemoteException{
-        try {
-            System.out.println("block");
-            this.queueSemaphore.acquire();
-        } catch (InterruptedException e) {
-            LOGGER.log(Level.SEVERE, "Exception occurred while blocking Queue: \n" + e.getMessage(), e);
-        }
+    @Override
+    public void block() throws RemoteException {
+        this.queueSemaphore.block();
     }
-    /**
-     * Method that unblocks the queue
-     * @throws RemoteException If a remote communication error occurs.
-     */
-    public void unblock() throws RemoteException{
-        System.out.println("unblock");
-        this.queueSemaphore.release(); // Release the permit
+
+    @Override
+    public void unblock() throws RemoteException {
+        this.queueSemaphore.unblock();
     }
-    /**
-     * Method that drains the queue
-     * @throws RemoteException If a remote communication error occurs.
-     */
+
+    @Override
     public void drainSemaphore() throws RemoteException {
-        this.queueSemaphore.drainPermits();
+        this.queueSemaphore.drainSemaphore();
     }
-    /**
-     * Method that resets the queue's semaphore
-     * @throws RemoteException If a remote communication error occurs.
-     */
+
+    @Override
     public void resetSemaphore() throws RemoteException {
-        this.queueSemaphore.release(500);
+        this.queueSemaphore.resetSemaphore();
     }
+
     public static void main(String[] args) throws RemoteException {
         if (args.length != 1) {
             System.out.println("Usage: java Queue <port>");

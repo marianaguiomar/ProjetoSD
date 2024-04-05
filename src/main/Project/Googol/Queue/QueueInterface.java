@@ -6,7 +6,7 @@ import java.rmi.RemoteException;
 /**
  * Interface for QUEUE Class
  */
-public interface QueueInterface extends Remote {
+public interface QueueInterface extends Remote, QueueSemaphoreInterface {
 
     /**
      * Method that inserts URL in queue
