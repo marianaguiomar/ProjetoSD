@@ -1,3 +1,5 @@
+package Googol.Client;
+
 import Googol.Gateway.GatewayInterface;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -52,9 +54,9 @@ public class Client {
     /**
      * Class constructor, attributes are initialized
      * @param gatewayAddress Gateway address
-     * @throws MalformedURLException
-     * @throws RemoteException
-     * @throws NotBoundException
+     * @throws MalformedURLException If the URL is invalid
+     * @throws RemoteException If a remote communication error occurs.
+     * @throws NotBoundException If the object is not bound
      */
     public Client(String gatewayAddress) throws MalformedURLException, RemoteException, NotBoundException {
         this.scanner = new Scanner(System.in);
@@ -84,7 +86,7 @@ public class Client {
     }
 
     /**
-     * Method that performs Client's operations while it's running
+     * Method that performs Googol.Client.Client's operations while it's running
      */
     public void listening(){
         try {
@@ -153,7 +155,7 @@ public class Client {
 
     public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException {
         if (args.length != 2) {
-            System.out.println("Usage: java Client <gatewayIP> <gatewayPort>");
+            System.out.println("Usage: java Googol.Client.Client <gatewayIP> <gatewayPort>");
             System.exit(1);
         }
         String gatewayAddress = "rmi://" + args[0] + ":" + args[1] + "/gateway";

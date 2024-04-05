@@ -1,8 +1,8 @@
 package Googol.Barrel;
-import Googol.Downloader;
+import Googol.Downloader.Downloader;
 import Googol.Manager.BarrelManager.BarrelManagerInterface;
-import Multicast.MulticastMessage;
-import Multicast.Receiver;
+import Googol.Multicast.MulticastMessage;
+import Googol.Multicast.Receiver;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -48,7 +48,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
 
     /**
      * Class constructer, attributes are initialized, RMI connection to BarrelManager (inside Gateway) is established
-     * @param multicastAddress Multicast address
+     * @param multicastAddress Googol.Multicast address
      * @param port             Port for receiving multicast messages.
      * @param confirmationPort Port for sending confirmation messages.
      * @param gatewayAddress   Gateway address and port where the BarrelManager is located
@@ -226,13 +226,13 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
 
     /**
      * Method that performs Barrel's operations while it's running
-     * While the Multicast connection is available, it keeps receiving messages related to a URL's data
+     * While the Googol.Multicast connection is available, it keeps receiving messages related to a URL's data
      * It analyzes that data and inserts it in the Remissive Index
      */
     public void run() {
         try {
             while (multicastAvailable) {
-                //remissiveIndex.printIndexHashMap(barrelNumber);
+                remissiveIndex.printIndexHashMap(barrelNumber);
                 MulticastMessage message = receiver.receiveMessage(barrelManager.getActiveInstances());
                 if(message == null){
                     continue;

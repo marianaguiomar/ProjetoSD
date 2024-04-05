@@ -36,7 +36,7 @@ ERROR HANDLING : DOWNLOADER
 (literalmente no fucking clue what this is, não mandou o downloader abaixo tho)
 - Exception in thread "main" java.lang.IllegalArgumentException: The supplied URL, 'javascript:window.__tcfapi('displayConsentUi', 2, function() {} );', is malformed. 
 Make sure it is an absolute URL, and starts with 'http://' or 'https://'. See https://jsoup.org/cookbook/extracting-data/working-with-urls
-  (isto não deveria ser handled pelo MalformedURLwhatever?) (foi o único destes três que efetivamente fez o Googol.Downloader parar)
+  (isto não deveria ser handled pelo MalformedURLwhatever?) (foi o único destes três que efetivamente fez o Googol.Downloader.Downloader parar)
 
 
 EXTRA:

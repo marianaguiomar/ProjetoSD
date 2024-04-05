@@ -1,4 +1,4 @@
-package Multicast;
+package Googol.Multicast;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -34,7 +34,7 @@ public class Receiver{
     private static final Logger LOGGER = Logger.getLogger(Receiver.class.getName());
 
     /**
-     * Multicast address
+     * Googol.Multicast address
      */
     private final String MULTICAST_ADDRESS;
 
@@ -59,7 +59,7 @@ public class Receiver{
     private MulticastSocket confirmationSocket;
 
     /**
-     * Multicast group
+     * Googol.Multicast group
      */
     InetAddress group;
 
@@ -85,7 +85,7 @@ public class Receiver{
 
     /**
      * Class constructor, attributes are initialized
-     * @param multicastAddress Multicast address.
+     * @param multicastAddress Googol.Multicast address.
      * @param port             Port for receiving multicast messages.
      * @param confirmationPort Port for sending confirmation messages.
      */
@@ -100,7 +100,7 @@ public class Receiver{
      * Method to send ACKS to the sender
      * Each packet sent by the sender contains a unique messageID,
      * and the receiver acknowledges the receipt of each packet individually.
-     * Every confirmation message has the type Multicast.MessageType.CONFIRMATION to distinguish it from other messages.
+     * Every confirmation message has the type Googol.Multicast.MessageType.CONFIRMATION to distinguish it from other messages.
      *
      * @param hyperlink  Hyperlink to be confirmed.
      * @param messageID  ID of the message being confirmed.

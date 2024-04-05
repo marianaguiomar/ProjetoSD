@@ -1,7 +1,7 @@
-package Googol;
+package Googol.Downloader;
 import Googol.Queue.QueueInterface;
-import Multicast.MessageType;
-import Multicast.Sender;
+import Googol.Multicast.MessageType;
+import Googol.Multicast.Sender;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -97,7 +97,7 @@ public class Downloader implements Runnable {
 
     /**
      * Class constructor, attributes are initialized, RMI connection to Queue is initialized
-     * @param multicastAddress Multicast address
+     * @param multicastAddress Googol.Multicast address
      * @param port Port
      * @param confirmationPort Port to receive ACKs
      * @param queuePath Path to queue
@@ -163,13 +163,14 @@ public class Downloader implements Runnable {
             if(token.length()<3){
                 continue;
             }
-            if (exceedsSize(multicastMessage.concat(" ").concat(token), hyperlink) && tokens.hasMoreTokens()) {
+            if (!exceedsSize(multicastMessage.concat(" ").concat(token), hyperlink) && tokens.hasMoreTokens()) {
                 if (!stopwordsSet.contains(token)) {
                     // Append the token to the multicast message
                     multicastMessage = multicastMessage.concat(" ").concat(token.toLowerCase());
                 }
             } else {
                 // Send the multicast message
+                System.out.println("[DOWNLOADER#" + myID + "]:" + "Tokens: " + multicastMessage);
                 sender.sendMessage(hyperlink, multicastMessage, MessageType.TOKENS);
 
                 // Clear the multicast message
@@ -264,7 +265,7 @@ public class Downloader implements Runnable {
                 title = doc.title();
             }
         }
-        //System.out.println("[DOWNLOADER#" + myID + "]:" + "Title: " + title);
+        System.out.println("[DOWNLOADER#" + myID + "]:" + "Title: " + title);
         sender.sendMessage(hyperlink, title, MessageType.TITLE);
     }
 
@@ -299,6 +300,7 @@ public class Downloader implements Runnable {
         else {
             firstParagraphText = "No citation found.";
         }
+        System.out.println("[DOWNLOADER#" + myID + "]:" + "Citation: " + firstParagraphText);
         sender.sendMessage(hyperlink, firstParagraphText, MessageType.CITATION);
     }
 

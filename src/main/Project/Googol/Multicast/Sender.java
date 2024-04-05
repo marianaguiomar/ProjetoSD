@@ -1,4 +1,4 @@
-package Multicast;
+package Googol.Multicast;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -7,7 +7,6 @@ import java.net.MulticastSocket;
 import java.net.SocketTimeoutException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 /* Sender class for handling multicast messages.
@@ -40,7 +39,7 @@ public class Sender {
     private static final Logger LOGGER = Logger.getLogger(Sender.class.getName());
 
     /**
-     * Multicast address
+     * Googol.Multicast address
      */
     private final String MULTICAST_ADDRESS;
 
@@ -65,7 +64,7 @@ public class Sender {
     private final int CONFIRMATION_PORT;
 
     /**
-     * Multicast group
+     * Googol.Multicast group
      */
     InetAddress group;
 
@@ -91,7 +90,7 @@ public class Sender {
     }
     /**
      * Class constructor, attributes are initialized.
-     * @param multicastAddress  Multicast address.
+     * @param multicastAddress  Googol.Multicast address.
      * @param port              Port for sending multicast messages.
      * @param confirmationPort  Port for receiving confirmation messages.
      */
@@ -152,7 +151,7 @@ public class Sender {
 
     /**
      * Sends a multicast message.
-     * Checks if the message isn't empty. Then, it sends the message through Multicast.
+     * Checks if the message isn't empty. Then, it sends the message through Googol.Multicast.
      * Waits for ACKS, if they aren't received, resends the message.
      * @param hyperlink    Hyperlink associated with the message.
      * @param payload      Payload of the message.

@@ -1,4 +1,4 @@
-package Multicast;
+package Googol.Multicast;
 
 import java.io.*;
 import java.util.UUID;
@@ -21,8 +21,8 @@ public record MulticastMessage(String hyperlink, MessageType messageType, String
     }
 
     /**
-     * Prints the message's info
-     * @return
+     * Converts the message to a String
+     * @return String with the message's info to a string
      */
     @Override
     public String toString() {
@@ -75,7 +75,6 @@ public record MulticastMessage(String hyperlink, MessageType messageType, String
             return (MulticastMessage) ois.readObject();
         }
         catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
             return null;
         }
     }

@@ -1,4 +1,4 @@
-package Multicast;
+package Googol.Multicast;
 /**
  * Enum representing different types of multicast messages.
  */
