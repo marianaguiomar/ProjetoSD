@@ -195,11 +195,11 @@ public class Downloader implements Runnable {
             if (isValidURL(newURL)) {
                 this.queue.addURL(newURL);
                 //System.out.println("[DOWNLOADER#" + myID + "]:" + "INSERTING LINK" + "\t" + newURL); // Change here
-                if (multicastMessage.getBytes(StandardCharsets.UTF_8).length + newURL.getBytes(StandardCharsets.UTF_8).length+1 < 700) {
+                if (!exceedsSize(multicastMessage.concat(" ").concat(newURL.toLowerCase()), hyperlink)){
                     multicastMessage = multicastMessage.concat(newURL.toLowerCase()).concat("^");
                 }
                 else {
-                    //System.out.println("[DOWNLOADER#" + myID + "]:" + "Sending multicast message: " + multicastMessage);
+                    System.out.println("[DOWNLOADER#" + myID + "]:" + "Sending multicast message: " + multicastMessage);
                     sender.sendMessage(hyperlink, multicastMessage, MessageType.CONNECTIONS);
                     multicastMessage = "";
                 }

@@ -116,7 +116,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
      */
     public void block() throws RemoteException{
         try {
-            System.out.println("block");
+            //System.out.println("block");
             this.queueSemaphore.acquire();
         } catch (InterruptedException e) {
             LOGGER.log(Level.SEVERE, "Exception occurred while blocking Queue: \n" + e.getMessage(), e);
@@ -127,7 +127,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
      * @throws RemoteException If a remote communication error occurs.
      */
     public void unblock() throws RemoteException{
-        System.out.println("unblock");
+        //System.out.println("unblock");
         this.queueSemaphore.release(); // Release the permit
     }
     public static void main(String[] args) throws RemoteException {

@@ -221,6 +221,11 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
      * @throws RemoteException If a remote communication error occurs.
      */
     public String getConnections(String URL) throws RemoteException{
+        String result = remissiveIndex.getConnections(URL);
+        if(result == null) {
+            System.out.println("[BARREL#" + barrelNumber + "]:" + "   URL not found");
+            return "";
+        }
         return remissiveIndex.getConnections(URL);
     }
 
@@ -232,7 +237,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     public void run() {
         try {
             while (multicastAvailable) {
-                remissiveIndex.printIndexHashMap(barrelNumber);
+                //remissiveIndex.printIndexHashMap(barrelNumber);
                 MulticastMessage message = receiver.receiveMessage(barrelManager.getActiveInstances());
                 if(message == null){
                     continue;

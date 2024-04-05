@@ -127,9 +127,12 @@ public class Client {
                         } catch (NumberFormatException e) {
                             System.out.println("[CLIENT]: Invalid command \n");
                         }
-
                     }
                     case "connections" -> {
+                        if (tokens.length != 2) {
+                            System.out.println("[CLIENT]: Invalid command \n");
+                            break;
+                        }
                         result = this.gateway.getConnections(tokens[1]);
                         System.out.println(result);
                     }

@@ -154,7 +154,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     public String search(String[] tokens, int pageNumber, boolean isIntersectionSearch) throws RemoteException {
         long startTime = System.currentTimeMillis();
         System.out.println("[GATEWAY]: Searching for: " + tokens[0]);
-        WebPage[] webPages = null;
+        WebPage[] webPages;
         try {
             connectToBarrel();
             webPages = barrel.search(tokens, pageNumber, isIntersectionSearch);
@@ -173,7 +173,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
 
         long endTime = System.currentTimeMillis();
         updateSearches(endTime-startTime);
-
+        assert webPages != null;
         StringBuilder result= new StringBuilder(webPages.length + " RESULTADOS PARA A PÁGINA " + pageNumber + "\n");
         for (WebPage webPage : webPages) {
             result.append(webPage.toString()).append("\n");
@@ -294,6 +294,8 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         String result = "Resultado: \n";
         System.out.println("[GATEWAY]: Getting connections for URL: " + URL);
         result = result.concat(barrel.getConnections(URL));
+        if (result.isEmpty())
+            return "No connections found";
         return result;
     }
 
