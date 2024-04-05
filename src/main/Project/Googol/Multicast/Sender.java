@@ -27,9 +27,9 @@ public class Sender {
      * Max size of packet
      */
     private static final int PACKET_SIZE = 1500;
-    private final int  numberOfRetries = 0;
+    private final int  numberOfRetries = 100;
 
-    private final int numberOfMillisToWait = 1;
+    private final int numberOfMillisToWait = 10000;
     /**
      * Timeout duration
      */
