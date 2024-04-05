@@ -57,7 +57,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
             LOGGER.log(Level.SEVERE, "Exception occurred while initializing Queue: \n" + e.getMessage(), e);
         }
         System.out.println();
-        this.queueSemaphore = new QueueSemaphore();
+        this.queueSemaphore = new QueueSemaphore(this.downloaderManager.getMaxInstances());
         System.out.println("[QUEUE#]:   Ready...");
 
     }
@@ -79,10 +79,9 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
      * @throws InterruptedException If the operation is interrupted
      */
     public String fetchURL() throws InterruptedException, RemoteException {
-        String result = URLQueue.take();
         block();
         unblock();
-
+        String result = URLQueue.take();
         return result;
     }
 

@@ -28,10 +28,12 @@ public class Sender {
      */
     private static final int PACKET_SIZE = 1500;
     private final int  numberOfRetries = 0;
+
+    private final int numberOfMillisToWait = 1;
     /**
      * Timeout duration
      */
-    private static final Duration timeoutDuration = Duration.ofMillis(1);
+    private final Duration timeoutDuration;
 
     /**
      * Logger to print error messages
@@ -80,7 +82,7 @@ public class Sender {
 
             this.confirmationSocket = new MulticastSocket(this.CONFIRMATION_PORT);
             this.confirmationSocket.joinGroup(group);
-            this.confirmationSocket.setSoTimeout(1); // Timeout in milliseconds
+            this.confirmationSocket.setSoTimeout(this.numberOfMillisToWait); // Timeout in milliseconds
 
         }
         catch (IOException | SecurityException | IllegalArgumentException e) {
@@ -98,6 +100,7 @@ public class Sender {
         this.MULTICAST_ADDRESS = multicastAddress;
         this.PORT = port;
         this.CONFIRMATION_PORT = confirmationPort;
+        this.timeoutDuration =  Duration.ofMillis(numberOfMillisToWait);
         initializeSenderSockets();
     }
 

@@ -6,15 +6,20 @@ import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 
 public class QueueSemaphore implements Serializable {
-    private final Semaphore queueSemaphore = new Semaphore(100); // Initialize with one permit
+    private final Semaphore queueSemaphore;
+    private final int initialPermits;
 
+
+    public QueueSemaphore(int permits){
+        this.queueSemaphore = new Semaphore(permits);
+        this.initialPermits = permits;
+    }
     /**
      * Method that blocks the queue
      * @throws RemoteException If a remote communication error occurs.
      */
     public void block() throws RemoteException{
         try {
-            System.out.println("block");
             this.queueSemaphore.acquire();
         } catch (InterruptedException e) {
             return;
@@ -25,7 +30,6 @@ public class QueueSemaphore implements Serializable {
      * @throws RemoteException If a remote communication error occurs.
      */
     public void unblock() throws RemoteException{
-        System.out.println("unblock");
         this.queueSemaphore.release(); // Release the permit
     }
     /**
@@ -40,6 +44,6 @@ public class QueueSemaphore implements Serializable {
      * @throws RemoteException If a remote communication error occurs.
      */
     public void resetSemaphore() throws RemoteException {
-        this.queueSemaphore.release(500);
+        this.queueSemaphore.release(this.initialPermits);
     }
 }
