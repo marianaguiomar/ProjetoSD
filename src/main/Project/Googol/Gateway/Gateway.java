@@ -44,7 +44,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     /**
      * Hash map that keeps the total duration of searches performed by a barrel
      */
-    private final HashMap<Integer,Long> totalDuration;
+    private final HashMap<Integer,Double> totalDuration;
 
     /**
      * Hash map that keeps the number of searches performed by a barrel
@@ -123,22 +123,21 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
      * @param duration Time it took to perform a search
      * @throws RemoteException If a remote communication error occurs.
      */
-    public void updateSearches(long duration) throws RemoteException{
+    public void updateSearches(double duration) throws RemoteException{
         if (!totalDuration.containsKey(this.barrel.getBarrelNumber())) {
             totalDuration.put(this.barrel.getBarrelNumber(), duration);
         }
         else {
-            long currDuration = totalDuration.get(this.barrel.getBarrelNumber());
-            long updatedDuration = currDuration + duration;
+            double currDuration = totalDuration.get(this.barrel.getBarrelNumber());
+            double updatedDuration = currDuration + duration;
             totalDuration.put(this.barrel.getBarrelNumber(), updatedDuration);
         }
-
         if (!numSearches.containsKey(this.barrel.getBarrelNumber())) {
             numSearches.put(this.barrel.getBarrelNumber(), 1);
         }
         else {
-            long currSearches = numSearches.get(this.barrel.getBarrelNumber());
-            long updatedSearches = currSearches + 1;
+            double currSearches = numSearches.get(this.barrel.getBarrelNumber());
+            double updatedSearches = currSearches + 1;
             totalDuration.put(this.barrel.getBarrelNumber(), updatedSearches);
         }
     }
@@ -276,8 +275,8 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         StringBuilder result = new StringBuilder();
         result.append("AVERAGE SEARCH TIME: \n");
         for (Integer barrel: totalDuration.keySet()) {
-            long averageDuration = totalDuration.get(barrel) / numSearches.get(barrel);
-            result.append("BARREL#").append(barrel).append(": ").append(averageDuration).append(" ms.\n");
+            double averageDuration = totalDuration.get(barrel) * 0.01 / numSearches.get(barrel);
+            result.append("BARREL#").append(barrel).append(": ").append(averageDuration).append("\n");
         }
 
         return result.toString();

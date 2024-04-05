@@ -175,7 +175,6 @@ public class Sender {
             // Keep sending package until confirmation is received
             int counter = 0;
             while (!waitForConfirmation(message.messageID()) && counter <= numberOfRetries){
-                System.out.println("im here");
                 socket.send(packet);
                 counter++;
             }
