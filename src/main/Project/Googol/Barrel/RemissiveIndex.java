@@ -64,7 +64,7 @@ public class RemissiveIndex implements Serializable {
     }
 
     /**
-     * Method that finds the Webpages that contain all of the given tokens in the Remissive Index
+     * Method that finds the Webpages that contain all the given tokens in the Remissive Index
      * @param tokens Token to search for
      * @return List of Webpages
      */
