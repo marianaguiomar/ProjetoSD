@@ -81,8 +81,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
     public String fetchURL() throws InterruptedException, RemoteException {
         block();
         unblock();
-        String result = URLQueue.take();
-        return result;
+        return URLQueue.take();
     }
 
     /**

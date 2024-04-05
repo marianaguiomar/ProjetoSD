@@ -139,7 +139,7 @@ public abstract class InstanceManager extends UnicastRemoteObject {
         this.addresses.put(ID, address);
         this.ports.put(ID, port);
         this.activeInstances++;
-        String objectType = this.getClass().getName().equals("Googol.Manager.BarrelManager.BarrelManager") ? "DOWNLOADER#" : "BARREL#";
+        String objectType = this.getClass().getName().equals("Googol.Manager.BarrelManager.BarrelManager") ? "BARREL#" : "DOWNLOADER#";
         System.out.println(this.instanceType + ": "+ objectType + ID + " connected with address " + address + ":"
                 + port);
         return true;

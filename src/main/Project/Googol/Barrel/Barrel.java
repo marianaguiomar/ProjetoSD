@@ -6,6 +6,7 @@ import Googol.Multicast.Receiver;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.rmi.ConnectException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -15,6 +16,8 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static java.lang.Thread.sleep;
 
 /**
  * Class that handles barrels
@@ -57,7 +60,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
      * @throws IOException If the operation is interrupted
      * @throws NotBoundException Remote object is not bound to the specified name in the registry.
      */
-    public Barrel(String multicastAddress, int port, int confirmationPort, String gatewayAddress, int barrelNumber, int barrelPort) throws IOException, NotBoundException {
+    public Barrel(String multicastAddress, int port, int confirmationPort, String gatewayAddress, int barrelNumber, int barrelPort) throws IOException, NotBoundException, InterruptedException {
         this.barrelNumber = barrelNumber;
         this.barrelPort = barrelPort;
         try {
@@ -69,7 +72,16 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
             exit();
         }
         String registryAddress = getMyAddress();
-        this.barrelManager = (BarrelManagerInterface) Naming.lookup(gatewayAddress);
+        try {
+
+
+            this.barrelManager = (BarrelManagerInterface) Naming.lookup(gatewayAddress);
+        }
+        catch (ConnectException e) {
+            sleep(5);
+            this.barrelManager = (BarrelManagerInterface) Naming.lookup(gatewayAddress);
+        }
+
         if(!this.barrelManager.verifyID(this.barrelNumber,registryAddress, this.barrelPort)){
             System.out.println("[BARREL#" + barrelNumber + "]:" + "   Barrel ID is not valid. Exiting...");
             System.exit(1);
@@ -286,7 +298,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
             String gatewayAdress = "rmi://" + args[3] + ":" + args[4] + "/gateway";
             Barrel barrel = new Barrel( args[0],  Integer.parseInt(args[1]),Integer.parseInt(args[2]), gatewayAdress, Integer.parseInt(args[5]), Integer.parseInt(args[6]));
             barrel.run();
-        } catch (RemoteException | NotBoundException e) {
+        } catch (RemoteException | NotBoundException | InterruptedException e) {
             LOGGER.log(Level.SEVERE, "Error\n"+ e.getMessage(), e);
         }
     }

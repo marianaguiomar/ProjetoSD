@@ -171,7 +171,8 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         System.out.println("[GATEWAY]: Search done");
 
         long endTime = System.currentTimeMillis();
-        updateSearches(endTime-startTime);
+        System.out.println(endTime + " " + startTime + " " + (endTime-startTime));
+        updateSearches((double) endTime-startTime);
         assert webPages != null;
         StringBuilder result= new StringBuilder(webPages.length + " RESULTADOS PARA A PÁGINA " + pageNumber + "\n");
         for (WebPage webPage : webPages) {
@@ -275,7 +276,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         StringBuilder result = new StringBuilder();
         result.append("AVERAGE SEARCH TIME: \n");
         for (Integer barrel: totalDuration.keySet()) {
-            double averageDuration = totalDuration.get(barrel) * 0.01 / numSearches.get(barrel);
+            double averageDuration = (totalDuration.get(barrel)  / (double) numSearches.get(barrel)) * 0.01;
             result.append("BARREL#").append(barrel).append(": ").append(averageDuration).append("\n");
         }
 
