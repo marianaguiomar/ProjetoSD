@@ -40,7 +40,6 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
      */
     private static final Logger LOGGER = Logger.getLogger(BarrelManager.class.getName());
 
-    //TODO -> RMI
     /**
      * Class constructor, attributes are initialized
      * @param registryQueue Queue RMI registry
@@ -97,9 +96,9 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
         this.downloaderManager.removeInstance(address, port, ID);
     }
 
-    //TODO -> ??
     /**
-     * Method that verifies if a given ID is available. If true, adds the instance to all lists
+     * Method that communicates with downlaodManager in gateway
+     *  to verify if a given ID is available. If true, adds the instance to all lists
      * @param ID id to verify
      * @param address address of instance
      * @param port port of instance
@@ -111,6 +110,10 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
         return this.downloaderManager.verifyID(ID, address, port);
     }
 
+    /**
+     * Method that blocks the queue
+     * @throws RemoteException If a remote communication error occurs.
+     */
     public void block() throws RemoteException{
         try {
             System.out.println("block");
@@ -119,7 +122,10 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
             LOGGER.log(Level.SEVERE, "Exception occurred while blocking Queue: \n" + e.getMessage(), e);
         }
     }
-
+    /**
+     * Method that unblocks the queue
+     * @throws RemoteException If a remote communication error occurs.
+     */
     public void unblock() throws RemoteException{
         System.out.println("unblock");
         this.queueSemaphore.release(); // Release the permit

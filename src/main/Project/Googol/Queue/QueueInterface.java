@@ -31,7 +31,6 @@ public interface QueueInterface extends Remote {
      */
     void removeInstance(String address, int port, int ID) throws RemoteException;
 
-    //TODO -> ??
     /**
      * Method that verifies if a given ID is available. If true, adds the instance to all lists
      * @param ID id to verify
@@ -41,8 +40,14 @@ public interface QueueInterface extends Remote {
      * @throws RemoteException If a remote communication error occurs.
      */
     boolean verifyID(int ID, String address, int port) throws RemoteException;
-
+    /**
+     * Method that blocks the queue
+     * @throws RemoteException If a remote communication error occurs.
+     */
     void block() throws RemoteException;
-
+    /**
+     * Method that unblocks the queue
+     * @throws RemoteException If a remote communication error occurs.
+     */
     void unblock() throws RemoteException;
 }
