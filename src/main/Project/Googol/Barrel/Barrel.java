@@ -47,6 +47,8 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     /**
      * Returns true if multicast is available
      */
+
+    public int activeInstances;
     boolean multicastAvailable = true; // Initially assume multicast group is available
 
     /**
@@ -89,6 +91,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         this.remissiveIndex = barrelManager.setRemissiveIndex(this.barrelNumber);
         Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
         this.receiver = new Receiver(multicastAddress, port, confirmationPort);
+        startActiveInstancesUpdater(); // Thread to look for active instances
         System.out.println("[BARREL#" + barrelNumber + "]:" + "   Ready...");
     }
 
@@ -250,7 +253,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         try {
             while (multicastAvailable) {
                 //remissiveIndex.printIndexHashMap(barrelNumber);
-                MulticastMessage message = receiver.receiveMessage(barrelManager.getActiveInstances());
+                MulticastMessage message = receiver.receiveMessage(activeInstances);
                 if(message == null){
                     continue;
                 }
@@ -287,6 +290,25 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         catch(RemoteException | UnknownHostException e){
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
         }
+    }
+    public class ActiveInstancesFetcher extends TimerTask {
+        @Override
+        public void run() {
+            try {
+                activeInstances = barrelManager.getActiveInstances();
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    // Método para iniciar a thread
+    public void startActiveInstancesUpdater() {
+        Timer timer = new Timer();
+        // Definir o intervalo para 3 minutos (3 * 60 * 1000 milissegundos)
+        long interval = 3 * 60 * 1000;
+        // Agendar a tarefa para executar a cada 3 minutos
+        timer.scheduleAtFixedRate(new ActiveInstancesFetcher(), 0, interval);
     }
 
     public static void main(String[] args) throws IOException {

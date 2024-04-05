@@ -25,7 +25,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
     private final HashMap<Integer, BarrelInterface> barrelsInterfaces;
 
     /**
-     * Path to backup file
+     * Path to back up file
      */
     private final String backupPath;
 
@@ -44,7 +44,6 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
         try {
             Registry registry = LocateRegistry.createRegistry(port);
             registry.rebind("gateway", this);
-            System.out.println(this.instanceType + ":   " + "rmi://localhost:" + port + "/gateway");
             System.out.println(this.instanceType + ":   Ready...");
         } catch (RemoteException e) {
             LOGGER.log(Level.SEVERE, "Exception occurred while initializing ProjectManager: " + e.getMessage(), e);
