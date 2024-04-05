@@ -174,7 +174,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
      * @param tokens Tokens to search for in the RemissiveIndex's keyset
      * @param pageNumber Page number (each page contains 10 results)
      * @param intersection If true, returns only pages that contain all tokens. If false, returns only pages that contain each token
-     * @return Set of 10 websites, according to the requested page
+     * @return Array of 10 websites, according to the requested page
      * @throws RemoteException If a remote communication error occurs.
      */
     public WebPage[] search(String[] tokens, Integer pageNumber, boolean intersection) throws RemoteException{
