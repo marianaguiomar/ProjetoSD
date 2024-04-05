@@ -80,6 +80,7 @@ public class Sender {
 
             this.confirmationSocket = new MulticastSocket(this.CONFIRMATION_PORT);
             this.confirmationSocket.joinGroup(group);
+            this.confirmationSocket.setSoTimeout(1); // Timeout in milliseconds
 
         }
         catch (IOException | SecurityException | IllegalArgumentException e) {
