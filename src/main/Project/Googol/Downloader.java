@@ -49,11 +49,7 @@ public class Downloader implements Runnable {
      */
     private final Integer myID;
 
-    /**
-     * Set of URL that have been visited
-     */
-    //TODO -> diferente entre downloader diferentes
-    private final HashSet<String> visitedURL;
+
 
     /**
      * Stopwords that won't be sent as tokens to the barrels
@@ -117,7 +113,7 @@ public class Downloader implements Runnable {
         }
         this.sender = new Sender(multicastAddress, port,  confirmationPort);
         this.stopwordsSet = new HashSet<>(Arrays.asList(stopwords));
-        this.visitedURL = new HashSet<>();
+
         System.out.println("[DOWNLOADER#" + myID + "]:" + "   Ready...");
         Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
     }
@@ -194,7 +190,6 @@ public class Downloader implements Runnable {
         for (Element link : links) {
             String newURL = link.attr("abs:href");
             if (isValidURL(newURL)) {
-                visitedURL.add(newURL);
                 this.queue.addURL(newURL);
                 //System.out.println("[DOWNLOADER#" + myID + "]:" + "INSERTING LINK" + "\t" + newURL); // Change here
                 if (multicastMessage.getBytes(StandardCharsets.UTF_8).length + newURL.getBytes(StandardCharsets.UTF_8).length+1 < 700) {
@@ -216,7 +211,7 @@ public class Downloader implements Runnable {
      * @return True if the URL is valid
      */
     private boolean isValidURL(String url) {
-        if (url == null || url.isEmpty() || url.isBlank() || visitedURL.contains(url)) {
+        if (url == null || url.isEmpty() || url.isBlank()) {
             return false;
         }
         try {

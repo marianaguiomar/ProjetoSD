@@ -6,6 +6,7 @@ import java.io.Serial;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashSet;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.rmi.registry.Registry;
 import java.util.logging.Level;
@@ -23,6 +24,10 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
      * Download manager
      */
     DownloaderManager downloaderManager;
+    /**
+     * Set of URL that have been visited
+     */
+    private final HashSet<String> visitedURL;
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -40,6 +45,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
      */
     public Queue(Registry registryQueue) throws RemoteException {
         super();
+        this.visitedURL = new HashSet<>();
         this.URLQueue = new LinkedBlockingQueue<>();
         downloaderManager = new DownloaderManager("./src/main/Project/Googol/Manager/DownloaderManager/whitelist");
         try {
@@ -52,11 +58,14 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
     }
 
     /**
-     * Method that inserts URL in queue
+     * Method that verifies if URL was visited already, and then inserts URL in queue
      * @param URL URL to be added
      */
     public void addURL(String URL) {
-        this.URLQueue.add(URL);
+        if(!visitedURL.contains(URL)) {
+            visitedURL.add(URL);
+            this.URLQueue.add(URL);
+        }
     }
 
     /**
