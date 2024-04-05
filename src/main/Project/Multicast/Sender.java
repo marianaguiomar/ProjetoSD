@@ -72,6 +72,7 @@ public class Sender {
     /**
      * Initializes the sender sockets.
      */
+    //TODO -> explicar socjets
     private void initializeSenderSockets(){
         try {
             this.socket = new MulticastSocket();
@@ -102,6 +103,9 @@ public class Sender {
 
     /**
      * Waits for confirmation from the receiver.
+     * Checks if ACKS are received within the defined timeout
+     * Check if the number of ACKS of a message received are the same as the number of active barrels
+     * Checks if message type is CONFIRMATION and the payload equals the ID of the message that was sent
      * @param sentMessageID ID of the message sent.
      * @return True if confirmation received within timeout, false otherwise.
      */
@@ -110,6 +114,7 @@ public class Sender {
         Duration elapsedTime;
         try{
             int packCounter = 0;
+            //todo -> not 2
             int activeBarrels = 2;
             // Wait for confirmation message during timeout period
             do{
@@ -144,8 +149,11 @@ public class Sender {
             return false;
         }
     }
+
     /**
      * Sends a multicast message.
+     * Checks if the message isn't empty. Then, it sends the message through Multicast.
+     * Waits for ACKS, if they aren't received, resends the message.
      * @param hyperlink    Hyperlink associated with the message.
      * @param payload      Payload of the message.
      * @param messageType  Type of the message.
@@ -157,6 +165,7 @@ public class Sender {
             return; // Exit the method if the message is empty
         }
         try{
+            //TODO active barrels = 0
             MulticastMessage message = new MulticastMessage(hyperlink, messageType, payload,0);
             byte[] buffer = message.getBytes();
             DatagramPacket packet = new DatagramPacket(buffer,buffer.length, group, PORT);

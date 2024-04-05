@@ -47,15 +47,16 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     boolean multicastAvailable = true; // Initially assume multicast group is available
 
     /**
-     * Class constructer, attributes are initialized
+     * //TODO -> gateway ou barrelmanager?
+     * Class constructer, attributes are initialized, RMI connection to BarrelManager (inside Gateway) is established
      * @param multicastAddress Multicast address
      * @param port             Port for receiving multicast messages.
      * @param confirmationPort Port for sending confirmation messages.
      * @param gatewayAddress   Gateway address
      * @param barrelNumber     Barrel number (id)
      * @param barrelPort       Barrel port
-     * @throws IOException
-     * @throws NotBoundException
+     * @throws IOException If the operation is interrupted
+     * @throws NotBoundException Remote object is not bound to the specified name in the registry.
      */
     public Barrel(String multicastAddress, int port, int confirmationPort, String gatewayAddress, int barrelNumber, int barrelPort) throws IOException, NotBoundException {
         this.barrelNumber = barrelNumber;
@@ -80,12 +81,15 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         System.out.println("[BARREL#" + barrelNumber + "]:" + "   Ready...");
     }
 
+    /**
+     * Logger to print error messages
+     */
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
 
     /**
      * Method that returns the Barrel number (id)
      * @return Barrel Number
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     public int getBarrelNumber() throws RemoteException {
         return this.barrelNumber;
@@ -94,7 +98,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     /**
      * Method that returns localhost address
      * @return localhost address
-     * @throws UnknownHostException
+     * @throws UnknownHostException Hostname provided is unknown or could not be resolved.
      */
     private String getMyAddress() throws UnknownHostException {
         InetAddress address = InetAddress.getLocalHost();
@@ -102,7 +106,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     }
 
     /**
-     * Method that receives MulticastMessage of CITATION type and inserts them in its hyperlink's position in the remissive index
+     * Method that receives MulticastMessage of CITATION type and inserts it in its hyperlink's position in the remissive index
      * @param message MulticastMessage of CITATION type
      */
     private void receiveCitation(MulticastMessage message) {
@@ -112,7 +116,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     }
 
     /**
-     * Method that receives MulticastMessage of TITLE type and inserts them in its hyperlink's position in the remissive index
+     * Method that receives MulticastMessage of TITLE type and inserts it in its hyperlink's position in the remissive index
      * @param message MulticastMessage of TITLE type
      */
     private void receiveTitle(MulticastMessage message) {
@@ -158,7 +162,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     /**
      * Method that returns this barrel's RemissiveIndex
      * @return RemissiveIndex
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     public RemissiveIndex getRemissiveIndex() throws RemoteException{
         System.out.println("[BARREL#" + barrelNumber + "]:" + "   Returning remissive index");
@@ -167,11 +171,12 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
 
     /**
      * Method that performs a search based on given tokens and returns the websites that contain them
+     * After Webpages are found, they are ordered
      * @param tokens Tokens to search for in the RemissiveIndex's keyset
      * @param pageNumber Page number (each page contains 10 results)
      * @param intersection If true, returns only pages that contain all tokens. If false, returns only pages that contain each token
      * @return Set of 10 websites, according to the requested page
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     public WebPage[] search(String[] tokens, Integer pageNumber, boolean intersection) throws RemoteException{
         LinkedList<WebPage> result;
@@ -214,7 +219,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
      * Method that returns a given Webpage's connections
      * @param URL Webpage
      * @return number of connections
-     * @throws RemoteException
+     * @throws RemoteException If a remote communication error occurs.
      */
     public String getConnections(String URL) throws RemoteException{
         return remissiveIndex.getConnections(URL);
@@ -222,6 +227,8 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
 
     /**
      * Method that performs Barrel's operations while it's running
+     * While the Multicast connection is available, it keeps receiving messages related to a URL's data
+     * It analyzes that data and inserts it in the Remissive Index
      */
     public void run() {
         try {
@@ -253,8 +260,10 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     }
 
     /**
-     * Method that has BarralManager remove this barrel from the list of active barrels when it stops running
+     * Method called when Barrel stops running
+     * It has BarrelManager remove this downloader from the list of active barrels when it stops running
      */
+
     private void exit() {
         try {
             this.barrelManager.removeInstance(getMyAddress(), this.barrelPort,this.barrelNumber);

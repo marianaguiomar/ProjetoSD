@@ -95,10 +95,9 @@ public class Receiver{
     }
 
     /**
-     * Method to send acknowledgment (confirmation) to the sender
-     * Each packet sent by the sender contains a sequence number,
+     * Method to send ACKS to the sender
+     * Each packet sent by the sender contains a unique messageID,
      * and the receiver acknowledges the receipt of each packet individually.
-     * The sequence number is the MessageID, which is unique for each message.
      * Every confirmation message has the type Multicast.MessageType.CONFIRMATION to distinguish it from other messages.
      *
      * @param hyperlink  Hyperlink to be confirmed.
@@ -124,6 +123,8 @@ public class Receiver{
     }
     /**
      * Receives a multicast message.
+     * Checks if message isn't null.
+     * Sends an ACK
      * @return Received multicast message.
      */
     public MulticastMessage receiveMessage(int activeBarrels){

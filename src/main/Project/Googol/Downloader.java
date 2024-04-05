@@ -52,6 +52,7 @@ public class Downloader implements Runnable {
     /**
      * Set of URL that have been visited
      */
+    //TODO -> diferente entre downloader diferentes
     private final HashSet<String> visitedURL;
 
     /**
@@ -96,7 +97,7 @@ public class Downloader implements Runnable {
 
 
     /**
-     * Class constructor, attributes are initialized
+     * Class constructor, attributes are initialized, RMI connection to Queue is initialized
      * @param multicastAddress Multicast address
      * @param port Port
      * @param confirmationPort Port to receive ACKs
@@ -122,7 +123,8 @@ public class Downloader implements Runnable {
     }
 
     /**
-     * Method that has queue remove this downloader from the list of active downloaders when it stops running
+     * Method called when Downloader stops running
+     * It has Queue remove this downloader from the list of active downloaders when it stops running
      */
     private void exit() {
         try {
@@ -135,6 +137,7 @@ public class Downloader implements Runnable {
         }
     }
 
+    //TODO check
     /**
      * Method that returns localhost address
      * @return localhost address
@@ -147,8 +150,10 @@ public class Downloader implements Runnable {
 
     /**
      * Method that send MulticastMessages with tokens
-     * @param hyperlink hyperlink where the tokens where found
-     * @param doc website, from connection to sjoup
+     * It removes all invalid characters and all tokens whose lenght is 2 or less
+     * If the total size of all tokens is bigger than the max size of a MulticastMessage, it separates them in two or more messages
+     * @param hyperlink hyperlink where the tokens were found
+     * @param doc website, from connection to jsoup
      * @throws IOException An I/O exception has occurred.
      */
     private void sendTokens(String hyperlink, Document doc) throws IOException {
@@ -177,8 +182,10 @@ public class Downloader implements Runnable {
 
     /**
      * Method that sends MulticastMessages with all URLs referenced in the hyperlink
+     * Checks if URL is valid. If it is, it's added to the Queue and sent amongst others in a MulticastMessage
+     * If the total size of all URLs is bigger than the max size of a MulticastMessage, it separates them in two or more messages
      * @param hyperlink hyperlink
-     * @param doc website, from connection to sjoup
+     * @param doc website, from connection to jsoup
      * @throws IOException An I/O exception has occurred.
      */
     private void updateURLs(String hyperlink, Document doc) throws IOException {
@@ -204,6 +211,7 @@ public class Downloader implements Runnable {
 
     /**
      * Method that evaluates if a given URL is valid
+     * Checks if it isn't empty and if it hasn't already been visited by any Downloader
      * @param url URL
      * @return True if the URL is valid
      */
@@ -222,7 +230,7 @@ public class Downloader implements Runnable {
     /**
      * Method that sends a MulticastMessage with the title
      * @param hyperlink hyperlink
-     * @param doc website, from connection to sjoup
+     * @param doc website, from connection to jsoup
      */
     private void sendTitle(String hyperlink, Document doc){
         //verificar se há titulo
@@ -235,6 +243,7 @@ public class Downloader implements Runnable {
                 // Calculate the remaining space for the text
                 int remainingSpace = 700 - hyperlink.getBytes(StandardCharsets.UTF_8).length - 3;
 
+                //TODO -> is this necessary
                 // Get the substring of the first paragraph text to fit the remaining space
                 String truncatedText = new String(
                         doc.title().getBytes(StandardCharsets.UTF_8),
@@ -256,7 +265,7 @@ public class Downloader implements Runnable {
     /**
      * Method that sends a MulticastMessage with the citation
      * @param hyperlink hyperlink
-     * @param doc website, from connection to sjoup
+     * @param doc website, from connection to jsoup
      */
     private void sendCitation(String hyperlink, Document doc){
         //verificar se existe um firstParagraph
@@ -289,6 +298,7 @@ public class Downloader implements Runnable {
 
     /**
      * Method that performs Downloader's operations while it's running
+     * Connects to JSOUP so it can get data websites
      */
     public void run() {
         while (queueExists) {
