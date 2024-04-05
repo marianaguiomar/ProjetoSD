@@ -47,12 +47,11 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     boolean multicastAvailable = true; // Initially assume multicast group is available
 
     /**
-     * //TODO -> gateway ou barrelmanager?
      * Class constructer, attributes are initialized, RMI connection to BarrelManager (inside Gateway) is established
      * @param multicastAddress Multicast address
      * @param port             Port for receiving multicast messages.
      * @param confirmationPort Port for sending confirmation messages.
-     * @param gatewayAddress   Gateway address
+     * @param gatewayAddress   Gateway address where BarrelManager is located
      * @param barrelNumber     Barrel number (id)
      * @param barrelPort       Barrel port
      * @throws IOException If the operation is interrupted
