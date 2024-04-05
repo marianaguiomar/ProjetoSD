@@ -133,13 +133,14 @@ public abstract class InstanceManager extends UnicastRemoteObject {
         if (!linkedList.contains(ID)) {
             return false;
         }
-        if (isWorking.get(ID))
+        if (this.isWorking.get(ID))
             return false;
-        isWorking.put(ID, true);
-        addresses.put(ID, address);
-        ports.put(ID, port);
-        activeInstances++;
+        this.isWorking.put(ID, true);
+        this.addresses.put(ID, address);
+        this.ports.put(ID, port);
+        this.activeInstances++;
         String objectType = this.getClass().getName().equals("DownloaderManager") ? "DOWNLOADER#" : "BARREL#";
+        System.out.println(this.getClass().getName());
         System.out.println(this.instanceType + ": "+ objectType + ID + " connected with address " + address + ":"
                 + port);
         return true;

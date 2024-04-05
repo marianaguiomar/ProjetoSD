@@ -69,6 +69,12 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
      */
     public void addURL(String URL) {
         if(!visitedURL.contains(URL)) {
+            try {
+                unblock();
+            }
+            catch (RemoteException e) {
+                LOGGER.log(Level.SEVERE, "Exception occurred while adding URL: \n" + e.getMessage(), e);
+            }
             visitedURL.add(URL);
             this.URLQueue.add(URL);
         }
@@ -82,7 +88,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
     public String fetchURL() throws InterruptedException, RemoteException {
         block();
         String result = URLQueue.take();
-        unblock();
+
         return result;
     }
 
