@@ -171,6 +171,7 @@ public class Sender {
             //System.out.println("Sent message" + message);
             // Keep sending package until confirmation is received
             while (!waitForConfirmation(message.messageID())){
+                System.out.println("im here");
                 socket.send(packet);
             }
         }

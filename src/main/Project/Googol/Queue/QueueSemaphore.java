@@ -6,7 +6,7 @@ import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 
 public class QueueSemaphore implements Serializable {
-    private final Semaphore queueSemaphore = new Semaphore(1); // Initialize with one permit
+    private final Semaphore queueSemaphore = new Semaphore(100); // Initialize with one permit
 
     /**
      * Method that blocks the queue
