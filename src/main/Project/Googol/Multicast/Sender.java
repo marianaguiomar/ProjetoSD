@@ -30,11 +30,11 @@ public class Sender {
     /**
      * Number of retries to send multicast message after failed confirmation
      */
-    private final int  numberOfRetries = 100;
+    private final int  numberOfRetries = 0;
     /**
      * Number of milliseconds to wait for confirmation in each try
      */
-    private final int numberOfMillisToWait = 10000;
+    private final int numberOfMillisToWait = 1;
     /**
      * Timeout duration
      */

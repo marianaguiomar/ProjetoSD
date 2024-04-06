@@ -1,0 +1,745 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="f5a21401-640e-4ea2-94af-796cf83a0793" name="Changes" comment="help">
+      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Multicast/Sender.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Multicast/Sender.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Enum" />
+        <option value="Class" />
+        <option value="Interface" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Merge.Settings">
+    <option name="BRANCH" value="origin/fix-hashset" />
+  </component>
+  <component name="Git.Rebase.Settings">
+    <option name="NEW_BASE" value="origin/main" />
+  </component>
+  <component name="Git.Settings">
+    <option name="PUSH_AUTO_UPDATE" value="true" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="HARD" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;SauloJoseMendes&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">
+    <option name="selectedUrlAndAccountId">
+      <UrlAndAccount>
+        <option name="accountId" value="b3ea5886-f79b-4e8e-a54a-032fd25e6199" />
+        <option name="url" value="https://github.com/marianaguiomar/ProjetoSD.git" />
+      </UrlAndAccount>
+    </option>
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/src/main/java/Downloader.java" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+    <option name="showPreview" value="true" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="2duHocBlAhqUtMFhp7zLx0wrEwN" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;Application.Barrel 2.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Barrel.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Barrel3.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Barrel4.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Barrel5.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Client.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Downloader.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Downloader2.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Downloader3.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Gateway.executor&quot;: &quot;Run&quot;,
+    &quot;Application.ProjectManager.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Queue.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Start.executor&quot;: &quot;Run&quot;,
+    &quot;JAR Application.jsoup-1.17.2.jar.executor&quot;: &quot;Run&quot;,
+    &quot;Multirun.Googol.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/sjmendes/IdeaProjects/ProjetoSD&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/tests" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Multirun.Googol">
+    <configuration name="Barrel 2" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Googol.Barrel.Barrel" />
+      <module name="ProjetoSD" />
+      <option name="PROGRAM_PARAMETERS" value="224.0.0.1 4321 4322 localhost 4320 2 4442" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Barrel" type="Application" factoryName="Application" singleton="false">
+      <option name="MAIN_CLASS_NAME" value="Googol.Barrel.Barrel" />
+      <module name="ProjetoSD" />
+      <option name="PROGRAM_PARAMETERS" value="224.0.0.1 4321 4322 localhost 4320 1 4441" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Barrel3" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Googol.Barrel.Barrel" />
+      <module name="ProjetoSD" />
+      <option name="PROGRAM_PARAMETERS" value="224.0.0.1 4321 4322 localhost 4320 3 4443" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Barrel4" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Googol.Barrel.Barrel" />
+      <module name="ProjetoSD" />
+      <option name="PROGRAM_PARAMETERS" value="224.0.0.1 4321 4322 localhost 4320 4 4444" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Barrel5" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Googol.Barrel.Barrel" />
+      <module name="ProjetoSD" />
+      <option name="PROGRAM_PARAMETERS" value="224.0.0.1 4321 4322 localhost 4320 5 4445" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Client" type="Application" factoryName="Application" singleton="false">
+      <option name="MAIN_CLASS_NAME" value="Googol.Client.Client" />
+      <module name="ProjetoSD" />
+      <option name="PROGRAM_PARAMETERS" value="localhost 1100" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Downloader" type="Application" factoryName="Application" singleton="false">
+      <option name="MAIN_CLASS_NAME" value="Googol.Downloader.Downloader" />
+      <module name="ProjetoSD" />
+      <option name="PROGRAM_PARAMETERS" value="224.0.0.1 4321 4322 localhost 1099 2" />
+      <method v="2">
+        <option name="MakeProject" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Downloader2" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Googol.Downloader.Downloader" />
+      <module name="ProjetoSD" />
+      <option name="PROGRAM_PARAMETERS" value="224.0.0.1 4321 4322 localhost 1099 2" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Downloader3" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Googol.Downloader.Downloader" />
+      <module name="ProjetoSD" />
+      <option name="PROGRAM_PARAMETERS" value="224.0.0.1 4321 4322 localhost 1099 3" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Downloader" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Googol.Downloader" />
+      <module name="ProjetoSD" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Gateway" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Googol.Gateway.Gateway" />
+      <module name="ProjetoSD" />
+      <option name="PROGRAM_PARAMETERS" value="localhost 1099 1100 4320" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Queue" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Googol.Queue.Queue" />
+      <module name="ProjetoSD" />
+      <option name="PROGRAM_PARAMETERS" value="1099" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+        <option name="MakeProject" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.Downloader2" />
+      <item itemvalue="Application.Client" />
+      <item itemvalue="Application.Downloader" />
+      <item itemvalue="Application.Gateway" />
+      <item itemvalue="Application.Queue" />
+      <item itemvalue="Application.Barrel" />
+      <item itemvalue="Application.Barrel 2" />
+      <item itemvalue="Application.Downloader3" />
+      <item itemvalue="Application.Barrel3" />
+      <item itemvalue="Application.Barrel4" />
+      <item itemvalue="Application.Barrel5" />
+      <item itemvalue="Multirun.Googol" />
+    </list>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="jdk-18.0.2-corretto-18.0.2-4caba194b151-68fdadd5" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="false" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f5a21401-640e-4ea2-94af-796cf83a0793" name="Changes" comment="" />
+      <created>1710851219754</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1710851219754</updated>
+      <workItem from="1710851222164" duration="510000" />
+      <workItem from="1710859127395" duration="12343000" />
+      <workItem from="1711033855416" duration="4855000" />
+      <workItem from="1711276621412" duration="10000" />
+      <workItem from="1711378553728" duration="79000" />
+      <workItem from="1711378641256" duration="10332000" />
+      <workItem from="1711465697814" duration="4487000" />
+      <workItem from="1711532180277" duration="2653000" />
+      <workItem from="1711629474110" duration="28000" />
+      <workItem from="1711629547650" duration="934000" />
+      <workItem from="1711630495971" duration="7932000" />
+      <workItem from="1711721241520" duration="5924000" />
+      <workItem from="1711735615242" duration="1633000" />
+      <workItem from="1711737260686" duration="29003000" />
+      <workItem from="1711876623089" duration="27128000" />
+      <workItem from="1711986477207" duration="10286000" />
+      <workItem from="1711997118703" duration="9071000" />
+      <workItem from="1712050847290" duration="26399000" />
+      <workItem from="1712179453948" duration="374000" />
+      <workItem from="1712226265868" duration="34404000" />
+      <workItem from="1712323018895" duration="2864000" />
+      <workItem from="1712325915447" duration="67000" />
+      <workItem from="1712325991884" duration="27000" />
+      <workItem from="1712326034839" duration="33000" />
+      <workItem from="1712326142961" duration="4017000" />
+      <workItem from="1712330223434" duration="80000" />
+      <workItem from="1712330411565" duration="9483000" />
+      <workItem from="1712408384411" duration="9409000" />
+      <workItem from="1712422266623" duration="35000" />
+      <workItem from="1712422304713" duration="1262000" />
+      <workItem from="1712423594462" duration="47000" />
+      <workItem from="1712423738022" duration="159000" />
+      <workItem from="1712423940545" duration="1044000" />
+    </task>
+    <task id="LOCAL-00048" summary="barrel has port as input">
+      <option name="closed" value="true" />
+      <created>1712227380447</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1712227380447</updated>
+    </task>
+    <task id="LOCAL-00049" summary="InstanceManager created">
+      <option name="closed" value="true" />
+      <created>1712230438464</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1712230438464</updated>
+    </task>
+    <task id="LOCAL-00050" summary="final version without counting packs">
+      <option name="closed" value="true" />
+      <created>1712236441941</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1712236441942</updated>
+    </task>
+    <task id="LOCAL-00051" summary="final version without counting packs">
+      <option name="closed" value="true" />
+      <created>1712236491582</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1712236491582</updated>
+    </task>
+    <task id="LOCAL-00052" summary="make client prettier">
+      <option name="closed" value="true" />
+      <created>1712239706591</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1712239706591</updated>
+    </task>
+    <task id="LOCAL-00053" summary="Multicast package javadoc">
+      <option name="closed" value="true" />
+      <created>1712240610717</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1712240610717</updated>
+    </task>
+    <task id="LOCAL-00054" summary="typo client">
+      <option name="closed" value="true" />
+      <created>1712243014749</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1712243014749</updated>
+    </task>
+    <task id="LOCAL-00055" summary="fiable multicast working but wwith int ID">
+      <option name="closed" value="true" />
+      <created>1712248683558</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1712248683558</updated>
+    </task>
+    <task id="LOCAL-00056" summary="reliable multicast working">
+      <option name="closed" value="true" />
+      <created>1712248923991</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1712248923991</updated>
+    </task>
+    <task id="LOCAL-00057" summary="first two tests">
+      <option name="closed" value="true" />
+      <created>1712252804119</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1712252804119</updated>
+    </task>
+    <task id="LOCAL-00058" summary="fixed search bug">
+      <option name="closed" value="true" />
+      <created>1712255855800</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1712255855801</updated>
+    </task>
+    <task id="LOCAL-00059" summary="tests">
+      <option name="closed" value="true" />
+      <created>1712257336626</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1712257336627</updated>
+    </task>
+    <task id="LOCAL-00060" summary="fix client">
+      <option name="closed" value="true" />
+      <created>1712259503952</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1712259503952</updated>
+    </task>
+    <task id="LOCAL-00061" summary="tests">
+      <option name="closed" value="true" />
+      <created>1712259832562</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1712259832563</updated>
+    </task>
+    <task id="LOCAL-00062" summary="javadoc fix">
+      <option name="closed" value="true" />
+      <created>1712312716630</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1712312716631</updated>
+    </task>
+    <task id="LOCAL-00063" summary="visited URL moved to Queue">
+      <option name="closed" value="true" />
+      <created>1712312893115</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1712312893115</updated>
+    </task>
+    <task id="LOCAL-00064" summary="exceedsSize in Downloader">
+      <option name="closed" value="true" />
+      <created>1712313850874</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1712313850874</updated>
+    </task>
+    <task id="LOCAL-00065" summary="fix javadoc">
+      <option name="closed" value="true" />
+      <created>1712313883296</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1712313883297</updated>
+    </task>
+    <task id="LOCAL-00066" summary="downloader semaphore">
+      <option name="closed" value="true" />
+      <created>1712316297310</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1712316297310</updated>
+    </task>
+    <task id="LOCAL-00067" summary="semaphore working">
+      <option name="closed" value="true" />
+      <created>1712319543014</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1712319543014</updated>
+    </task>
+    <task id="LOCAL-00068" summary="javadoc final touches">
+      <option name="closed" value="true" />
+      <created>1712319791135</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1712319791135</updated>
+    </task>
+    <task id="LOCAL-00069" summary="little bug">
+      <option name="closed" value="true" />
+      <created>1712320876266</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1712320876266</updated>
+    </task>
+    <task id="LOCAL-00070" summary="half fix">
+      <option name="closed" value="true" />
+      <created>1712321862565</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1712321862565</updated>
+    </task>
+    <task id="LOCAL-00071" summary="fix">
+      <option name="closed" value="true" />
+      <created>1712322058254</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1712322058254</updated>
+    </task>
+    <task id="LOCAL-00072" summary="typo">
+      <option name="closed" value="true" />
+      <created>1712322073582</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1712322073582</updated>
+    </task>
+    <task id="LOCAL-00073" summary="semaphore refactor">
+      <option name="closed" value="true" />
+      <created>1712325027209</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1712325027209</updated>
+    </task>
+    <task id="LOCAL-00074" summary="semaphore refactor">
+      <option name="closed" value="true" />
+      <created>1712325478992</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1712325478992</updated>
+    </task>
+    <task id="LOCAL-00075" summary="lol">
+      <option name="closed" value="true" />
+      <created>1712326060747</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1712326060747</updated>
+    </task>
+    <task id="LOCAL-00076" summary="me trying not to kill myself">
+      <option name="closed" value="true" />
+      <created>1712327594396</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1712327594396</updated>
+    </task>
+    <task id="LOCAL-00077" summary="commit lets fix this">
+      <option name="closed" value="true" />
+      <created>1712328335892</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1712328335892</updated>
+    </task>
+    <task id="LOCAL-00078" summary="hiii">
+      <option name="closed" value="true" />
+      <created>1712328616431</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1712328616431</updated>
+    </task>
+    <task id="LOCAL-00079" summary="hiii">
+      <option name="closed" value="true" />
+      <created>1712328860519</created>
+      <option name="number" value="00079" />
+      <option name="presentableId" value="LOCAL-00079" />
+      <option name="project" value="LOCAL" />
+      <updated>1712328860520</updated>
+    </task>
+    <task id="LOCAL-00080" summary="hiii">
+      <option name="closed" value="true" />
+      <created>1712329030992</created>
+      <option name="number" value="00080" />
+      <option name="presentableId" value="LOCAL-00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1712329030992</updated>
+    </task>
+    <task id="LOCAL-00081" summary="final try">
+      <option name="closed" value="true" />
+      <created>1712329446139</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1712329446139</updated>
+    </task>
+    <task id="LOCAL-00082" summary="time fixed status">
+      <option name="closed" value="true" />
+      <created>1712330972073</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1712330972073</updated>
+    </task>
+    <task id="LOCAL-00083" summary="time fixed status">
+      <option name="closed" value="true" />
+      <created>1712332506964</created>
+      <option name="number" value="00083" />
+      <option name="presentableId" value="LOCAL-00083" />
+      <option name="project" value="LOCAL" />
+      <updated>1712332506964</updated>
+    </task>
+    <task id="LOCAL-00084" summary="thread que vai a procura do tempo">
+      <option name="closed" value="true" />
+      <created>1712334193396</created>
+      <option name="number" value="00084" />
+      <option name="presentableId" value="LOCAL-00084" />
+      <option name="project" value="LOCAL" />
+      <updated>1712334193396</updated>
+    </task>
+    <task id="LOCAL-00085" summary="final version (com restrição do multicast)">
+      <option name="closed" value="true" />
+      <created>1712334858476</created>
+      <option name="number" value="00085" />
+      <option name="presentableId" value="LOCAL-00085" />
+      <option name="project" value="LOCAL" />
+      <updated>1712334858476</updated>
+    </task>
+    <task id="LOCAL-00086" summary="turning semaphore into binary semaphore">
+      <option name="closed" value="true" />
+      <created>1712407980312</created>
+      <option name="number" value="00086" />
+      <option name="presentableId" value="LOCAL-00086" />
+      <option name="project" value="LOCAL" />
+      <updated>1712407980312</updated>
+    </task>
+    <task id="LOCAL-00087" summary="trying threads">
+      <option name="closed" value="true" />
+      <created>1712408096100</created>
+      <option name="number" value="00087" />
+      <option name="presentableId" value="LOCAL-00087" />
+      <option name="project" value="LOCAL" />
+      <updated>1712408096100</updated>
+    </task>
+    <task id="LOCAL-00088" summary="trying threads (nao gosto muito)">
+      <option name="closed" value="true" />
+      <created>1712408754523</created>
+      <option name="number" value="00088" />
+      <option name="presentableId" value="LOCAL-00088" />
+      <option name="project" value="LOCAL" />
+      <updated>1712408754523</updated>
+    </task>
+    <task id="LOCAL-00089" summary="como estavamos a fazer (timer)">
+      <option name="closed" value="true" />
+      <created>1712410145869</created>
+      <option name="number" value="00089" />
+      <option name="presentableId" value="LOCAL-00089" />
+      <option name="project" value="LOCAL" />
+      <updated>1712410145869</updated>
+    </task>
+    <task id="LOCAL-00090" summary="final changes and javadoc done (por mim subtemos assim)">
+      <option name="closed" value="true" />
+      <created>1712411039350</created>
+      <option name="number" value="00090" />
+      <option name="presentableId" value="LOCAL-00090" />
+      <option name="project" value="LOCAL" />
+      <updated>1712411039350</updated>
+    </task>
+    <task id="LOCAL-00091" summary="submeter assim">
+      <option name="closed" value="true" />
+      <created>1712421974294</created>
+      <option name="number" value="00091" />
+      <option name="presentableId" value="LOCAL-00091" />
+      <option name="project" value="LOCAL" />
+      <updated>1712421974294</updated>
+    </task>
+    <task id="LOCAL-00092" summary="submeter assim">
+      <option name="closed" value="true" />
+      <created>1712422481600</created>
+      <option name="number" value="00092" />
+      <option name="presentableId" value="LOCAL-00092" />
+      <option name="project" value="LOCAL" />
+      <updated>1712422481600</updated>
+    </task>
+    <task id="LOCAL-00093" summary="submeter assim">
+      <option name="closed" value="true" />
+      <created>1712422937798</created>
+      <option name="number" value="00093" />
+      <option name="presentableId" value="LOCAL-00093" />
+      <option name="project" value="LOCAL" />
+      <updated>1712422937798</updated>
+    </task>
+    <task id="LOCAL-00094" summary="help">
+      <option name="closed" value="true" />
+      <created>1712423766581</created>
+      <option name="number" value="00094" />
+      <option name="presentableId" value="LOCAL-00094" />
+      <option name="project" value="LOCAL" />
+      <updated>1712423766582</updated>
+    </task>
+    <task id="LOCAL-00095" summary="help">
+      <option name="closed" value="true" />
+      <created>1712424048663</created>
+      <option name="number" value="00095" />
+      <option name="presentableId" value="LOCAL-00095" />
+      <option name="project" value="LOCAL" />
+      <updated>1712424048663</updated>
+    </task>
+    <task id="LOCAL-00096" summary="help">
+      <option name="closed" value="true" />
+      <created>1712424064942</created>
+      <option name="number" value="00096" />
+      <option name="presentableId" value="LOCAL-00096" />
+      <option name="project" value="LOCAL" />
+      <updated>1712424064942</updated>
+    </task>
+    <option name="localTasksCounter" value="97" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="main" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <MESSAGE value="fix javadoc" />
+    <MESSAGE value="downloader semaphore" />
+    <MESSAGE value="semaphore working" />
+    <MESSAGE value="javadoc final touches" />
+    <MESSAGE value="little bug" />
+    <MESSAGE value="half fix" />
+    <MESSAGE value="fix" />
+    <MESSAGE value="typo" />
+    <MESSAGE value="semaphore refactor" />
+    <MESSAGE value="lol" />
+    <MESSAGE value="me trying not to kill myself" />
+    <MESSAGE value="commit lets fix this" />
+    <MESSAGE value="hiii" />
+    <MESSAGE value="final try" />
+    <MESSAGE value="TRY" />
+    <MESSAGE value="time fixed status" />
+    <MESSAGE value="thread que vai a procura do tempo" />
+    <MESSAGE value="final version (com restrição do multicast)" />
+    <MESSAGE value="turning semaphore into binary semaphore" />
+    <MESSAGE value="trying threads" />
+    <MESSAGE value="trying threads (nao gosto muito)" />
+    <MESSAGE value="como estavamos a fazer (timer)" />
+    <MESSAGE value="final changes and javadoc done (por mim subtemos assim)" />
+    <MESSAGE value="submeter assim" />
+    <MESSAGE value="help" />
+    <option name="LAST_COMMIT_MESSAGE" value="help" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.net.SocketException" package="java.net" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.lang.ArrayIndexOutOfBoundsException" package="java.lang" />
+          <option name="timeStamp" value="2" />
+        </breakpoint>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.lang.NullPointerException" package="java.lang" />
+          <option name="timeStamp" value="4" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
