@@ -1,21 +1,27 @@
 package Googol.Queue;
 
 import java.io.Serializable;
-import java.rmi.RemoteException;
 import java.util.concurrent.Semaphore;
-
+/**
+ * Class that manages the queue acess using a binary semaphore.
+ * The semaphore is blocked whenever there are no active barrels, so the queue is not accessed by the downloader (avoids unecessary work).
+ */
 public class QueueSemaphore implements Serializable {
+    /**
+     * Semaphore that blocks the queue
+     */
     private final Semaphore queueSemaphore;
 
-
+    /**
+     * Class constructor, initializes the semaphore
+     */
     public QueueSemaphore(){
         this.queueSemaphore = new Semaphore(1);
     }
     /**
      * Method that blocks the queue
-     * @throws RemoteException If a remote communication error occurs.
      */
-    public void block() throws RemoteException{
+    public void block() {
         try {
             this.queueSemaphore.acquire();
         } catch (InterruptedException e) {
@@ -24,9 +30,8 @@ public class QueueSemaphore implements Serializable {
     }
     /**
      * Method that unblocks the queue
-     * @throws RemoteException If a remote communication error occurs.
      */
-    public void unblock() throws RemoteException{
+    public void unblock() {
         this.queueSemaphore.release(); // Release the permit
     }
 }

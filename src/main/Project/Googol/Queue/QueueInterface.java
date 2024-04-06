@@ -44,10 +44,12 @@ public interface QueueInterface extends Remote, QueueSemaphoreInterface {
      * Method that blocks the queue
      * @throws RemoteException If a remote communication error occurs.
      */
+    @Override
     void block() throws RemoteException;
     /**
      * Method that unblocks the queue
      * @throws RemoteException If a remote communication error occurs.
      */
+    @Override
     void unblock() throws RemoteException;
 }

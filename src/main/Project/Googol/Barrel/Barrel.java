@@ -294,6 +294,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
             }
         } catch (Exception e){
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
+            exit();
         } finally {
             multicastAvailable = false;
             exit();
@@ -331,6 +332,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
                 activeInstances = barrelManager.getActiveInstances();
             } catch (RemoteException e) {
                 LOGGER.log(Level.SEVERE, "Error\n" + e.getMessage(), e);
+                exit();
             }
         }
         /**

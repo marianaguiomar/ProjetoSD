@@ -62,7 +62,7 @@ public class Client {
         this.scanner = new Scanner(System.in);
         this.gatewayAddress = gatewayAddress;
         this.gateway = (GatewayInterface) Naming.lookup(gatewayAddress);
-        System.out.println(welcomeMessage);
+        System.out.print(welcomeMessage);
     }
 
     /**

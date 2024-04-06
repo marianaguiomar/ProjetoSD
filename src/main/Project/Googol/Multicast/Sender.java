@@ -27,8 +27,13 @@ public class Sender {
      * Max size of packet
      */
     private static final int PACKET_SIZE = 1500;
+    /**
+     * Number of retries to send multicast message after failed confirmation
+     */
     private final int  numberOfRetries = 100;
-
+    /**
+     * Number of milliseconds to wait for confirmation in each try
+     */
     private final int numberOfMillisToWait = 10000;
     /**
      * Timeout duration
@@ -117,7 +122,7 @@ public class Sender {
         Duration elapsedTime;
         try{
             int packCounter = 0;
-            int activeBarrels = 2;
+            int activeBarrels = 1;
             // Wait for confirmation message during timeout period
             do{
                 byte[] buffer = new byte[PACKET_SIZE];
@@ -135,15 +140,12 @@ public class Sender {
                 }
                 // Evalute message type and compare messageID with sent packet sequence number
                 if(message.messageType() == MessageType.CONFIRMATION && message.payload().equals(sentMessageID)){
-                    //Stem.out.println("received confirmation\n");
-                    activeBarrels = message.activeBarrels();
+                    if(message.activeBarrels() > activeBarrels)
+                        activeBarrels = message.activeBarrels();
                     packCounter++;
                 }
             }
             while(elapsedTime.compareTo(timeoutDuration) < 0  && packCounter < activeBarrels);
-            if (packCounter >= activeBarrels){
-                //System.out.println("All barrels have confirmed the message");
-            }
             return packCounter >= activeBarrels;
         }
         catch (IOException e){
