@@ -58,6 +58,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
         }
         System.out.println();
         this.queueSemaphore = new QueueSemaphore();
+        System.setProperty("java.rmi.server.logCalls", "true");
         System.out.println("[QUEUE#]:   Ready...");
 
     }
@@ -76,12 +77,20 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
     /**
      * Method that fetches a URL from queue to be analysed by Downloader
      * @return URL from queue
-     * @throws InterruptedException If the operation is interrupted
      */
-    public String fetchURL() throws InterruptedException, RemoteException {
-        block();
-        unblock();
-        return URLQueue.take();
+    public String fetchURL() throws RemoteException {
+        String result;
+        try {
+            block();
+            unblock();
+            result = URLQueue.poll(15, java.util.concurrent.TimeUnit.SECONDS);
+            System.out.println(result);
+        }
+        catch (InterruptedException e) {
+            LOGGER.log(Level.SEVERE, "Exception occurred while fetching URL: \n" + e.getMessage(), e);
+            return null;
+        }
+        return result;
     }
 
     /**

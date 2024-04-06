@@ -80,6 +80,13 @@ public class Receiver{
             throw new RuntimeException("Failed to create MulticastSocket");
         }
     }
+    /**
+     * Closes the sockets.
+     */
+    public void close(){
+        this.socket.close();
+        this.confirmationSocket.close();
+    }
 
     /**
      * Class constructor, attributes are initialized

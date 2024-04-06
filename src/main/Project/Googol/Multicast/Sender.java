@@ -108,6 +108,13 @@ public class Sender {
         this.timeoutDuration =  Duration.ofMillis(numberOfMillisToWait);
         initializeSenderSockets();
     }
+    /**
+     * Closes the sockets.
+     */
+    public void close(){
+        this.socket.close();
+        this.confirmationSocket.close();
+    }
 
     /**
      * Waits for confirmation from the receiver.

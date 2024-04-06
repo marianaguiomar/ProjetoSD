@@ -95,7 +95,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     }
 
     /**
-     * Method that connects the Gateway to a barrel
+     * Method that connects the Gateway to a barrel and balance workload between barrels (RoundRobin)
      * @throws RemoteException If a remote communication error occurs.
      */
     private void connectToBarrel() throws RemoteException {
@@ -171,7 +171,6 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         System.out.println("[GATEWAY]: Search done");
 
         long endTime = System.currentTimeMillis();
-        System.out.println(endTime + " " + startTime + " " + (endTime-startTime));
         updateSearches((double) endTime-startTime);
         assert webPages != null;
         StringBuilder result= new StringBuilder(webPages.length + " RESULTADOS PARA A PÁGINA " + pageNumber + "\n");

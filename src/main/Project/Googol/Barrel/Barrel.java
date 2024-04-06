@@ -55,6 +55,10 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
      * Boolean that shows is multicast is still available
      */
     public boolean multicastAvailable = true; // Initially assume multicast group is available
+    /**
+     * This barrel's address
+     */
+    private final String myAddress;
 
     /**
      * Class constructer, attributes are initialized, RMI connection to BarrelManager (inside Gateway) is established
@@ -72,7 +76,8 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         this.barrelPort = barrelPort;
         bindMyself();
         connectToBarrelManagerInGateway(gatewayAddress);
-        verifyMyID(getMyAddress());
+        this.myAddress = getMyAddress();
+        verifyMyID(this.myAddress);
         this.remissiveIndex = barrelManager.setRemissiveIndex(this.barrelNumber);
         Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
         this.receiver = new Receiver(multicastAddress, port, confirmationPort);
@@ -309,10 +314,13 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
 
     private void exit() {
         try {
-            this.barrelManager.removeInstance(getMyAddress(), this.barrelPort,this.barrelNumber);
+            this.barrelManager.removeInstance(myAddress, this.barrelPort,this.barrelNumber);
+            receiver.close();
+            System.exit(0);
         }
-        catch(RemoteException | UnknownHostException e){
-            LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
+        catch(Exception e){
+            //LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
+            System.exit(1);
         }
     }
     /**

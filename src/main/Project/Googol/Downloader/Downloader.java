@@ -1,7 +1,8 @@
 package Googol.Downloader;
-import Googol.Queue.QueueInterface;
+
 import Googol.Multicast.MessageType;
 import Googol.Multicast.Sender;
+import Googol.Queue.QueueInterface;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -12,7 +13,6 @@ import java.io.IOException;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.rmi.Naming;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -93,7 +93,10 @@ public class Downloader implements Runnable {
      * Logger to print error messages
      */
     private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
-
+    /**
+     * Address of the running machine
+     */
+    private String myAddress;
 
     /**
      * Class constructor, attributes are initialized, RMI connection to Queue is initialized
@@ -102,23 +105,47 @@ public class Downloader implements Runnable {
      * @param confirmationPort Port to receive ACKs
      * @param queuePath Path to queue
      * @param ID Downloader ID
-     * @throws NotBoundException Remote object is not bound to the specified name in the registry.
-     * @throws IOException An I/O exception has occurred.
      */
     public Downloader(String multicastAddress, int port, int confirmationPort,
-                      String queuePath, int ID) throws NotBoundException, IOException {
+                      String queuePath, int ID) {
         this.port = port;
-        this.queue = (QueueInterface) Naming.lookup(queuePath);
+        connectToQueue(queuePath);
         this.myID =  ID;
-        if(!this.queue.verifyID(this.myID,getMyAddress(), port)){
-            System.out.println("[BARREL#" + this.myID + "]:" + "   Downloader ID is not valid. Exiting...");
-            System.exit(1);
-        }
+        verifyMyID();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
         this.sender = new Sender(multicastAddress, port,  confirmationPort);
         this.stopwordsSet = new HashSet<>(Arrays.asList(stopwords));
-
+        System.setProperty("java.rmi.server.logCalls", "true");
         System.out.println("[DOWNLOADER#" + myID + "]:" + "   Ready...");
-        Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
+    }
+    /**
+     * Method that connects to the Queue
+     * @param queuePath Path to the Queue
+     */
+    private void connectToQueue(String queuePath) {
+        try {
+            this.queue = (QueueInterface) Naming.lookup(queuePath);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Exception occurred"+ e.getMessage(), e);
+            connectToQueue(queuePath);
+        }
+    }
+    /**
+     * Method that verifies if Downloader ID is valid
+     */
+    private void verifyMyID(){
+        try{
+            this.myAddress = getMyAddress();
+            if(!this.queue.verifyID(this.myID, myAddress, port)){
+                System.out.println("[BARREL#" + this.myID + "]:" + "   Downloader ID is not valid. Exiting...");
+                System.exit(1);
+            }
+        }
+        catch (Exception e){
+            System.exit(1);
+            LOGGER.log(Level.SEVERE, "Exception occurred"+ e.getMessage(), e);
+        }
     }
 
     /**
@@ -127,12 +154,11 @@ public class Downloader implements Runnable {
      */
     private void exit() {
         try {
-            this.queue.removeInstance(getMyAddress(), this.port,this.myID);
+            this.queue.removeInstance(myAddress, this.port,this.myID);
+            sender.close();
         }
-        catch(RemoteException e){
-            LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
+        catch(Exception e){
+            System.exit(1);
         }
     }
 
@@ -170,7 +196,7 @@ public class Downloader implements Runnable {
                 }
             } else {
                 // Send the multicast message
-                System.out.println("[DOWNLOADER#" + myID + "]:" + "Tokens: " + multicastMessage);
+                //System.out.println("[DOWNLOADER#" + myID + "]:" + "Tokens: " + multicastMessage);
                 sender.sendMessage(hyperlink, multicastMessage, MessageType.TOKENS);
 
                 // Clear the multicast message
@@ -199,7 +225,7 @@ public class Downloader implements Runnable {
                     multicastMessage = multicastMessage.concat(newURL.toLowerCase()).concat("^");
                 }
                 else {
-                    System.out.println("[DOWNLOADER#" + myID + "]:" + "Sending multicast message: " + multicastMessage);
+                    //System.out.println("[DOWNLOADER#" + myID + "]:" + "Sending multicast message: " + multicastMessage);
                     sender.sendMessage(hyperlink, multicastMessage, MessageType.CONNECTIONS);
                     multicastMessage = "";
                 }
@@ -265,7 +291,7 @@ public class Downloader implements Runnable {
                 title = doc.title();
             }
         }
-        System.out.println("[DOWNLOADER#" + myID + "]:" + "Title: " + title);
+        //System.out.println("[DOWNLOADER#" + myID + "]:" + "Title: " + title);
         sender.sendMessage(hyperlink, title, MessageType.TITLE);
     }
 
@@ -300,7 +326,7 @@ public class Downloader implements Runnable {
         else {
             firstParagraphText = "No citation found.";
         }
-        System.out.println("[DOWNLOADER#" + myID + "]:" + "Citation: " + firstParagraphText);
+        //System.out.println("[DOWNLOADER#" + myID + "]:" + "Citation: " + firstParagraphText);
         sender.sendMessage(hyperlink, firstParagraphText, MessageType.CITATION);
     }
 
@@ -312,6 +338,9 @@ public class Downloader implements Runnable {
         while (queueExists) {
             try {
                 String url = this.queue.fetchURL();
+                if (url == null) {
+                    continue;
+                }
                 System.out.println("[DOWNLOADER#" + myID + "]:" +"URL: " + url);
                 Document doc;
                 try {
@@ -320,7 +349,6 @@ public class Downloader implements Runnable {
                     //System.out.println("[DOWNLOADER#" + myID + "]: HTTP status exception occurred, discarding hyperlink");
                     continue;
                 }
-                System.out.println(doc.text());
                 sendTitle(url, doc);
                 sendCitation(url, doc);
                 sendTokens(url, doc);
@@ -329,6 +357,7 @@ public class Downloader implements Runnable {
             }
             catch (RemoteException remoteException) {
                 // Set queueExists to false when RMI communication fails
+                LOGGER.log(Level.SEVERE, "Remote exception occurred"+ remoteException.getMessage(), remoteException);
                 queueExists = false;
             }
             catch (MalformedURLException malformedURLException){
@@ -344,9 +373,9 @@ public class Downloader implements Runnable {
                 LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
             }
         }
-
+        exit();
     }
-    public static void main(String[] args) throws NotBoundException, IOException {
+    public static void main(String[] args) {
         if(args.length != 6){
             System.out.println("Usage: java Downloader <multicastAddress> <port> <confirmationPort> <queueIP> <queuePort> <ID>");
             System.exit(1);
