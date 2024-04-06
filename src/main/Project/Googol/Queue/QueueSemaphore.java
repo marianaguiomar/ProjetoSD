@@ -1,37 +1,49 @@
 package Googol.Queue;
 
 import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.util.concurrent.Semaphore;
-/**
- * Class that manages the queue acess using a binary semaphore.
- * The semaphore is blocked whenever there are no active barrels, so the queue is not accessed by the downloader (avoids unecessary work).
- */
-public class QueueSemaphore implements Serializable {
-    /**
-     * Semaphore that blocks the queue
-     */
-    private final Semaphore queueSemaphore;
+import java.util.logging.Level;
 
-    /**
-     * Class constructor, initializes the semaphore
-     */
-    public QueueSemaphore(){
-        this.queueSemaphore = new Semaphore(1);
+public class QueueSemaphore implements Serializable {
+    private final Semaphore queueSemaphore;
+    private final int initialPermits;
+
+
+    public QueueSemaphore(int permits){
+        this.queueSemaphore = new Semaphore(permits);
+        this.initialPermits = permits;
     }
     /**
      * Method that blocks the queue
+     * @throws RemoteException If a remote communication error occurs.
      */
-    public void block() {
+    public void block() throws RemoteException{
         try {
             this.queueSemaphore.acquire();
         } catch (InterruptedException e) {
-            //e.printStackTrace();
+            return;
         }
     }
     /**
      * Method that unblocks the queue
+     * @throws RemoteException If a remote communication error occurs.
      */
-    public void unblock() {
+    public void unblock() throws RemoteException{
         this.queueSemaphore.release(); // Release the permit
+    }
+    /**
+     * Method that drains the queue
+     * @throws RemoteException If a remote communication error occurs.
+     */
+    public void drainSemaphore() throws RemoteException {
+        this.queueSemaphore.drainPermits();
+    }
+    /**
+     * Method that resets the queue's semaphore
+     * @throws RemoteException If a remote communication error occurs.
+     */
+    public void resetSemaphore() throws RemoteException {
+        this.queueSemaphore.release(this.initialPermits);
     }
 }
