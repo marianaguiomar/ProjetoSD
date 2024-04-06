@@ -49,7 +49,10 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
      */
 
     public int activeInstances;
-    boolean multicastAvailable = true; // Initially assume multicast group is available
+    /**
+     * Boolean that shows is multicast is still available
+     */
+    public boolean multicastAvailable = true; // Initially assume multicast group is available
 
     /**
      * Class constructer, attributes are initialized, RMI connection to BarrelManager (inside Gateway) is established
@@ -94,6 +97,14 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         startActiveInstancesUpdater(); // Thread to look for active instances
         System.out.println("[BARREL#" + barrelNumber + "]:" + "   Ready...");
     }
+    /**
+     * Method that starts the thread to look for active instances
+     */
+    public void startActiveInstancesUpdater() {
+        Thread thread = new Thread(new ActiveInstancesFetcher());
+        thread.start(); // Start the thread to execute the task
+    }
+
 
     /**
      * Logger to print error messages
@@ -253,6 +264,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         try {
             while (multicastAvailable) {
                 //remissiveIndex.printIndexHashMap(barrelNumber);
+                System.out.println(activeInstances);
                 MulticastMessage message = receiver.receiveMessage(activeInstances);
                 if(message == null){
                     continue;
@@ -291,25 +303,33 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
         }
     }
-    public class ActiveInstancesFetcher extends TimerTask {
+    /**
+     * Class that fetches active instances
+     */
+    public class ActiveInstancesFetcher implements Runnable {
+        /**
+         * Interval to fetch active instances
+         */
+        private final int interval =  30 * 1000; // 30 seconds
+
+        /**
+         * Method that fetches active instances
+         */
         @Override
         public void run() {
-            try {
-                activeInstances = barrelManager.getActiveInstances();
-            } catch (RemoteException e) {
-                throw new RuntimeException(e);
+            while (multicastAvailable) {
+                try {
+                    activeInstances = barrelManager.getActiveInstances();
+                    // Sleep for the interval (3 minutes in this case)
+                    Thread.sleep(interval);
+                } catch (InterruptedException | RemoteException e) {
+                    LOGGER.log(Level.SEVERE, "Error\n" + e.getMessage(), e);
+                }
             }
         }
     }
 
-    // Método para iniciar a thread
-    public void startActiveInstancesUpdater() {
-        Timer timer = new Timer();
-        // Definir o intervalo para 3 minutos (3 * 60 * 1000 milissegundos)
-        long interval = 3 * 60 * 1000;
-        // Agendar a tarefa para executar a cada 3 minutos
-        timer.scheduleAtFixedRate(new ActiveInstancesFetcher(), 0, interval);
-    }
+
 
     public static void main(String[] args) throws IOException {
         if (args.length != 7) {
