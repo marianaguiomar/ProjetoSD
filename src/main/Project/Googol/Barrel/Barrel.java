@@ -1,19 +1,23 @@
 package Googol.Barrel;
+
 import Googol.Downloader.Downloader;
 import Googol.Manager.BarrelManager.BarrelManagerInterface;
 import Googol.Multicast.MulticastMessage;
 import Googol.Multicast.Receiver;
+
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.UnknownHostException;
-import java.rmi.ConnectException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.*;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -68,29 +72,9 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     public Barrel(String multicastAddress, int port, int confirmationPort, String gatewayAddress, int barrelNumber, int barrelPort) throws IOException, NotBoundException, InterruptedException {
         this.barrelNumber = barrelNumber;
         this.barrelPort = barrelPort;
-        try {
-            Registry registry = LocateRegistry.createRegistry(barrelPort);
-            registry.rebind("barrel" + barrelNumber, this);
-
-        } catch (RemoteException e) {
-            LOGGER.log(Level.SEVERE, "Remote Exception Error\n "+ e.getMessage(), e);
-            exit();
-        }
-        String registryAddress = getMyAddress();
-        try {
-
-
-            this.barrelManager = (BarrelManagerInterface) Naming.lookup(gatewayAddress);
-        }
-        catch (ConnectException e) {
-            sleep(5);
-            this.barrelManager = (BarrelManagerInterface) Naming.lookup(gatewayAddress);
-        }
-
-        if(!this.barrelManager.verifyID(this.barrelNumber,registryAddress, this.barrelPort)){
-            System.out.println("[BARREL#" + barrelNumber + "]:" + "   Barrel ID is not valid. Exiting...");
-            System.exit(1);
-        }
+        bindMyself();
+        connectToBarrelManagerInGateway(gatewayAddress);
+        verifyMyID(getMyAddress());
         this.remissiveIndex = barrelManager.setRemissiveIndex(this.barrelNumber);
         Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
         this.receiver = new Receiver(multicastAddress, port, confirmationPort);
@@ -98,14 +82,52 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         System.out.println("[BARREL#" + barrelNumber + "]:" + "   Ready...");
     }
     /**
+     * Method that verifies if the barrel's ID is valid
+     * @param registryAddress Barrel's address
+     * @throws RemoteException If a remote communication error occurs.
+     */
+    private void verifyMyID(String registryAddress) throws RemoteException {
+        if(!this.barrelManager.verifyID(this.barrelNumber,registryAddress, this.barrelPort)){
+            System.out.println("[BARREL#" + barrelNumber + "]:" + "   Barrel ID is not valid. Exiting...");
+            System.exit(1);
+        }
+    }
+    /**
      * Method that starts the thread to look for active instances
      */
-    public void startActiveInstancesUpdater() {
+    private void startActiveInstancesUpdater() {
         Thread thread = new Thread(new ActiveInstancesFetcher());
         thread.start(); // Start the thread to execute the task
     }
+    /**
+     * Method that binds this barrel to the RMI registry
+     */
+    private void bindMyself(){
+        try {
+            Registry registry = LocateRegistry.createRegistry(this.barrelPort);
+            registry.rebind("barrel" + this.barrelNumber, this);
 
-
+        } catch (RemoteException e) {
+            LOGGER.log(Level.SEVERE, "Remote Exception Error\n "+ e.getMessage(), e);
+            exit();
+        }
+    }
+    /**
+     * Method that connects to the BarrelManager in the Gateway
+     * @param gatewayAddress Gateway address
+     * @throws InterruptedException If the operation is interrupted
+     * @throws MalformedURLException URL is not valid
+     * @throws NotBoundException Remote object is not bound to the specified name in the registry.
+     * @throws RemoteException If a remote communication error occurs.
+     */
+    private void connectToBarrelManagerInGateway(String gatewayAddress) throws InterruptedException, MalformedURLException, NotBoundException, RemoteException {
+        try {
+            this.barrelManager = (BarrelManagerInterface) Naming.lookup(gatewayAddress);
+        } catch (NotBoundException | MalformedURLException | RemoteException e) {
+            sleep(5);
+            this.barrelManager = (BarrelManagerInterface) Naming.lookup(gatewayAddress);
+        }
+    }
     /**
      * Logger to print error messages
      */
