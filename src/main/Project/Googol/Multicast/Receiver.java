@@ -75,6 +75,7 @@ public class Receiver{
             socket.joinGroup(group);
             this.confirmationSocket = new MulticastSocket();
         }
+        //slay
         catch (IOException | SecurityException | IllegalArgumentException e) {
             LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
             throw new RuntimeException("Failed to create MulticastSocket");
