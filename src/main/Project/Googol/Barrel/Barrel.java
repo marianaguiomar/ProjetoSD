@@ -15,9 +15,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -78,7 +76,9 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         this.remissiveIndex = barrelManager.setRemissiveIndex(this.barrelNumber);
         Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
         this.receiver = new Receiver(multicastAddress, port, confirmationPort);
-        startActiveInstancesUpdater(); // Thread to look for active instances
+        //start fetching active instances
+        ActiveInstancesFetcher activeInstancesFetcher = new ActiveInstancesFetcher();
+        activeInstancesFetcher.startFetching();
         System.out.println("[BARREL#" + barrelNumber + "]:" + "   Ready...");
     }
     /**
@@ -91,13 +91,6 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
             System.out.println("[BARREL#" + barrelNumber + "]:" + "   Barrel ID is not valid. Exiting...");
             System.exit(1);
         }
-    }
-    /**
-     * Method that starts the thread to look for active instances
-     */
-    private void startActiveInstancesUpdater() {
-        Thread thread = new Thread(new ActiveInstancesFetcher());
-        thread.start(); // Start the thread to execute the task
     }
     /**
      * Method that binds this barrel to the RMI registry
@@ -116,16 +109,13 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
      * Method that connects to the BarrelManager in the Gateway
      * @param gatewayAddress Gateway address
      * @throws InterruptedException If the operation is interrupted
-     * @throws MalformedURLException URL is not valid
-     * @throws NotBoundException Remote object is not bound to the specified name in the registry.
-     * @throws RemoteException If a remote communication error occurs.
      */
-    private void connectToBarrelManagerInGateway(String gatewayAddress) throws InterruptedException, MalformedURLException, NotBoundException, RemoteException {
+    private void connectToBarrelManagerInGateway(String gatewayAddress) throws InterruptedException {
         try {
             this.barrelManager = (BarrelManagerInterface) Naming.lookup(gatewayAddress);
         } catch (NotBoundException | MalformedURLException | RemoteException e) {
-            sleep(5);
-            this.barrelManager = (BarrelManagerInterface) Naming.lookup(gatewayAddress);
+            sleep(1);
+            connectToBarrelManagerInGateway(gatewayAddress);
         }
     }
     /**
@@ -286,7 +276,6 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
         try {
             while (multicastAvailable) {
                 //remissiveIndex.printIndexHashMap(barrelNumber);
-                System.out.println(activeInstances);
                 MulticastMessage message = receiver.receiveMessage(activeInstances);
                 if(message == null){
                     continue;
@@ -328,26 +317,28 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     /**
      * Class that fetches active instances
      */
-    public class ActiveInstancesFetcher implements Runnable {
+    public class ActiveInstancesFetcher extends TimerTask {
         /**
          * Interval to fetch active instances
          */
-        private final int interval =  30 * 1000; // 30 seconds
-
+        private final int interval = 30 * 1000; // 30 seconds
         /**
          * Method that fetches active instances
          */
         @Override
         public void run() {
-            while (multicastAvailable) {
-                try {
-                    activeInstances = barrelManager.getActiveInstances();
-                    // Sleep for the interval (3 minutes in this case)
-                    Thread.sleep(interval);
-                } catch (InterruptedException | RemoteException e) {
-                    LOGGER.log(Level.SEVERE, "Error\n" + e.getMessage(), e);
-                }
+            try {
+                activeInstances = barrelManager.getActiveInstances();
+            } catch (RemoteException e) {
+                LOGGER.log(Level.SEVERE, "Error\n" + e.getMessage(), e);
             }
+        }
+        /**
+         * Method that starts fetching active instances
+         */
+        public void startFetching() {
+            Timer timer = new Timer();
+            timer.scheduleAtFixedRate(this, 0, interval);
         }
     }
 
