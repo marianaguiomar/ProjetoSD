@@ -84,7 +84,6 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
             block();
             unblock();
             result = URLQueue.poll(15, java.util.concurrent.TimeUnit.SECONDS);
-            System.out.println(result);
         }
         catch (InterruptedException e) {
             LOGGER.log(Level.SEVERE, "Exception occurred while fetching URL: \n" + e.getMessage(), e);

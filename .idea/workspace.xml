@@ -5,7 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f5a21401-640e-4ea2-94af-796cf83a0793" name="Changes" comment="desabilitar o multicast">
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/jsoup.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Multicast/Sender.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Multicast/Sender.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Queue/Queue.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Queue/Queue.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,8 +94,12 @@
     "Application.ProjectManager.executor": "Run",
     "Application.Queue.executor": "Run",
     "Application.Start.executor": "Run",
+    "Downloaded.Files.Path.Enabled": "false",
     "JAR Application.jsoup-1.17.2.jar.executor": "Run",
     "Multirun.Googol.executor": "Run",
+    "Repository.Attach.Annotations": "false",
+    "Repository.Attach.JavaDocs": "false",
+    "Repository.Attach.Sources": "false",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
@@ -104,9 +111,9 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Project",
+    "project.structure.last.edited": "Libraries",
     "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.0",
+    "project.structure.side.proportion": "0.2",
     "settings.editor.selected.configurable": "preferences.pluginManager",
     "vue.rearranger.settings.migration": "true"
   }
@@ -120,7 +127,7 @@
       <recent name="$PROJECT_DIR$/tests" />
     </key>
   </component>
-  <component name="RunManager" selected="Multirun.Googol">
+  <component name="RunManager" selected="Application.Downloader">
     <configuration name="Barrel 2" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="Googol.Barrel.Barrel" />
       <module name="ProjetoSD" />
@@ -132,7 +139,7 @@
     <configuration name="Barrel" type="Application" factoryName="Application" singleton="false">
       <option name="MAIN_CLASS_NAME" value="Googol.Barrel.Barrel" />
       <module name="ProjetoSD" />
-      <option name="PROGRAM_PARAMETERS" value="224.0.0.1 4321 4322 localhost 4320 1 4441" />
+      <option name="PROGRAM_PARAMETERS" value="224.0.0.1 4321 4322 100.95.228.17 4320 1 4441" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -172,7 +179,7 @@
     <configuration name="Downloader" type="Application" factoryName="Application" singleton="false">
       <option name="MAIN_CLASS_NAME" value="Googol.Downloader.Downloader" />
       <module name="ProjetoSD" />
-      <option name="PROGRAM_PARAMETERS" value="224.0.0.1 4321 4322 localhost 1099 2" />
+      <option name="PROGRAM_PARAMETERS" value="224.0.0.1 4321 4322 100.95.228.17 1099 1" />
       <method v="2">
         <option name="MakeProject" enabled="true" />
       </method>
@@ -201,7 +208,7 @@
     <configuration name="Gateway" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="Googol.Gateway.Gateway" />
       <module name="ProjetoSD" />
-      <option name="PROGRAM_PARAMETERS" value="localhost 1099 1100 4320" />
+      <option name="PROGRAM_PARAMETERS" value="100.95.228.17 1099 1100 4320" />
       <method v="2" />
     </configuration>
     <configuration name="Queue" type="Application" factoryName="Application">
@@ -276,15 +283,7 @@
       <workItem from="1712422304713" duration="1262000" />
       <workItem from="1712423594462" duration="47000" />
       <workItem from="1712423738022" duration="159000" />
-      <workItem from="1712423940545" duration="1418000" />
-    </task>
-    <task id="LOCAL-00049" summary="InstanceManager created">
-      <option name="closed" value="true" />
-      <created>1712230438464</created>
-      <option name="number" value="00049" />
-      <option name="presentableId" value="LOCAL-00049" />
-      <option name="project" value="LOCAL" />
-      <updated>1712230438464</updated>
+      <workItem from="1712423940545" duration="3340000" />
     </task>
     <task id="LOCAL-00050" summary="final version without counting packs">
       <option name="closed" value="true" />
@@ -670,7 +669,15 @@
       <option name="project" value="LOCAL" />
       <updated>1712425920623</updated>
     </task>
-    <option name="localTasksCounter" value="98" />
+    <task id="LOCAL-00098" summary="desabilitar o multicast">
+      <option name="closed" value="true" />
+      <created>1712426356189</created>
+      <option name="number" value="00098" />
+      <option name="presentableId" value="LOCAL-00098" />
+      <option name="project" value="LOCAL" />
+      <updated>1712426356189</updated>
+    </task>
+    <option name="localTasksCounter" value="99" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
