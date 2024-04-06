@@ -25,7 +25,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
     private final HashMap<Integer, BarrelInterface> barrelsInterfaces;
 
     /**
-     * Path to back up file
+     * Path to backup file
      */
     private final String backupPath;
 
@@ -44,6 +44,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
         try {
             Registry registry = LocateRegistry.createRegistry(port);
             registry.rebind("gateway", this);
+            System.out.println(this.instanceType + ":   " + "rmi://localhost:" + port + "/gateway");
             System.out.println(this.instanceType + ":   Ready...");
         } catch (RemoteException e) {
             LOGGER.log(Level.SEVERE, "Exception occurred while initializing ProjectManager: " + e.getMessage(), e);
@@ -87,7 +88,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
      */
     public RemissiveIndex setRemissiveIndex(int barrelID) throws RemoteException {
         if (activeInstances == 1) {
-            this.queue.unblock();
+            this.queue.resetSemaphore();
             RemissiveIndex remissiveIndex = BackupManager.readBackupFile(backupPath);
             if (remissiveIndex == null)
                 return new RemissiveIndex();
@@ -141,7 +142,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
         activeInstances--;
         if (activeInstances == 0) {
             System.out.println(this.instanceType + ": Last barrel removed, creating backup file");
-            this.queue.block();
+            this.queue.drainSemaphore();
             BarrelInterface barrel = lookupBarrel(ID);
             BackupManager.createBackupFile(barrel.getRemissiveIndex(), backupPath);
         }

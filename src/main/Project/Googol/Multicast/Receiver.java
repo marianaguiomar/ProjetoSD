@@ -57,6 +57,7 @@ public class Receiver{
      * Socket for ACKS
      */
     private MulticastSocket confirmationSocket;
+
     /**
      * Googol.Multicast group
      */
@@ -73,6 +74,7 @@ public class Receiver{
             this.socket = new MulticastSocket(this.PORT); // Use the same port used for sending
             this.group = InetAddress.getByName(this.MULTICAST_ADDRESS); // Use the same multicast group address used for sending
             socket.joinGroup(group);
+
             this.confirmationSocket = new MulticastSocket();
         }
         //slay
