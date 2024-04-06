@@ -87,7 +87,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
      */
     public RemissiveIndex setRemissiveIndex(int barrelID) throws RemoteException {
         if (activeInstances == 1) {
-            this.queue.resetSemaphore();
+            this.queue.unblock();
             RemissiveIndex remissiveIndex = BackupManager.readBackupFile(backupPath);
             if (remissiveIndex == null)
                 return new RemissiveIndex();
@@ -141,7 +141,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
         activeInstances--;
         if (activeInstances == 0) {
             System.out.println(this.instanceType + ": Last barrel removed, creating backup file");
-            this.queue.drainSemaphore();
+            this.queue.block();
             BarrelInterface barrel = lookupBarrel(ID);
             BackupManager.createBackupFile(barrel.getRemissiveIndex(), backupPath);
         }

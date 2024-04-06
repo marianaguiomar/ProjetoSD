@@ -57,7 +57,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
             LOGGER.log(Level.SEVERE, "Exception occurred while initializing Queue: \n" + e.getMessage(), e);
         }
         System.out.println();
-        this.queueSemaphore = new QueueSemaphore(this.downloaderManager.getMaxInstances());
+        this.queueSemaphore = new QueueSemaphore();
         System.out.println("[QUEUE#]:   Ready...");
 
     }
@@ -121,15 +121,6 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
         this.queueSemaphore.unblock();
     }
 
-    @Override
-    public void drainSemaphore() throws RemoteException {
-        this.queueSemaphore.drainSemaphore();
-    }
-
-    @Override
-    public void resetSemaphore() throws RemoteException {
-        this.queueSemaphore.resetSemaphore();
-    }
 
     public static void main(String[] args) throws RemoteException {
         if (args.length != 1) {
