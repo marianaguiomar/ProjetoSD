@@ -1,7 +1,9 @@
 package Googol.Queue;
 
 import java.rmi.RemoteException;
-
+/**
+ * Interface for QueueSemaphore Class
+ */
 public interface QueueSemaphoreInterface {
     /**
      * Method that blocks the queue

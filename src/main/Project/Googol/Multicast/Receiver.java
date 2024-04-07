@@ -107,6 +107,7 @@ public class Receiver{
      *
      * @param hyperlink  Hyperlink to be confirmed.
      * @param messageID  ID of the message being confirmed.
+     * @param activeBarrels Number of active barrels.
      * @throws InterruptedException If the thread is interrupted.
      */
 
@@ -129,7 +130,8 @@ public class Receiver{
     /**
      * Receives a multicast message.
      * Checks if message isn't null.
-     * Sends an ACK
+     * Sends a PACK
+     * @param activeBarrels Number of active barrels.
      * @return Received multicast message.
      */
     public MulticastMessage receiveMessage(int activeBarrels){

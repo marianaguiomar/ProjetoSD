@@ -20,6 +20,10 @@ public class QueueSemaphore implements Serializable {
     public QueueSemaphore(){
         this.queueSemaphore = new Semaphore(0);
     }
+    /**
+     * Method that checks if the queue is available
+     * @return true if the queue is available
+     */
     public boolean checkAvailability(){
         try {
             // Attempt to acquire the semaphore with a timeout of 1 second

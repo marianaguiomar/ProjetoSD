@@ -11,6 +11,7 @@ public interface QueueInterface extends Remote, QueueSemaphoreInterface {
     /**
      * Method that inserts URL in queue
      * @param URL URL to be added
+     * @throws RemoteException If a remote communication error occurs.
      */
     void addURL(String URL) throws RemoteException;
 
