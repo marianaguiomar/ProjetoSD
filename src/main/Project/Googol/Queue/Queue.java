@@ -13,6 +13,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Class that manages the URLQueue
  */
@@ -53,6 +55,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
      */
     public Queue(Registry registryQueue, String whitelistPath) throws RemoteException {
         super();
+        Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
         this.visitedURL = new HashSet<>();
         this.URLQueue = new LinkedBlockingQueue<>();
 
@@ -62,9 +65,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
         } catch (RemoteException e) {
             LOGGER.log(Level.SEVERE, "Exception occurred while initializing Queue: \n" + e.getMessage(), e);
         }
-        System.out.println();
         this.queueSemaphore = new QueueSemaphore();
-        System.setProperty("java.rmi.server.logCalls", "true");
         System.out.println("[QUEUE#]:   Ready...");
 
     }
@@ -87,8 +88,11 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
     public String fetchURL() throws RemoteException {
         String result;
         try {
-            block();
-            unblock();
+
+            if (!this.queueSemaphore.checkAvailability() ){
+                return null;
+            }
+
             result = URLQueue.poll(15, java.util.concurrent.TimeUnit.SECONDS);
         }
         catch (InterruptedException e) {
@@ -96,6 +100,15 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
             return null;
         }
         return result;
+    }
+
+    private void exit(){
+        try {
+            sleep(1000);
+            System.out.println("[QUEUE#]: Exited...");
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Exception occurred while exiting Queue: \n" + e.getMessage(), e);
+        }
     }
 
     /**

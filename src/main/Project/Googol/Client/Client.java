@@ -47,7 +47,7 @@ public class Client {
     private final String gatewayAddress;
 
     /**
-     * Gateway inteface
+     * Gateway interface
      */
     private GatewayInterface gateway;
 
@@ -61,24 +61,24 @@ public class Client {
     public Client(String gatewayAddress) throws MalformedURLException, RemoteException, NotBoundException {
         this.scanner = new Scanner(System.in);
         this.gatewayAddress = gatewayAddress;
-        this.gateway = (GatewayInterface) Naming.lookup(gatewayAddress);
+        connectToGateway();
         System.out.print(welcomeMessage);
     }
 
     /**
      * Method that retries connection to Gateway a maximum of 5 times
-     * @return wether the reconnection was successful
+     * @return whether the reconnection was successful
      */
-    private boolean retryConnection(){
-        int conectAttempts = 0;
+    private boolean connectToGateway(){
+        int connectAttempts = 0;
         boolean connected = false;
-        while (conectAttempts < 5 && !connected) {
+        while (connectAttempts < 5 && !connected) {
             try {
                 this.gateway = (GatewayInterface) Naming.lookup(this.gatewayAddress);
                 System.out.println("[CLIENT]: Gateway reconnected");
                 return true;
             } catch (RemoteException | NotBoundException | MalformedURLException e) {
-                conectAttempts++;
+                connectAttempts++;
                 System.out.println("[CLIENT]: Gateway is not available trying to reconnect");
             }
         }
@@ -147,7 +147,7 @@ public class Client {
         }
         catch (RemoteException e) {
             System.out.println("[CLIENT]: Gateway is not available trying to reconnect");
-            if(retryConnection())
+            if(connectToGateway())
                 listening();
         }
         catch (NullPointerException e){

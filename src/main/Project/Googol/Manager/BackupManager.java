@@ -37,10 +37,11 @@ public class BackupManager {
             remissiveIndex = (RemissiveIndex) objectIn.readObject();
             objectIn.close();
             fileIn.close();
-            //System.out.println("[BACKUPMANAGER#]:RemissiveIndex object has been deserialized from " + filename);
         } catch (IOException | ClassNotFoundException e) {
             return new RemissiveIndex();
         }
+        if (remissiveIndex == null)
+            return new RemissiveIndex();
         return remissiveIndex;
     }
 }

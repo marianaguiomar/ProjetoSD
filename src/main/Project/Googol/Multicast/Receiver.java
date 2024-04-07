@@ -1,17 +1,14 @@
 package Googol.Multicast;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
-import java.net.SocketException;
+import java.net.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static java.lang.Thread.sleep;
 /* Receiver class for handling multicast messages.
  * <p>
- * Since Googol is a real-time application that cannot keep track of the packets it's sending, to maintain a reliable multicast machanism,
+ * Since Googol is a real-time application that cannot keep track of the packets it's sending, to maintain a reliable multicast mechanism,
  * it is necessary to ensure the packet delivery by confirming the receipt of each packet individually.
  * For that matter, it is implemented a method known as Positive Acknowledgment with Retransmission (PAR) at the application level.
  * In this approach, each packet sent by the sender contains a sequence number (messageID), and the receiver acknowledges the receipt of each packet individually.
@@ -49,12 +46,12 @@ public class Receiver{
     private MulticastSocket socket;
 
     /**
-     * Port for ACKS
+     * Port for PACKS
      */
     private final int CONFIRMATION_PORT;
 
     /**
-     * Socket for ACKS
+     * Socket for PACKS
      */
     private MulticastSocket confirmationSocket;
     /**
@@ -65,14 +62,15 @@ public class Receiver{
 
     /**
      * Method that initializes the receiver sockets
-     * socket receives URL data messages, so it joing multicast group
-     * confirmationSocket sends ACKS
+     * socket receives URL data messages, so it joins the multicast group
+     * confirmationSocket sends PACKS
      */
     private void initializeReceiverSockets(){
         try {
             this.socket = new MulticastSocket(this.PORT); // Use the same port used for sending
             this.group = InetAddress.getByName(this.MULTICAST_ADDRESS); // Use the same multicast group address used for sending
-            socket.joinGroup(group);
+            InetAddress multicastAddress = InetAddress.getByName(MULTICAST_ADDRESS);
+            this.socket.joinGroup(new InetSocketAddress(multicastAddress, this.PORT), NetworkInterface.getByIndex(0));
             this.confirmationSocket = new MulticastSocket();
         }
         catch (IOException | SecurityException | IllegalArgumentException e) {
@@ -102,7 +100,7 @@ public class Receiver{
     }
 
     /**
-     * Method to send ACKS to the sender
+     * Method to send PACKS to the sender
      * Each packet sent by the sender contains a unique messageID,
      * and the receiver acknowledges the receipt of each packet individually.
      * Every confirmation message has the type Googol.Multicast.MessageType.CONFIRMATION to distinguish it from other messages.

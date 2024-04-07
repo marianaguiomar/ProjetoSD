@@ -1,17 +1,14 @@
 package Googol.Multicast;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
-import java.net.SocketTimeoutException;
+import java.net.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 /* Sender class for handling multicast messages.
  * <p>
- * Since Googol is a real-time application that cannot keep track of the packets it's sending, to maintain a reliable multicast machanism,
+ * Since Googol is a real-time application that cannot keep track of the packets it's sending, to maintain a reliable multicast mechanism,
  * it is necessary to ensure the packet delivery by confirming the receipt of each packet individually.
  * For that matter, it is implemented a method known as Positive Acknowledgment with Retransmission (PAR) at the application level.
  * In this approach, each packet sent by the sender contains a sequence number (messageID), and the receiver acknowledges the receipt of each packet individually.
@@ -61,12 +58,12 @@ public class Sender {
     private MulticastSocket socket;
 
     /**
-     * Port for ACKS
+     * Port for PACKS
      */
     private MulticastSocket confirmationSocket;
 
     /**
-     * Socket for ACKS
+     * Socket for PACKS
      */
     private final int CONFIRMATION_PORT;
 
@@ -78,7 +75,7 @@ public class Sender {
     /**
      * Initializes the sender sockets.
      * socket sends URL data messages
-     * confirmationSocket receives ACKS, so it jois the multicast group
+     * confirmationSocket receives PACKS, so it joins the multicast group
      */
     private void initializeSenderSockets(){
         try {
@@ -86,7 +83,8 @@ public class Sender {
             this.group = InetAddress.getByName(this.MULTICAST_ADDRESS);
 
             this.confirmationSocket = new MulticastSocket(this.CONFIRMATION_PORT);
-            this.confirmationSocket.joinGroup(group);
+            InetAddress multicastAddress = InetAddress.getByName(MULTICAST_ADDRESS);
+            this.confirmationSocket.joinGroup(new InetSocketAddress(multicastAddress, this.CONFIRMATION_PORT), NetworkInterface.getByIndex(0));
             this.confirmationSocket.setSoTimeout(this.numberOfMillisToWait); // Timeout in milliseconds
 
         }
@@ -118,8 +116,8 @@ public class Sender {
 
     /**
      * Waits for confirmation from the receiver.
-     * Checks if ACKS are received within the defined timeout
-     * Check if the number of ACKS of a message received are the same as the number of active barrels
+     * Checks if PACKS are received within the defined timeout
+     * Check if the number of PACKS of a message received are the same as the number of active barrels
      * Checks if message type is CONFIRMATION and the payload equals the ID of the message that was sent
      * @param sentMessageID ID of the message sent.
      * @return True if confirmation received within timeout, false otherwise.
@@ -145,7 +143,7 @@ public class Sender {
                 if(message == null){
                     continue;
                 }
-                // Evalute message type and compare messageID with sent packet sequence number
+                // Evaluate message type and compare messageID with sent packet sequence number
                 if(message.messageType() == MessageType.CONFIRMATION && message.payload().equals(sentMessageID)){
                     if(message.activeBarrels() > activeBarrels)
                         activeBarrels = message.activeBarrels();
@@ -164,7 +162,7 @@ public class Sender {
     /**
      * Sends a multicast message.
      * Checks if the message isn't empty. Then, it sends the message through Googol.Multicast.
-     * Waits for ACKS, if they aren't received, resends the message.
+     * Waits for PACKS, if they aren't received, resends the message.
      * @param hyperlink    Hyperlink associated with the message.
      * @param payload      Payload of the message.
      * @param messageType  Type of the message.

@@ -4,8 +4,22 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f5a21401-640e-4ea2-94af-796cf83a0793" name="Changes" comment="put whitelistPath and backupPath to main parameter">
+    <list default="true" id="f5a21401-640e-4ea2-94af-796cf83a0793" name="Changes" comment="javadoc minor fix">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Barrel/Barrel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Barrel/Barrel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Barrel/BarrelInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Barrel/BarrelInterface.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Client/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Client/Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Downloader/Downloader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Downloader/Downloader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Gateway/Gateway.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Gateway/Gateway.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Manager/BackupManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Manager/BackupManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Manager/BarrelManager/BarrelManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Manager/BarrelManager/BarrelManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Manager/BarrelManager/backup.dat" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Manager/BarrelManager/backup.dat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Manager/DownloaderManager/whitelist" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Manager/DownloaderManager/whitelist.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Multicast/Receiver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Multicast/Receiver.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Multicast/Sender.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Multicast/Sender.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Queue/Queue.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Queue/Queue.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Queue/QueueInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Queue/QueueInterface.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Queue/QueueSemaphore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Queue/QueueSemaphore.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -124,7 +138,7 @@
       <recent name="$PROJECT_DIR$/tests" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.Queue">
+  <component name="RunManager" selected="Multirun.Googol">
     <configuration name="Barrel 2" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="Googol.Barrel.Barrel" />
       <module name="ProjetoSD" />
@@ -136,7 +150,7 @@
     <configuration name="Barrel" type="Application" factoryName="Application" singleton="false">
       <option name="MAIN_CLASS_NAME" value="Googol.Barrel.Barrel" />
       <module name="ProjetoSD" />
-      <option name="PROGRAM_PARAMETERS" value="224.0.0.1 4321 4322 100.95.228.17 4320 1 4441" />
+      <option name="PROGRAM_PARAMETERS" value="224.0.0.1 4321 4322 localhost 4320 1 4441" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -176,7 +190,7 @@
     <configuration name="Downloader" type="Application" factoryName="Application" singleton="false">
       <option name="MAIN_CLASS_NAME" value="Googol.Downloader.Downloader" />
       <module name="ProjetoSD" />
-      <option name="PROGRAM_PARAMETERS" value="224.0.0.1 4321 4322 100.95.228.17 1099 1 ./src/main/Project/Googol/Manager/BarrelManager/whitelist.txt ./src/main/Project/Googol/Manager/BarrelManager/backup.dat" />
+      <option name="PROGRAM_PARAMETERS" value="224.0.0.1 4321 4322 localhost 1099 1" />
       <method v="2">
         <option name="MakeProject" enabled="true" />
       </method>
@@ -205,17 +219,27 @@
     <configuration name="Gateway" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="Googol.Gateway.Gateway" />
       <module name="ProjetoSD" />
-      <option name="PROGRAM_PARAMETERS" value="100.95.228.17 1099 1100 4320" />
+      <option name="PROGRAM_PARAMETERS" value="localhost 1099 1100 4320 ./src/main/Project/Googol/Manager/DownloaderManager/whitelist.txt ./src/main/Project/Googol/Manager/BarrelManager/backup.dat" />
       <method v="2" />
     </configuration>
     <configuration name="Queue" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="Googol.Queue.Queue" />
       <module name="ProjetoSD" />
-      <option name="PROGRAM_PARAMETERS" value="1099 ./src/main/Project/Googol/Manager/DownloaderManager/whitelist" />
+      <option name="PROGRAM_PARAMETERS" value="1099 ./src/main/Project/Googol/Manager/DownloaderManager/whitelist.txt" />
       <method v="2">
         <option name="Make" enabled="true" />
         <option name="MakeProject" enabled="true" />
       </method>
+    </configuration>
+    <configuration name="Googol" type="Multirun" separateTabs="false" reuseTabsWithFailures="true" startOneByOne="true" markFailedProcess="true" hideSuccessProcess="true" delayTime="0.0">
+      <runConfiguration name="Queue" type="Application" />
+      <runConfiguration name="Gateway" type="Application" />
+      <runConfiguration name="Downloader" type="Application" />
+      <runConfiguration name="Downloader2" type="Application" />
+      <runConfiguration name="Barrel" type="Application" />
+      <runConfiguration name="Barrel 2" type="Application" />
+      <runConfiguration name="Client" type="Application" />
+      <method v="2" />
     </configuration>
     <list>
       <item itemvalue="Application.Downloader2" />
@@ -229,6 +253,7 @@
       <item itemvalue="Application.Barrel3" />
       <item itemvalue="Application.Barrel4" />
       <item itemvalue="Application.Barrel5" />
+      <item itemvalue="Multirun.Googol" />
     </list>
   </component>
   <component name="SharedIndexes">
@@ -280,15 +305,7 @@
       <workItem from="1712423594462" duration="47000" />
       <workItem from="1712423738022" duration="159000" />
       <workItem from="1712423940545" duration="4591000" />
-      <workItem from="1712486399843" duration="837000" />
-    </task>
-    <task id="LOCAL-00052" summary="make client prettier">
-      <option name="closed" value="true" />
-      <created>1712239706591</created>
-      <option name="number" value="00052" />
-      <option name="presentableId" value="LOCAL-00052" />
-      <option name="project" value="LOCAL" />
-      <updated>1712239706591</updated>
+      <workItem from="1712486399843" duration="8005000" />
     </task>
     <task id="LOCAL-00053" summary="Multicast package javadoc">
       <option name="closed" value="true" />
@@ -674,7 +691,15 @@
       <option name="project" value="LOCAL" />
       <updated>1712487175540</updated>
     </task>
-    <option name="localTasksCounter" value="101" />
+    <task id="LOCAL-00101" summary="javadoc minor fix">
+      <option name="closed" value="true" />
+      <created>1712487253118</created>
+      <option name="number" value="00101" />
+      <option name="presentableId" value="LOCAL-00101" />
+      <option name="project" value="LOCAL" />
+      <updated>1712487253118</updated>
+    </task>
+    <option name="localTasksCounter" value="102" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -705,7 +730,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="javadoc final touches" />
     <MESSAGE value="little bug" />
     <MESSAGE value="half fix" />
     <MESSAGE value="fix" />
@@ -730,7 +754,8 @@
     <MESSAGE value="desabilitar o multicast" />
     <MESSAGE value="submeter" />
     <MESSAGE value="put whitelistPath and backupPath to main parameter" />
-    <option name="LAST_COMMIT_MESSAGE" value="put whitelistPath and backupPath to main parameter" />
+    <MESSAGE value="javadoc minor fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="javadoc minor fix" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

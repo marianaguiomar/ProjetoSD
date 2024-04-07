@@ -28,11 +28,17 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
      * Path to back up file
      */
     private final String backupPath;
-
+    /**
+     * Barrel manager port
+     */
+    private final int port;
+    /**
+     * Queue interface
+     */
     private final QueueInterface queue;
 
     /**
-     * Class constructer, attributes are initialized
+     * Class constructor, attributes are initialized
      * @param port Barrel manager port
      * @param whitelistPath Path to the barrel's whitelist
      * @throws RemoteException If a remote communication error occurs.
@@ -41,15 +47,22 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
         super(whitelistPath);
         this.instanceType = "[BARRELMANAGER#]";
         this.queue = queueInterface;
+        this.port = port;
+        createRegistry();
+        this.backupPath = backupPath;
+        this.barrelsInterfaces = new HashMap<>();
+    }
+    /**
+     * Method that creates a registry for the barrel manager
+     */
+    private void createRegistry(){
         try {
-            Registry registry = LocateRegistry.createRegistry(port);
+            Registry registry = LocateRegistry.createRegistry(this.port);
             registry.rebind("gateway", this);
             System.out.println(this.instanceType + ":   Ready...");
         } catch (RemoteException e) {
             LOGGER.log(Level.SEVERE, "Exception occurred while initializing ProjectManager: " + e.getMessage(), e);
         }
-        this.backupPath = backupPath;
-        this.barrelsInterfaces = new HashMap<>();
     }
 
     /**
@@ -80,7 +93,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
     }
 
     /**
-     * Method that syncronizes a new barrel's remissive index with the others, or sets it up with the info on backup.dat
+     * Method that synchronizes a new barrel's remissive index with the others, or sets it up with the info on backup.dat
      * @param barrelID barrel id
      * @return remissive index
      * @throws RemoteException If a remote communication error occurs.
@@ -88,9 +101,6 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
     public RemissiveIndex setRemissiveIndex(int barrelID) throws RemoteException {
         if (activeInstances == 1) {
             this.queue.unblock();
-            RemissiveIndex remissiveIndex = BackupManager.readBackupFile(backupPath);
-            if (remissiveIndex == null)
-                return new RemissiveIndex();
             return BackupManager.readBackupFile(backupPath);
         } else {
             RemissiveIndex remissiveIndex = null;
@@ -104,7 +114,8 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
                 remissiveIndex = barrel.getRemissiveIndex();
             }
             if (remissiveIndex == null) {
-                System.out.println("Failed to retrieve");
+                System.out.println("[BARRELMANAGER#]: Failed to retrieve backup from BARREL#"+ differentBarrelID +", " +
+                        "creating new remissive index...");
                 return new RemissiveIndex();
             }
             return remissiveIndex;
@@ -141,7 +152,6 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
         activeInstances--;
         if (activeInstances == 0) {
             System.out.println(this.instanceType + ": Last barrel removed, creating backup file");
-            this.queue.block();
             BarrelInterface barrel = lookupBarrel(ID);
             BackupManager.createBackupFile(barrel.getRemissiveIndex(), backupPath);
         }
@@ -149,6 +159,9 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
         isWorking.put(ID, false);
         this.addresses.remove(ID);
         this.ports.remove(ID);
+        System.out.println("a");
+        this.queue.block();
+        System.out.println("b");
     }
 
 

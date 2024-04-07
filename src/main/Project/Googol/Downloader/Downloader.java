@@ -20,6 +20,8 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Class that manages a Downloader
  */
@@ -36,7 +38,7 @@ public class Downloader implements Runnable {
     private final Sender sender;
 
     /**
-     * Boolean that returns wether a queue exists or not
+     * Boolean that returns whether a queue exists or not
      */
     boolean queueExists = true;
 
@@ -53,10 +55,10 @@ public class Downloader implements Runnable {
 
 
     /**
-     * Stopwords that won't be sent as tokens to the barrels
+     * Stop-words that won't be sent as tokens to the barrels
      */
     String[] stopwords = {
-            // English stopwords
+            // English stop-words
             "a", "an", "and", "are", "as", "at", "be", "but", "by",
             "for", "if", "in", "into", "is", "it",
             "no", "not", "of", "on", "or", "such",
@@ -73,7 +75,7 @@ public class Downloader implements Runnable {
             "until", "up", "upon", "very", "via", "was", "we", "well", "were", "what", "whatever", "when",
             "where", "whereas", "whether", "which", "while", "who", "whom", "whose", "why", "will", "would",
             "yet", "you", "your", "yourselves",
-            // Portuguese stopwords
+            // Portuguese stop-words
             "a", "à", "ao", "aos", "às", "ante", "após", "até", "com", "contra", "de",
             "desde", "em", "entre", "para", "per", "perante", "por", "sem", "sob", "sobre",
             "trás", "o", "a", "os", "as", "um", "uma", "uns", "umas", "ao", "à", "às", "pelo",
@@ -85,7 +87,7 @@ public class Downloader implements Runnable {
             "nisto", "nesse", "nessa", "nesses", "nessas",  "nisso"};
 
     /**
-     * HashSet containing stopwords (for faster search)
+     * HashSet containing stop-words (for faster search)
      */
     HashSet<String> stopwordsSet;
 
@@ -107,28 +109,34 @@ public class Downloader implements Runnable {
      * @param ID Downloader ID
      */
     public Downloader(String multicastAddress, int port, int confirmationPort,
-                      String queuePath, int ID) {
+                      String queuePath, int ID) throws InterruptedException {
         this.port = port;
-        connectToQueue(queuePath);
         this.myID =  ID;
+        connectToQueue(queuePath, 3);
         verifyMyID();
-
         Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
         this.sender = new Sender(multicastAddress, port,  confirmationPort);
         this.stopwordsSet = new HashSet<>(Arrays.asList(stopwords));
-        System.setProperty("java.rmi.server.logCalls", "true");
         System.out.println("[DOWNLOADER#" + myID + "]:" + "   Ready...");
     }
     /**
      * Method that connects to the Queue
      * @param queuePath Path to the Queue
      */
-    private void connectToQueue(String queuePath) {
+    private void connectToQueue(String queuePath, int numTries) throws InterruptedException {
+        if (numTries == 0) {
+            System.out.println("[DOWNLOADER#" + this.myID + "]:" + "   Could not connect to the queue. Exiting...");
+            System.exit(1);
+        }
         try {
+
             this.queue = (QueueInterface) Naming.lookup(queuePath);
         } catch (Exception e) {
+            --numTries;
+            sleep(1000);
+            System.out.println("[DOWNLOADER#"+ myID +"]: Connecting to queue " +numTries + " tries left");
             LOGGER.log(Level.SEVERE, "Exception occurred"+ e.getMessage(), e);
-            connectToQueue(queuePath);
+            connectToQueue(queuePath, numTries);
         }
     }
     /**
@@ -150,15 +158,16 @@ public class Downloader implements Runnable {
 
     /**
      * Method called when Downloader stops running
-     * It has Queue remove this downloader from the list of active downloaders when it stops running
+     * It has Queue remove this downloader from the list of active Downloaders when it stops running
      */
     private void exit() {
         try {
+            System.out.println("[DOWNLOADER#" + myID + "]:" + "   Exiting...");
             this.queue.removeInstance(myAddress, this.port,this.myID);
             sender.close();
         }
         catch(Exception e){
-            System.exit(1);
+            System.out.println("[DOWNLOADER#" + myID + "]:" + "   Error while exiting");
         }
     }
 
@@ -174,7 +183,7 @@ public class Downloader implements Runnable {
 
     /**
      * Method that send MulticastMessages with tokens
-     * It removes all invalid characters and all tokens whose lenght is 2 or less
+     * It removes all invalid characters and all tokens whose length is 2 or less
      * If the total size of all tokens is bigger than the max size of a MulticastMessage, it separates them in two or more messages
      * @param hyperlink hyperlink where the tokens were found
      * @param doc website, from connection to jsoup
@@ -244,9 +253,9 @@ public class Downloader implements Runnable {
             return false;
         }
         try {
-            new URL(url).toURI();
+            new URL(url);
             return true;
-        } catch (MalformedURLException | URISyntaxException e) {
+        } catch (MalformedURLException e) {
             return false;
         }
     }
@@ -268,7 +277,6 @@ public class Downloader implements Runnable {
      * @param doc website, from connection to jsoup
      */
     private void sendTitle(String hyperlink, Document doc){
-        //verificar se há titulo
         String title;
         if(doc.title().isEmpty() || doc.title().isBlank()){
             title = "No title found.";
@@ -301,7 +309,7 @@ public class Downloader implements Runnable {
      * @param doc website, from connection to jsoup
      */
     private void sendCitation(String hyperlink, Document doc){
-        //verificar se existe um firstParagraph
+        // verifies if a first paragraph exists
         Element firstParagraph = doc.select("p").first();
         String firstParagraphText;
         if(firstParagraph != null && !firstParagraph.text().isEmpty() && !firstParagraph.text().isBlank()){
@@ -352,7 +360,6 @@ public class Downloader implements Runnable {
                 sendTitle(url, doc);
                 sendCitation(url, doc);
                 sendTokens(url, doc);
-                //atualizar a queue com os urls da página visitada e enviá-los por multicast
                 updateURLs(url, doc);
             }
             catch (RemoteException remoteException) {
@@ -375,7 +382,7 @@ public class Downloader implements Runnable {
         }
         exit();
     }
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         if(args.length != 6){
             System.out.println("Usage: java Downloader <multicastAddress> <port> <confirmationPort> <queueIP> <queuePort> <ID>");
             System.exit(1);

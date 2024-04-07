@@ -39,9 +39,9 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
      */
     private final RemissiveIndex remissiveIndex;
     /**
-     * This barrel's number (id)
+     * This barrel's ID
      */
-    private final int barrelNumber;
+    private final int myID;
     /**
      * This barrel's port
      */
@@ -66,25 +66,25 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
      * @param port             Port for receiving multicast messages.
      * @param confirmationPort Port for sending confirmation messages.
      * @param gatewayAddress   Gateway address and port where the BarrelManager is located
-     * @param barrelNumber     Barrel number (id)
+     * @param myID     Barrel number (id)
      * @param barrelPort       Barrel port
      * @throws IOException If the operation is interrupted
      * @throws NotBoundException Remote object is not bound to the specified name in the registry.
      */
-    public Barrel(String multicastAddress, int port, int confirmationPort, String gatewayAddress, int barrelNumber, int barrelPort) throws IOException, NotBoundException, InterruptedException {
-        this.barrelNumber = barrelNumber;
+    public Barrel(String multicastAddress, int port, int confirmationPort, String gatewayAddress, int myID, int barrelPort) throws IOException, NotBoundException, InterruptedException {
+        this.myID = myID;
         this.barrelPort = barrelPort;
         bindMyself();
-        connectToBarrelManagerInGateway(gatewayAddress);
+        connectToBarrelManagerInGateway(gatewayAddress, 4);
         this.myAddress = getMyAddress();
         verifyMyID(this.myAddress);
-        this.remissiveIndex = barrelManager.setRemissiveIndex(this.barrelNumber);
+        this.remissiveIndex = barrelManager.setRemissiveIndex(this.myID);
         Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
         this.receiver = new Receiver(multicastAddress, port, confirmationPort);
         //start fetching active instances
         ActiveInstancesFetcher activeInstancesFetcher = new ActiveInstancesFetcher();
         activeInstancesFetcher.startFetching();
-        System.out.println("[BARREL#" + barrelNumber + "]:" + "   Ready...");
+        System.out.println("[BARREL#" + myID + "]:" + "   Ready...");
     }
     /**
      * Method that verifies if the barrel's ID is valid
@@ -92,8 +92,8 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
      * @throws RemoteException If a remote communication error occurs.
      */
     private void verifyMyID(String registryAddress) throws RemoteException {
-        if(!this.barrelManager.verifyID(this.barrelNumber,registryAddress, this.barrelPort)){
-            System.out.println("[BARREL#" + barrelNumber + "]:" + "   Barrel ID is not valid. Exiting...");
+        if(!this.barrelManager.verifyID(this.myID,registryAddress, this.barrelPort)){
+            System.out.println("[BARREL#" + myID + "]:" + "   Barrel ID is not valid. Exiting...");
             System.exit(1);
         }
     }
@@ -103,7 +103,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     private void bindMyself(){
         try {
             Registry registry = LocateRegistry.createRegistry(this.barrelPort);
-            registry.rebind("barrel" + this.barrelNumber, this);
+            registry.rebind("barrel" + this.myID, this);
 
         } catch (RemoteException e) {
             LOGGER.log(Level.SEVERE, "Remote Exception Error\n "+ e.getMessage(), e);
@@ -115,12 +115,19 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
      * @param gatewayAddress Gateway address
      * @throws InterruptedException If the operation is interrupted
      */
-    private void connectToBarrelManagerInGateway(String gatewayAddress) throws InterruptedException {
+    private void connectToBarrelManagerInGateway(String gatewayAddress, int numTries) throws InterruptedException {
+        if (numTries == 0) {
+            System.out.println("[BARREL#" + myID + "]:" + "   Could not connect to BarrelManager. Exiting...");
+            System.exit(1);
+        }
         try {
+
             this.barrelManager = (BarrelManagerInterface) Naming.lookup(gatewayAddress);
         } catch (NotBoundException | MalformedURLException | RemoteException e) {
-            sleep(1);
-            connectToBarrelManagerInGateway(gatewayAddress);
+            sleep(500);
+            --numTries;
+            System.out.println("[Barrel#"+ myID +"]: Connecting to Gateway(BarrelManager) " +numTries + " tries left");
+            connectToBarrelManagerInGateway(gatewayAddress, --numTries);
         }
     }
     /**
@@ -133,8 +140,8 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
      * @return Barrel Number
      * @throws RemoteException If a remote communication error occurs.
      */
-    public int getBarrelNumber() throws RemoteException {
-        return this.barrelNumber;
+    public int getMyID() throws RemoteException {
+        return this.myID;
     }
 
     /**
@@ -207,7 +214,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
      * @throws RemoteException If a remote communication error occurs.
      */
     public RemissiveIndex getRemissiveIndex() throws RemoteException{
-        System.out.println("[BARREL#" + barrelNumber + "]:" + "   Returning remissive index");
+        System.out.println("[BARREL#" + myID + "]:" + "   Returning remissive index");
         return this.remissiveIndex;
     }
 
@@ -266,7 +273,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     public String getConnections(String URL) throws RemoteException{
         String result = remissiveIndex.getConnections(URL);
         if(result == null) {
-            System.out.println("[BARREL#" + barrelNumber + "]:" + "   URL not found");
+            System.out.println("[BARREL#" + myID + "]:" + "   URL not found");
             return "";
         }
         return remissiveIndex.getConnections(URL);
@@ -314,13 +321,12 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
 
     private void exit() {
         try {
-            this.barrelManager.removeInstance(myAddress, this.barrelPort,this.barrelNumber);
+            this.barrelManager.removeInstance(myAddress, this.barrelPort,this.myID);
             receiver.close();
-            System.exit(0);
+            System.out.println("[BARREL#" + myID + "]:" + "   Exiting...");
         }
         catch(Exception e){
-            //LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
-            System.exit(1);
+            LOGGER.log(Level.SEVERE, "Remote exception occurred"+ e.getMessage(), e);
         }
     }
     /**

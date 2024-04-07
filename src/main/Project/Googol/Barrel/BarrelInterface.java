@@ -37,5 +37,5 @@ public interface BarrelInterface extends Remote {
      * @return Barrel Number
      * @throws RemoteException If a remote communication error occurs.
      */
-    int getBarrelNumber() throws RemoteException;
+    int getMyID() throws RemoteException;
 }

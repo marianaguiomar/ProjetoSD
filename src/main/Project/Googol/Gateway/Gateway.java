@@ -12,6 +12,8 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Class that manages the Gateway
  */
@@ -66,12 +68,13 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
      */
     public Gateway(Registry registry, String queuePath, int barrelManagerPort, String whitelistPath, String backupPath) throws RemoteException {
         super();
+        Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
         this.barrelInUse = 0;
         this.queuePath = queuePath;
         this.totalDuration = new HashMap<>();
         this.numSearches = new HashMap<>();
         this.searches = new LinkedHashMap<>();
-        connectToQueue();
+        connectToQueue(3);
         this.barrelManager = new BarrelManager(barrelManagerPort,whitelistPath,
                 backupPath, this.queue);
         registry.rebind("gateway", this);
@@ -80,18 +83,27 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     /**
      * Method that connects the Gateway to the Queue
      */
-    private void connectToQueue(){
+    private void connectToQueue(int numTries){
         try{
             this.queue = (QueueInterface) Naming.lookup(queuePath);
         }
         catch(NotBoundException notBoundException){
-            System.out.println("[GATEWAY]: Queue not found");
+            --numTries;
+            System.out.println("[GATEWAY]: Connecting to queue " +numTries + " tries left");
+            System.out.println("[GATEWAY]: Queue not found.");
+            connectToQueue(numTries);
         }
         catch (RemoteException remoteException){
+            --numTries;
+            System.out.println("[GATEWAY]: Connecting to queue " +numTries + " tries left");
             System.out.println("[GATEWAY]: Remote Exception in Queue");
+            connectToQueue(numTries);
         }
         catch (MalformedURLException malformedURLException){
+            --numTries;
+            System.out.println("[GATEWAY]: Connecting to queue " +numTries + " tries left");
             System.out.println("[GATEWAY]: Malformed URL Exception in Queue");
+            connectToQueue(numTries);
         }
     }
 
@@ -116,8 +128,18 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
             System.out.println("[GATEWAY]: Remote Exception");
         }
     }
-
-
+    /**
+     * Method that exits the Gateway
+     */
+    void exit() {
+        try {
+            //Sleep to allow the barrel to send the Remissive Index
+            sleep(1000);
+            System.out.println("[GATEWAY]: Exiting...");
+        } catch (Exception e) {
+            System.out.println("[GATEWAY]: Error while exiting");
+        }
+    }
 
     /**
      * Method that updates searches performed (by each barrel and in total)
@@ -125,21 +147,21 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
      * @throws RemoteException If a remote communication error occurs.
      */
     public void updateSearches(double duration) throws RemoteException{
-        if (!totalDuration.containsKey(this.barrel.getBarrelNumber())) {
-            totalDuration.put(this.barrel.getBarrelNumber(), duration);
+        if (!totalDuration.containsKey(this.barrel.getMyID())) {
+            totalDuration.put(this.barrel.getMyID(), duration);
         }
         else {
-            double currDuration = totalDuration.get(this.barrel.getBarrelNumber());
+            double currDuration = totalDuration.get(this.barrel.getMyID());
             double updatedDuration = currDuration + duration;
-            totalDuration.put(this.barrel.getBarrelNumber(), updatedDuration);
+            totalDuration.put(this.barrel.getMyID(), updatedDuration);
         }
-        if (!numSearches.containsKey(this.barrel.getBarrelNumber())) {
-            numSearches.put(this.barrel.getBarrelNumber(), 1);
+        if (!numSearches.containsKey(this.barrel.getMyID())) {
+            numSearches.put(this.barrel.getMyID(), 1);
         }
         else {
-            double currSearches = numSearches.get(this.barrel.getBarrelNumber());
+            double currSearches = numSearches.get(this.barrel.getMyID());
             double updatedSearches = currSearches + 1;
-            totalDuration.put(this.barrel.getBarrelNumber(), updatedSearches);
+            totalDuration.put(this.barrel.getMyID(), updatedSearches);
         }
     }
 
