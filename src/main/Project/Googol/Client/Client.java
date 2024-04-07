@@ -75,11 +75,10 @@ public class Client {
         while (connectAttempts < 5 && !connected) {
             try {
                 this.gateway = (GatewayInterface) Naming.lookup(this.gatewayAddress);
-                System.out.println("[CLIENT]: Gateway reconnected");
                 return true;
             } catch (RemoteException | NotBoundException | MalformedURLException e) {
                 connectAttempts++;
-                System.out.println("[CLIENT]: Gateway is not available trying to reconnect");
+                System.out.println("[CLIENT]: Gateway is not available trying to reconnect, "+ (5 - connectAttempts) + " attempts left.");
             }
         }
         return false;
@@ -146,7 +145,7 @@ public class Client {
             scanner.close();
         }
         catch (RemoteException e) {
-            System.out.println("[CLIENT]: Gateway is not available trying to reconnect");
+            System.out.println("[CLIENT]: Failed to retrieve results from the gateway");
             if(connectToGateway())
                 listening();
         }

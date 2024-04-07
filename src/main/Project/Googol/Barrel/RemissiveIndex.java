@@ -36,7 +36,6 @@ public class RemissiveIndex implements Serializable {
         StringBuilder result = new StringBuilder(header);
         if (urlConnection.containsKey(hyperlink)) {
             for (String url: urlConnection.get(hyperlink)) {
-                System.out.println(url);
                 result.append(webPages.get(url).toString());
             }
         }

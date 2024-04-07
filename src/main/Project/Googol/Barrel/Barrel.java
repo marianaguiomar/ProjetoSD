@@ -277,7 +277,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
             System.out.println("[BARREL#" + myID + "]:" + "   URL not found");
             return "";
         }
-        return remissiveIndex.getConnections(URL);
+        return result;
     }
 
     /**
