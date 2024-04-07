@@ -161,9 +161,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
         isWorking.put(ID, false);
         this.addresses.remove(ID);
         this.ports.remove(ID);
-        System.out.println("a");
         this.queue.block();
-        System.out.println("b");
     }
 
 
