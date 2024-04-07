@@ -4,22 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f5a21401-640e-4ea2-94af-796cf83a0793" name="Changes" comment="javadoc minor fix">
+    <list default="true" id="f5a21401-640e-4ea2-94af-796cf83a0793" name="Changes" comment="final project">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Barrel/Barrel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Barrel/Barrel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Barrel/BarrelInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Barrel/BarrelInterface.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Client/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Client/Client.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Downloader/Downloader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Downloader/Downloader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Gateway/Gateway.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Gateway/Gateway.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Manager/BackupManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Manager/BackupManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Manager/BarrelManager/BarrelManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Manager/BarrelManager/BarrelManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Manager/BarrelManager/backup.dat" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Manager/BarrelManager/backup.dat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Manager/DownloaderManager/whitelist" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Manager/DownloaderManager/whitelist.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Multicast/Receiver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Multicast/Receiver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Multicast/Sender.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Multicast/Sender.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Queue/Queue.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Queue/Queue.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Queue/QueueInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Queue/QueueInterface.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Queue/QueueSemaphore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Queue/QueueSemaphore.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -305,15 +292,7 @@
       <workItem from="1712423594462" duration="47000" />
       <workItem from="1712423738022" duration="159000" />
       <workItem from="1712423940545" duration="4591000" />
-      <workItem from="1712486399843" duration="8005000" />
-    </task>
-    <task id="LOCAL-00053" summary="Multicast package javadoc">
-      <option name="closed" value="true" />
-      <created>1712240610717</created>
-      <option name="number" value="00053" />
-      <option name="presentableId" value="LOCAL-00053" />
-      <option name="project" value="LOCAL" />
-      <updated>1712240610717</updated>
+      <workItem from="1712486399843" duration="9589000" />
     </task>
     <task id="LOCAL-00054" summary="typo client">
       <option name="closed" value="true" />
@@ -699,7 +678,15 @@
       <option name="project" value="LOCAL" />
       <updated>1712487253118</updated>
     </task>
-    <option name="localTasksCounter" value="102" />
+    <task id="LOCAL-00102" summary="final project">
+      <option name="closed" value="true" />
+      <created>1712497186727</created>
+      <option name="number" value="00102" />
+      <option name="presentableId" value="LOCAL-00102" />
+      <option name="project" value="LOCAL" />
+      <updated>1712497186727</updated>
+    </task>
+    <option name="localTasksCounter" value="103" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -730,7 +717,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="little bug" />
     <MESSAGE value="half fix" />
     <MESSAGE value="fix" />
     <MESSAGE value="typo" />
@@ -755,7 +741,8 @@
     <MESSAGE value="submeter" />
     <MESSAGE value="put whitelistPath and backupPath to main parameter" />
     <MESSAGE value="javadoc minor fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="javadoc minor fix" />
+    <MESSAGE value="final project" />
+    <option name="LAST_COMMIT_MESSAGE" value="final project" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -158,7 +158,7 @@ public class Client {
 
     public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException {
         if (args.length != 2) {
-            System.out.println("Usage: java Googol.Client.Client <gatewayIP> <gatewayPort>");
+            System.out.println("Usage: java client <gatewayIP> <gatewayPort>");
             System.exit(1);
         }
         String gatewayAddress = "rmi://" + args[0] + ":" + args[1] + "/gateway";
