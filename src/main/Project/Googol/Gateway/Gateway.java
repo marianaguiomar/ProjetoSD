@@ -60,7 +60,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
 
 
     /**
-     * Class constructer, attributes are initialized
+     * Class constructor, attributes are initialized
      * @param registry RMI registry
      * @param queuePath Queue path
      * @param barrelManagerPort Barrel manager port
@@ -111,11 +111,16 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
 
     /**
      * Method that connects the Gateway to a barrel and balance workload between barrels (RoundRobin)
-     * @throws RemoteException If a remote communication error occurs.
      */
-    private void connectToBarrel() throws RemoteException {
-        if(this.barrelManager.getActiveInstances() == 0){
-            System.out.println("[GATEWAY]: No barrels available");
+    private void connectToBarrel()  {
+        try {
+            if (this.barrelManager.getActiveInstances() == 0) {
+                System.out.println("[GATEWAY]: No barrels available");
+                return;
+            }
+        }
+        catch (RemoteException e) {
+            System.out.println("[GATEWAY]: No barrel available");
             return;
         }
 
@@ -169,7 +174,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
 
     /**
      * Method that performs a search (communicating with the Barrels)
-     * @param tokens okens to search for
+     * @param tokens tokens to search for
      * @param pageNumber Page number (each page contains 10 results)
      * @param isIntersectionSearch If true, intersection. If false, union
      * @return Set of 10 websites, according to the requested page
@@ -193,11 +198,12 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
             while (webPages == null && counter < this.barrelManager.getActiveInstances());
 
         }
+        if(webPages == null){
+            return "No results found";
+        }
         System.out.println("[GATEWAY]: Search done");
-
         long endTime = System.currentTimeMillis();
         updateSearches((double) endTime-startTime);
-        assert webPages != null;
         StringBuilder result= new StringBuilder(webPages.length + " RESULTADOS PARA A PÁGINA " + pageNumber + "\n");
         for (WebPage webPage : webPages) {
             result.append(webPage.toString()).append("\n");
@@ -217,7 +223,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     }
 
     /**
-     * Method that returns the administrator informatin of the system (top10 searches performed,
+     * Method that returns the administrator informing of the system (top10 searches performed,
      * average duration of search per barrel, active barrels
      * @return top10 searches performed, average duration of search per barrel, active barrels
      * @throws RemoteException If a remote communication error occurs.
@@ -341,7 +347,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
                     queueAddress, Integer.parseInt(args[3]), args[4], args[5]);
         }
         catch (RemoteException e) {
-            System.out.println("Failed to initiliaze gateway");
+            System.out.println("Failed to initialize gateway");
         }
     }
 
