@@ -29,8 +29,14 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
      * Set of URL that have been visited
      */
     private final HashSet<String> visitedURL;
+    /**
+     * Semaphore to block and unblock the queue
+     */
 
     private final QueueSemaphore queueSemaphore;
+    /**
+     * Serial version
+     */
 
     @Serial
     private static final long serialVersionUID = 1L;

@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f5a21401-640e-4ea2-94af-796cf83a0793" name="Changes" comment="submeter">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Gateway/Gateway.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Gateway/Gateway.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Manager/BarrelManager/BarrelManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Manager/BarrelManager/BarrelManager.java" afterDir="false" />
+    <list default="true" id="f5a21401-640e-4ea2-94af-796cf83a0793" name="Changes" comment="put whitelistPath and backupPath to main parameter">
       <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Queue/Queue.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Queue/Queue.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -283,15 +280,7 @@
       <workItem from="1712423594462" duration="47000" />
       <workItem from="1712423738022" duration="159000" />
       <workItem from="1712423940545" duration="4591000" />
-      <workItem from="1712486399843" duration="738000" />
-    </task>
-    <task id="LOCAL-00051" summary="final version without counting packs">
-      <option name="closed" value="true" />
-      <created>1712236491582</created>
-      <option name="number" value="00051" />
-      <option name="presentableId" value="LOCAL-00051" />
-      <option name="project" value="LOCAL" />
-      <updated>1712236491582</updated>
+      <workItem from="1712486399843" duration="837000" />
     </task>
     <task id="LOCAL-00052" summary="make client prettier">
       <option name="closed" value="true" />
@@ -677,7 +666,15 @@
       <option name="project" value="LOCAL" />
       <updated>1712428286689</updated>
     </task>
-    <option name="localTasksCounter" value="100" />
+    <task id="LOCAL-00100" summary="put whitelistPath and backupPath to main parameter">
+      <option name="closed" value="true" />
+      <created>1712487175540</created>
+      <option name="number" value="00100" />
+      <option name="presentableId" value="LOCAL-00100" />
+      <option name="project" value="LOCAL" />
+      <updated>1712487175540</updated>
+    </task>
+    <option name="localTasksCounter" value="101" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -708,7 +705,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="semaphore working" />
     <MESSAGE value="javadoc final touches" />
     <MESSAGE value="little bug" />
     <MESSAGE value="half fix" />
@@ -733,7 +729,8 @@
     <MESSAGE value="help" />
     <MESSAGE value="desabilitar o multicast" />
     <MESSAGE value="submeter" />
-    <option name="LAST_COMMIT_MESSAGE" value="submeter" />
+    <MESSAGE value="put whitelistPath and backupPath to main parameter" />
+    <option name="LAST_COMMIT_MESSAGE" value="put whitelistPath and backupPath to main parameter" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
