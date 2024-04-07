@@ -188,15 +188,8 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
             connectToBarrel();
             webPages = barrel.search(tokens, pageNumber, isIntersectionSearch);
         }
-        catch (RemoteException e) {
-            int counter = 0;
-            do {
-                connectToBarrel();
-                webPages = barrel.search(tokens, pageNumber, isIntersectionSearch);
-                counter++;
-            }
-            while (webPages == null && counter < this.barrelManager.getActiveInstances());
-
+        catch (Exception e) {
+            return "No results found";
         }
         if(webPages == null){
             return "No results found";

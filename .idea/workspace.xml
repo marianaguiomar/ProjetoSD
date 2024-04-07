@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f5a21401-640e-4ea2-94af-796cf83a0793" name="Changes" comment="final for real">
+    <list default="true" id="f5a21401-640e-4ea2-94af-796cf83a0793" name="Changes" comment="final for real for real">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Gateway/Gateway.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Gateway/Gateway.java" afterDir="false" />
     </list>
@@ -292,15 +292,7 @@
       <workItem from="1712423594462" duration="47000" />
       <workItem from="1712423738022" duration="159000" />
       <workItem from="1712423940545" duration="4591000" />
-      <workItem from="1712486399843" duration="13087000" />
-    </task>
-    <task id="LOCAL-00057" summary="first two tests">
-      <option name="closed" value="true" />
-      <created>1712252804119</created>
-      <option name="number" value="00057" />
-      <option name="presentableId" value="LOCAL-00057" />
-      <option name="project" value="LOCAL" />
-      <updated>1712252804119</updated>
+      <workItem from="1712486399843" duration="13637000" />
     </task>
     <task id="LOCAL-00058" summary="fixed search bug">
       <option name="closed" value="true" />
@@ -686,7 +678,15 @@
       <option name="project" value="LOCAL" />
       <updated>1712501897488</updated>
     </task>
-    <option name="localTasksCounter" value="106" />
+    <task id="LOCAL-00106" summary="final for real for real">
+      <option name="closed" value="true" />
+      <created>1712502282866</created>
+      <option name="number" value="00106" />
+      <option name="presentableId" value="LOCAL-00106" />
+      <option name="project" value="LOCAL" />
+      <updated>1712502282866</updated>
+    </task>
+    <option name="localTasksCounter" value="107" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -717,7 +717,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="typo" />
     <MESSAGE value="semaphore refactor" />
     <MESSAGE value="lol" />
     <MESSAGE value="me trying not to kill myself" />
@@ -742,7 +741,8 @@
     <MESSAGE value="submeter" />
     <MESSAGE value="submeter javadoc fixed" />
     <MESSAGE value="final for real" />
-    <option name="LAST_COMMIT_MESSAGE" value="final for real" />
+    <MESSAGE value="final for real for real" />
+    <option name="LAST_COMMIT_MESSAGE" value="final for real for real" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
