@@ -144,7 +144,11 @@ public abstract class InstanceManager extends UnicastRemoteObject {
                 + port);
         return true;
     }
-
+    /**
+     * Method that returns all available instances' ids
+     * @return all available instances' ids
+     * @throws RemoteException If a remote communication error occurs.
+     */
     public int getMaxInstances() throws RemoteException {
         return this.IDs.size();
     }

@@ -18,6 +18,7 @@ public interface QueueInterface extends Remote, QueueSemaphoreInterface {
      * Method that fetches a URL from queue to be analysed by Downloader
      * @return URL from queue
      * @throws InterruptedException If the operation is interrupted
+     * @throws RemoteException If a remote communication error occurs.
      */
     String fetchURL() throws RemoteException, InterruptedException;
 

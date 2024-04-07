@@ -107,6 +107,7 @@ public class Downloader implements Runnable {
      * @param confirmationPort Port to receive ACKs
      * @param queuePath Path to queue
      * @param ID Downloader ID
+     * @throws InterruptedException If the thread is interrupted
      */
     public Downloader(String multicastAddress, int port, int confirmationPort,
                       String queuePath, int ID) throws InterruptedException {
@@ -253,9 +254,9 @@ public class Downloader implements Runnable {
             return false;
         }
         try {
-            new URL(url);
+            new URI(url).toURL();
             return true;
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -382,6 +383,11 @@ public class Downloader implements Runnable {
         }
         exit();
     }
+    /**
+     * Main method
+     * @param args Arguments
+     * @throws InterruptedException If the thread is interrupted
+     */
     public static void main(String[] args) throws InterruptedException {
         if(args.length != 6){
             System.out.println("Usage: java Downloader <multicastAddress> <port> <confirmationPort> <queueIP> <queuePort> <ID>");

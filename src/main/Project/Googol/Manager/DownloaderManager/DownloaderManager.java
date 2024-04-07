@@ -11,6 +11,7 @@ public class DownloaderManager extends InstanceManager implements DownloaderMana
     /**
      * Class constructor, initializes all attributes
      * @param whitelistPath path to the downloader's whitelist
+     * @throws RemoteException If a remote communication error occurs.
      */
     public DownloaderManager(String whitelistPath) throws RemoteException {
         super(whitelistPath);

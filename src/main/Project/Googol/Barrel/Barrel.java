@@ -70,6 +70,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
      * @param barrelPort       Barrel port
      * @throws IOException If the operation is interrupted
      * @throws NotBoundException Remote object is not bound to the specified name in the registry.
+     * @throws InterruptedException If the operation is interrupted
      */
     public Barrel(String multicastAddress, int port, int confirmationPort, String gatewayAddress, int myID, int barrelPort) throws IOException, NotBoundException, InterruptedException {
         this.myID = myID;
@@ -338,6 +339,11 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
          */
         private final int interval = 30 * 1000; // 30 seconds
         /**
+         * Class constructor
+         */
+        public ActiveInstancesFetcher() {
+        }
+        /**
          * Method that fetches active instances
          */
         @Override
@@ -359,7 +365,11 @@ public class Barrel extends UnicastRemoteObject implements BarrelInterface{
     }
 
 
-
+    /**
+     * Main method that initializes a Barrel
+     * @param args Arguments to initialize a Barrel
+     * @throws IOException If the operation is interrupted
+     */
     public static void main(String[] args) throws IOException {
         if (args.length != 7) {
             System.out.println("Usage: java Barrel <multicastAddress> <port> <confirmationPort> <gatewayAdress> <barrelManagerPort> <barrelPort>");

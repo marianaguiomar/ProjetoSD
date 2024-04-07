@@ -64,6 +64,8 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
      * @param registry RMI registry
      * @param queuePath Queue path
      * @param barrelManagerPort Barrel manager port
+     * @param whitelistPath Path to the barrel's whitelist
+     * @param backupPath Path to back up file
      * @throws RemoteException If a remote communication error occurs.
      */
     public Gateway(Registry registry, String queuePath, int barrelManagerPort, String whitelistPath, String backupPath) throws RemoteException {
@@ -131,7 +133,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     /**
      * Method that exits the Gateway
      */
-    void exit() {
+    private void exit() {
         try {
             //Sleep to allow the barrel to send the Remissive Index
             sleep(1000);
@@ -321,10 +323,14 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
             return "No connections found";
         return result;
     }
-
+    /**
+     * Main method
+     * @param args Queue IP and port, Gateway port, Barrel manager port, Whitelist path, Backup path
+     * @throws RemoteException If a remote communication error occurs.
+     */
     public static void main(String[] args) throws RemoteException{
         if(args.length != 6){
-            System.out.println("Usage: java Gateway <queueAddress> <queuePort> <gatewayPort> <barrelManagerPort> <whitelistPath> <backupPath>");
+            System.out.println("Usage: java Gateway <queueAddress> <queuePort> <gatewayPort> <barrelManagerPort> <barrelWhitelistPath> <backupPath>");
             System.exit(1);
         }
         try {

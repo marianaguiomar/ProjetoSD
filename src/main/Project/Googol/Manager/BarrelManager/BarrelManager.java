@@ -41,6 +41,8 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
      * Class constructor, attributes are initialized
      * @param port Barrel manager port
      * @param whitelistPath Path to the barrel's whitelist
+     * @param backupPath Path to back up file
+     * @param queueInterface Queue interface
      * @throws RemoteException If a remote communication error occurs.
      */
     public BarrelManager(int port, String whitelistPath, String backupPath, QueueInterface queueInterface) throws RemoteException {

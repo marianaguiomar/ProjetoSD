@@ -4,6 +4,11 @@ import java.io.*;
 import java.util.UUID;
 /**
  * Represents a multicast message containing information such as hyperlink, message type, payload, and message ID.
+ * @param hyperlink Hyperlink to be sent.
+ * @param messageID Unique ID of the message.
+ * @param messageType Type of message.
+ * @param payload Payload of the message.
+ * @param activeBarrels Number of active barrels.
  */
 public record MulticastMessage(String hyperlink, MessageType messageType, String payload , String messageID, Integer activeBarrels) implements Serializable {
     @Serial

@@ -155,7 +155,13 @@ public class Client {
             listening();
         }
     }
-
+    /**
+     * Main method
+     * @param args Gateway IP and port
+     * @throws RemoteException If a remote communication error occurs.
+     * @throws NotBoundException If the object is not bound
+     * @throws MalformedURLException If the URL is invalid
+     */
     public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException {
         if (args.length != 2) {
             System.out.println("Usage: java client <gatewayIP> <gatewayPort>");

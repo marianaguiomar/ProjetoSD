@@ -7,6 +7,11 @@ import java.io.*;
  */
 public class BackupManager {
     /**
+     * Class constructor
+     */
+    public BackupManager(){
+    }
+    /**
      * Mothod that creates a file, serializing a RemissiveIndex object
      * @param remissiveIndex RemissiveIndex
      * @param filename name of the destination file
@@ -28,6 +33,7 @@ public class BackupManager {
     /**
      * Mothod that derializes a RemissiveIndex object from a file
      * @param filename name of the source file
+     * @return RemissiveIndex object
      */
     public static RemissiveIndex readBackupFile(String filename) {
         RemissiveIndex remissiveIndex;

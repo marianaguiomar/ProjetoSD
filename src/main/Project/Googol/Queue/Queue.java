@@ -51,6 +51,7 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
     /**
      * Class constructor, attributes are initialized
      * @param registryQueue Queue RMI registry
+     * @param whitelistPath path to the downloader's whitelist
      * @throws RemoteException If a remote communication error occurs.
      */
     public Queue(Registry registryQueue, String whitelistPath) throws RemoteException {
@@ -148,10 +149,14 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
         this.queueSemaphore.unblock();
     }
 
-
+    /**
+     * Main method that initializes the Queue
+     * @param args port and whitelist path
+     * @throws RemoteException If a remote communication error occurs.
+     */
     public static void main(String[] args) throws RemoteException {
         if (args.length != 2) {
-            System.out.println("Usage: java Queue <port> <whitelistPath>");
+            System.out.println("Usage: java Queue <port> <downloaderWhitelistPath>");
             System.exit(1);
         }
         try {

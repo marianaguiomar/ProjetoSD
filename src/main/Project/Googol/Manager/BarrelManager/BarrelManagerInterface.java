@@ -19,7 +19,7 @@ public interface BarrelManagerInterface extends Remote {
      * @return true if ID is available
      * @throws RemoteException If a remote communication error occurs.
      */
-    public boolean verifyID(int ID, String address, int port) throws RemoteException;
+    boolean verifyID(int ID, String address, int port) throws RemoteException;
 
     /**
      * Method that returns number of active instances
@@ -36,7 +36,7 @@ public interface BarrelManagerInterface extends Remote {
     int getAvailableBarrel(int n) throws RemoteException;
 
     /**
-     * Method that syncronizes a new barrel's remissive index with the others, or sets it up with the info on backup.dat
+     * Method that synchronizes a new barrel's remissive index with the others, or sets it up with the info on backup.dat
      * @param barrelID barrel id
      * @return remissive index
      * @throws RemoteException If a remote communication error occurs.
@@ -45,11 +45,11 @@ public interface BarrelManagerInterface extends Remote {
 
     /**
      * Method that performs a lookup if it hasn't been performed. Else, it returns the already looked up barrel
-     * @param differentBarrelID
+     * @param differentBarrelID barrel id
      * @return Barrel interface connected to the specified barrel by RMI
      * @throws RemoteException If a remote communication error occurs.
      */
-    public BarrelInterface lookupBarrel(int differentBarrelID) throws RemoteException;
+    BarrelInterface lookupBarrel(int differentBarrelID) throws RemoteException;
 
     /**
      * Method that returns all available barrels' ids
