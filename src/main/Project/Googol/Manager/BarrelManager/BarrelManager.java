@@ -37,7 +37,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
      * @param whitelistPath Path to the barrel's whitelist
      * @throws RemoteException If a remote communication error occurs.
      */
-    public BarrelManager(int port, String whitelistPath, QueueInterface queueInterface) throws RemoteException {
+    public BarrelManager(int port, String whitelistPath, String backupPath, QueueInterface queueInterface) throws RemoteException {
         super(whitelistPath);
         this.instanceType = "[BARRELMANAGER#]";
         this.queue = queueInterface;
@@ -48,7 +48,7 @@ public class BarrelManager extends InstanceManager implements BarrelManagerInter
         } catch (RemoteException e) {
             LOGGER.log(Level.SEVERE, "Exception occurred while initializing ProjectManager: " + e.getMessage(), e);
         }
-        this.backupPath = "./src/main/Project/Googol/Manager/BarrelManager/backup.dat";
+        this.backupPath = backupPath;
         this.barrelsInterfaces = new HashMap<>();
     }
 

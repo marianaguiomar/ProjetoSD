@@ -45,12 +45,12 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
      * @param registryQueue Queue RMI registry
      * @throws RemoteException If a remote communication error occurs.
      */
-    public Queue(Registry registryQueue) throws RemoteException {
+    public Queue(Registry registryQueue, String whitelistPath) throws RemoteException {
         super();
         this.visitedURL = new HashSet<>();
         this.URLQueue = new LinkedBlockingQueue<>();
 
-        downloaderManager = new DownloaderManager("./src/main/Project/Googol/Manager/DownloaderManager/whitelist");
+        downloaderManager = new DownloaderManager(whitelistPath);
         try {
             registryQueue.rebind("queue", this);
         } catch (RemoteException e) {
@@ -131,14 +131,14 @@ public class Queue extends UnicastRemoteObject implements QueueInterface {
 
 
     public static void main(String[] args) throws RemoteException {
-        if (args.length != 1) {
-            System.out.println("Usage: java Queue <port>");
+        if (args.length != 2) {
+            System.out.println("Usage: java Queue <port> <whitelistPath>");
             System.exit(1);
         }
         try {
             // Create RMI registry
             Registry registryQueue = LocateRegistry.createRegistry(Integer.parseInt(args[0]));
-            QueueInterface queue = new Queue(registryQueue);
+            QueueInterface queue = new Queue(registryQueue, args[1]);
     }
         catch (RemoteException e) {
             LOGGER.log(Level.SEVERE, "Exception occurred while initializing Queue: \n" + e.getMessage(), e);

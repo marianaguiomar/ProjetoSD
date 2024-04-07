@@ -64,7 +64,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
      * @param barrelManagerPort Barrel manager port
      * @throws RemoteException If a remote communication error occurs.
      */
-    public Gateway(Registry registry, String queuePath, int barrelManagerPort) throws RemoteException {
+    public Gateway(Registry registry, String queuePath, int barrelManagerPort, String whitelistPath, String backupPath) throws RemoteException {
         super();
         this.barrelInUse = 0;
         this.queuePath = queuePath;
@@ -72,7 +72,8 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
         this.numSearches = new HashMap<>();
         this.searches = new LinkedHashMap<>();
         connectToQueue();
-        this.barrelManager = new BarrelManager(barrelManagerPort,"./src/main/Project/Googol/Manager/BarrelManager/whitelist.txt", this.queue);
+        this.barrelManager = new BarrelManager(barrelManagerPort,whitelistPath,
+                backupPath, this.queue);
         registry.rebind("gateway", this);
     }
 
@@ -300,8 +301,8 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
     }
 
     public static void main(String[] args) throws RemoteException{
-        if(args.length != 4){
-            System.out.println("Usage: java Gateway <queueAddress> <queuePort> <gatewayPort> <barrelManagerPort>");
+        if(args.length != 6){
+            System.out.println("Usage: java Gateway <queueAddress> <queuePort> <gatewayPort> <barrelManagerPort> <whitelistPath> <backupPath>");
             System.exit(1);
         }
         try {
@@ -309,7 +310,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInterface{
             String queueAddress = "rmi://" + args[0] + ":" + args[1] + "/queue";
             Registry registry = LocateRegistry.createRegistry(Integer.parseInt(args[2]));
             Gateway gateway = new Gateway( registry,
-                    queueAddress, Integer.parseInt(args[3]));
+                    queueAddress, Integer.parseInt(args[3]), args[4], args[5]);
         }
         catch (RemoteException e) {
             System.out.println("Failed to initiliaze gateway");

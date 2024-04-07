@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f5a21401-640e-4ea2-94af-796cf83a0793" name="Changes" comment="desabilitar o multicast">
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/jsoup.xml" afterDir="false" />
+    <list default="true" id="f5a21401-640e-4ea2-94af-796cf83a0793" name="Changes" comment="submeter">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Multicast/Sender.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Multicast/Sender.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Gateway/Gateway.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Gateway/Gateway.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Manager/BarrelManager/BarrelManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Manager/BarrelManager/BarrelManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/Project/Googol/Queue/Queue.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Project/Googol/Queue/Queue.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -78,46 +78,46 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "Application.Barrel 2.executor": "Run",
-    "Application.Barrel.executor": "Run",
-    "Application.Barrel3.executor": "Run",
-    "Application.Barrel4.executor": "Run",
-    "Application.Barrel5.executor": "Run",
-    "Application.Client.executor": "Run",
-    "Application.Downloader.executor": "Run",
-    "Application.Downloader2.executor": "Run",
-    "Application.Downloader3.executor": "Run",
-    "Application.Gateway.executor": "Run",
-    "Application.ProjectManager.executor": "Run",
-    "Application.Queue.executor": "Run",
-    "Application.Start.executor": "Run",
-    "Downloaded.Files.Path.Enabled": "false",
-    "JAR Application.jsoup-1.17.2.jar.executor": "Run",
-    "Multirun.Googol.executor": "Run",
-    "Repository.Attach.Annotations": "false",
-    "Repository.Attach.JavaDocs": "false",
-    "Repository.Attach.Sources": "false",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/sjmendes/IdeaProjects/ProjetoSD",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Libraries",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;Application.Barrel 2.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Barrel.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Barrel3.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Barrel4.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Barrel5.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Client.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Downloader.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Downloader2.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Downloader3.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Gateway.executor&quot;: &quot;Run&quot;,
+    &quot;Application.ProjectManager.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Queue.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Start.executor&quot;: &quot;Run&quot;,
+    &quot;Downloaded.Files.Path.Enabled&quot;: &quot;false&quot;,
+    &quot;JAR Application.jsoup-1.17.2.jar.executor&quot;: &quot;Run&quot;,
+    &quot;Multirun.Googol.executor&quot;: &quot;Run&quot;,
+    &quot;Repository.Attach.Annotations&quot;: &quot;false&quot;,
+    &quot;Repository.Attach.JavaDocs&quot;: &quot;false&quot;,
+    &quot;Repository.Attach.Sources&quot;: &quot;false&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/sjmendes/IdeaProjects/ProjetoSD&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -127,7 +127,7 @@
       <recent name="$PROJECT_DIR$/tests" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.Downloader">
+  <component name="RunManager" selected="Application.Queue">
     <configuration name="Barrel 2" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="Googol.Barrel.Barrel" />
       <module name="ProjetoSD" />
@@ -179,7 +179,7 @@
     <configuration name="Downloader" type="Application" factoryName="Application" singleton="false">
       <option name="MAIN_CLASS_NAME" value="Googol.Downloader.Downloader" />
       <module name="ProjetoSD" />
-      <option name="PROGRAM_PARAMETERS" value="224.0.0.1 4321 4322 100.95.228.17 1099 1" />
+      <option name="PROGRAM_PARAMETERS" value="224.0.0.1 4321 4322 100.95.228.17 1099 1 ./src/main/Project/Googol/Manager/BarrelManager/whitelist.txt ./src/main/Project/Googol/Manager/BarrelManager/backup.dat" />
       <method v="2">
         <option name="MakeProject" enabled="true" />
       </method>
@@ -214,7 +214,7 @@
     <configuration name="Queue" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="Googol.Queue.Queue" />
       <module name="ProjetoSD" />
-      <option name="PROGRAM_PARAMETERS" value="1099" />
+      <option name="PROGRAM_PARAMETERS" value="1099 ./src/main/Project/Googol/Manager/DownloaderManager/whitelist" />
       <method v="2">
         <option name="Make" enabled="true" />
         <option name="MakeProject" enabled="true" />
@@ -232,7 +232,6 @@
       <item itemvalue="Application.Barrel3" />
       <item itemvalue="Application.Barrel4" />
       <item itemvalue="Application.Barrel5" />
-      <item itemvalue="Multirun.Googol" />
     </list>
   </component>
   <component name="SharedIndexes">
@@ -283,15 +282,8 @@
       <workItem from="1712422304713" duration="1262000" />
       <workItem from="1712423594462" duration="47000" />
       <workItem from="1712423738022" duration="159000" />
-      <workItem from="1712423940545" duration="3340000" />
-    </task>
-    <task id="LOCAL-00050" summary="final version without counting packs">
-      <option name="closed" value="true" />
-      <created>1712236441941</created>
-      <option name="number" value="00050" />
-      <option name="presentableId" value="LOCAL-00050" />
-      <option name="project" value="LOCAL" />
-      <updated>1712236441942</updated>
+      <workItem from="1712423940545" duration="4591000" />
+      <workItem from="1712486399843" duration="738000" />
     </task>
     <task id="LOCAL-00051" summary="final version without counting packs">
       <option name="closed" value="true" />
@@ -677,7 +669,15 @@
       <option name="project" value="LOCAL" />
       <updated>1712426356189</updated>
     </task>
-    <option name="localTasksCounter" value="99" />
+    <task id="LOCAL-00099" summary="submeter">
+      <option name="closed" value="true" />
+      <created>1712428286689</created>
+      <option name="number" value="00099" />
+      <option name="presentableId" value="LOCAL-00099" />
+      <option name="project" value="LOCAL" />
+      <updated>1712428286689</updated>
+    </task>
+    <option name="localTasksCounter" value="100" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -708,7 +708,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="downloader semaphore" />
     <MESSAGE value="semaphore working" />
     <MESSAGE value="javadoc final touches" />
     <MESSAGE value="little bug" />
@@ -733,7 +732,8 @@
     <MESSAGE value="submeter assim" />
     <MESSAGE value="help" />
     <MESSAGE value="desabilitar o multicast" />
-    <option name="LAST_COMMIT_MESSAGE" value="desabilitar o multicast" />
+    <MESSAGE value="submeter" />
+    <option name="LAST_COMMIT_MESSAGE" value="submeter" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
